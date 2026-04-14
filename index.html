@@ -226,7 +226,6 @@
     document.getElementById('div-btn').addEventListener('click', () => insertAtCursor('/'));
     document.getElementById('answer-input').addEventListener('keydown', (e) => { if(e.key==='Enter') checkAnswer(); });
 
-    // === ГЕНЕРАТОРЫ ЗАДАЧ (ОГЭ-СОВМЕСТИМЫЕ) ===
     const templates = {
       '15': [
         {gen:()=>{const A=rand(30,80),B=rand(30,80);if(A+B>=170)return templates['15'][0].gen();const C=180-A-B;return{text:`В треугольнике ABC угол A равен ${A}°, угол B равен ${B}°. Найдите угол C.`,answer:C,solution:`Дано: △ABC\n∠A=${A}°, ∠B=${B}°\nНайти: ∠C\n\nРешение:\n∠A+∠B+∠C=180°\n∠C=180°-(${A}°+${B}°)=${C}°\nОтвет: ${C}°`,draw:'triangle',params:{A,B,C}}}},
@@ -280,162 +279,137 @@
         .dashed{stroke:#334155;stroke-width:1.5;stroke-dasharray:4,3;fill:none}
         .blue{stroke:#2563eb} .red{stroke:#dc2626}
         text{font-family:sans-serif;font-weight:600}
-        .lbl{fill:#334155;font-size:15px} .val{fill:#2563eb;font-size:14px} .ask{fill:#dc2626;font-size:14px;font-weight:700}
+        .lbl{fill:#334155;font-size:15px} .val{fill:#2563eb;font-size:14px} .ask{fill:#dc2626;font-size:28px;font-weight:800}
       </style>`;
 
-      // ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ: подпись вершины/точки
-      function vLabel(x, y, t, a="middle", dy=-8) {
-        svg += `<text x="${x}" y="${y+dy}" text-anchor="${a}" class="lbl">${t}</text>`;
+      // === ЖЁСТКАЯ ПОДПИСЬ ВЕРШИНЫ: ВСЕГДА С ОТСТУПОМ ===
+      function vLabel(x, y, t, dx=0, dy=-18) {
+        svg += `<text x="${x+dx}" y="${y+dy}" text-anchor="middle" dominant-baseline="middle" class="lbl">${t}</text>`;
       }
 
-      // === ТИПЫ ЧЕРТЕЖЕЙ ===
+      // === ПОДПИСЬ УГЛА ПО БИСЕКТРИСЕ ===
+      function angleVal(vx, vy, x1, y1, x2, y2, text, color="#2563eb", r=38) {
+        let a1=Math.atan2(y1-vy,x1-vx), a2=Math.atan2(y2-vy,x2-vx);
+        let da=a2-a1; if(da>Math.PI)da-=2*Math.PI; if(da<-Math.PI)da+=2*Math.PI;
+        let mid=a1+da/2;
+        const tx=vx+Math.cos(mid)*r, ty=vy+Math.sin(mid)*r;
+        svg += `<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="14" font-weight="600">${text}</text>`;
+      }
+
+      // === БОЛЬШОЙ ВОПРОС: ОТДЕЛЬНО, КРУПНО, КРАСНЫЙ ===
+      function bigQuestion(x, y, anchor="middle") {
+        svg += `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle" class="ask">?</text>`;
+      }
+
+      // === ОТРИСОВКА ПО ТИПАМ ===
       if(type==='triangle'||type==='triangle_cos'){
         const A=[170,50], B=[50,190], C=[290,190];
         svg += `<polygon points="${A} ${B} ${C}" class="line"/>`;
-        vLabel(A[0], A[1], 'A', 'middle', -10); 
-        vLabel(B[0], B[1], 'B', 'end', 5); 
-        vLabel(C[0], C[1], 'C', 'start', 5);
-        if(p.A!==undefined) svg += `<text x="120" y="75" class="val">${p.A}°</text>`;
-        if(p.B!==undefined) svg += `<text x="75" y="145" class="val">${p.B}°</text>`;
-        svg += `<text x="235" y="145" class="ask">C=?</text>`;
+        vLabel(A[0], A[1], 'A', 0, -22); vLabel(B[0], B[1], 'B', -15, 12); vLabel(C[0], C[1], 'C', 15, 12);
+        if(p.A!==undefined) angleVal(A[0],A[1], B[0],B[1], C[0],C[1], `${p.A}°`, '#2563eb', 36);
+        if(p.B!==undefined) angleVal(B[0],B[1], A[0],A[1], C[0],C[1], `${p.B}°`, '#8b5cf6', 38);
+        bigQuestion(C[0]+45, C[1]-20, "start");
       } 
       else if(type==='rectangle'){
         const x=30, y=50, w=280, h=120;
         svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" class="line"/>`;
-        vLabel(x+5, y+5, 'A', 'start', -5); 
-        vLabel(x+w-5, y+5, 'B', 'end', -5);
-        vLabel(x+w-5, y+h-5, 'C', 'end', 10); 
-        vLabel(x+5, y+h-5, 'D', 'start', 10);
-        svg += `<text x="${x+w/2}" y="${y-10}" text-anchor="middle" class="val">${p.a||''}</text>`;
-        svg += `<text x="${x-10}" y="${y+h/2+5}" text-anchor="end" class="val">${p.b||''}</text>`;
+        vLabel(x+5, y+5, 'A', -8, -12); vLabel(x+w-5, y+5, 'B', 8, -12);
+        vLabel(x+w-5, y+h-5, 'C', 8, 12); vLabel(x+5, y+h-5, 'D', -8, 12);
+        svg += `<text x="${x+w/2}" y="${y-22}" text-anchor="middle" class="val">${p.a||''}</text>`;
+        svg += `<text x="${x-22}" y="${y+h/2}" text-anchor="middle" class="val">${p.b||''}</text>`;
       } 
       else if(type==='isosceles'){
         const A=[70,180], B=[270,180], C=[170,40];
         svg += `<polygon points="${A} ${B} ${C}" class="line"/>`;
-        vLabel(A[0], A[1], 'A', 'start', 12); 
-        vLabel(B[0], B[1], 'B', 'end', 12); 
-        vLabel(C[0], C[1], 'C', 'middle', -10);
-        svg += `<text x="${(A[0]+B[0])/2}" y="${A[1]+20}" text-anchor="middle" class="val">${p.base||''}</text>`;
-        svg += `<text x="${(A[0]+C[0])/2-10}" y="${(A[1]+C[1])/2}" text-anchor="middle" class="val">${p.side||''}</text>`;
+        vLabel(A[0], A[1], 'A', -12, 15); vLabel(B[0], B[1], 'B', 12, 15); vLabel(C[0], C[1], 'C', 0, -22);
+        svg += `<text x="${(A[0]+B[0])/2}" y="${A[1]+25}" text-anchor="middle" class="val">${p.base||''}</text>`;
+        svg += `<text x="${(A[0]+C[0])/2-15}" y="${(A[1]+C[1])/2}" text-anchor="middle" class="val">${p.side||''}</text>`;
       } 
       else if(type==='area_tri'||type==='right_tri_h'){
         const A=[70,180], B=[290,180], C=[150,50]; const H=[150,180];
         svg += `<polygon points="${A} ${B} ${C}" class="line"/>`;
         svg += `<line x1="${C[0]}" y1="${C[1]}" x2="${H[0]}" y2="${H[1]}" class="dashed"/>`;
         svg += `<rect x="${H[0]-4}" y="${H[1]-4}" width="8" height="8" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-        vLabel(A[0], A[1], 'A', 'start', 12); 
-        vLabel(B[0], B[1], 'B', 'end', 12); 
-        vLabel(C[0], C[1], 'C', 'middle', -10); 
-        vLabel(H[0], H[1], 'H', 'start', 15);
-        svg += `<text x="${(A[0]+B[0])/2}" y="${A[1]+20}" text-anchor="middle" class="val">${p.base||''}</text>`;
-        svg += `<text x="${C[0]+10}" y="${(C[1]+H[1])/2+5}" text-anchor="start" class="val">h=${p.h||''}</text>`;
+        vLabel(A[0], A[1], 'A', -12, 15); vLabel(B[0], B[1], 'B', 12, 15); vLabel(C[0], C[1], 'C', 0, -22); vLabel(H[0], H[1], 'H', -12, 18);
+        svg += `<text x="${(A[0]+B[0])/2}" y="${A[1]+25}" text-anchor="middle" class="val">${p.base||''}</text>`;
+        svg += `<text x="${C[0]+18}" y="${(C[1]+H[1])/2}" text-anchor="start" class="val">h=${p.h||''}</text>`;
       } 
       else if(type==='rhombus'){
         const cx=170, cy=110, dx=90, dy=60;
         svg += `<polygon points="${cx},${cy-dy} ${cx+dx},${cy} ${cx},${cy+dy} ${cx-dx},${cy}" class="line"/>`;
         svg += `<line x1="${cx-dx}" y1="${cy}" x2="${cx+dx}" y2="${cy}" class="dashed"/>`;
         svg += `<line x1="${cx}" y1="${cy-dy}" x2="${cx}" y2="${cy+dy}" class="dashed"/>`;
-        vLabel(cx, cy-dy, 'A', 'middle', -10); 
-        vLabel(cx+dx, cy, 'B', 'start', 5); 
-        vLabel(cx, cy+dy, 'C', 'middle', 12); 
-        vLabel(cx-dx, cy, 'D', 'end', 5);
+        vLabel(cx, cy-dy, 'A', 0, -22); vLabel(cx+dx, cy, 'B', 15, 0); vLabel(cx, cy+dy, 'C', 0, 22); vLabel(cx-dx, cy, 'D', -15, 0);
       } 
       else if(type==='circle'||type==='chord'){
         const O=[170,110], r=75;
         svg += `<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="line"/>`;
-        vLabel(O[0], O[1], 'O', 'middle', 15);
-        if(p.R) svg += `<text x="${O[0]+15}" y="${O[1]-r/2}" class="val">R=${p.R}</text>`;
+        vLabel(O[0], O[1], 'O', 0, 25);
+        if(p.R) svg += `<text x="${O[0]+20}" y="${O[1]-r/2}" text-anchor="start" class="val">R=${p.R}</text>`;
         if(p.chord){
           const y = O[1]-Math.sqrt(r*r-(p.chord/2)*(p.chord/2))*0.6;
           const x = Math.sqrt(r*r-(O[1]-y)*(O[1]-y));
           svg += `<line x1="${O[0]-x}" y1="${y}" x2="${O[0]+x}" y2="${y}" class="line blue"/>`;
-          svg += `<text x="${O[0]}" y="${y-8}" text-anchor="middle" class="val">${p.chord}</text>`;
+          svg += `<text x="${O[0]}" y="${y-18}" text-anchor="middle" class="val">${p.chord}</text>`;
         }
       } 
       else if(type==='arc'||type==='inscribed_angle'){
         const O=[170,120], r=70;
         svg += `<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="line"/>`;
-        vLabel(O[0], O[1], 'O', 'middle', 15);
+        vLabel(O[0], O[1], 'O', 0, 25);
       } 
       else if(type==='right_tri'||type==='right_tri_30'){
         const A=[70,180], B=[250,180], C=[70,50];
         svg += `<polygon points="${A} ${B} ${C}" class="line"/>`;
         svg += `<rect x="70" y="170" width="10" height="10" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-        vLabel(A[0], A[1], 'A', 'start', 12); 
-        vLabel(B[0], B[1], 'B', 'end', 12); 
-        vLabel(C[0], C[1], 'C', 'start', -10);
+        vLabel(A[0], A[1], 'A', -12, 15); vLabel(B[0], B[1], 'B', 12, 15); vLabel(C[0], C[1], 'C', -12, -12);
       } 
-      // === КАСАТЕЛЬНАЯ К ОКРУЖНОСТИ (СТРОГО ПРАВИЛЬНО) ===
       else if(type==='tangent_center'){
         const O=[120,140], r=70;
-        const B=[120, 70];  // точка касания (сверху окружности)
-        const A=[280, 140]; // точка вне окружности (справа)
-        // Окружность
+        const B=[120, 70];  // точка касания (сверху)
+        const A=[280, 140]; // точка вне окружности
         svg += `<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="line"/>`;
-        // Касательная AB (горизонтальная, касается в B)
         svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" class="line blue"/>`;
-        // Радиус OB (вертикальный)
         svg += `<line x1="${O[0]}" y1="${O[1]}" x2="${B[0]}" y2="${B[1]}" class="dashed"/>`;
-        // Секущая AO (горизонтальная, проходит через центр)
         svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${O[0]}" y2="${O[1]}" class="line"/>`;
-        // Прямой угол в точке B
         svg += `<rect x="${B[0]}" y="${B[1]}" width="10" height="10" fill="none" stroke="#dc2626" stroke-width="1.5"/>`;
-        // Подписи (строго на своих местах)
-        vLabel(O[0], O[1], 'O', 'middle', 18);
-        vLabel(A[0], A[1], 'A', 'end', 18);
-        vLabel(B[0], B[1], 'B', 'start', -12);
-        // Значения
-        svg += `<text x="${(A[0]+O[0])/2}" y="${A[1]-12}" text-anchor="middle" class="val">${p.AO}</text>`;
-        svg += `<text x="${(A[0]+B[0])/2+10}" y="${(A[1]+B[1])/2-5}" text-anchor="middle" class="val">${p.AB}</text>`;
-        svg += `<text x="${O[0]-15}" y="${(O[1]+B[1])/2+5}" text-anchor="middle" class="ask">R=?</text>`;
+        vLabel(O[0], O[1], 'O', 0, 25);
+        vLabel(A[0], A[1], 'A', 18, 0);
+        vLabel(B[0], B[1], 'B', -15, -12);
+        svg += `<text x="${(A[0]+O[0])/2}" y="${A[1]-22}" text-anchor="middle" class="val">${p.AO}</text>`;
+        svg += `<text x="${(A[0]+B[0])/2+15}" y="${(A[1]+B[1])/2-12}" text-anchor="middle" class="val">${p.AB}</text>`;
+        svg += `<text x="${O[0]-25}" y="${(O[1]+B[1])/2+8}" text-anchor="middle" class="ask">R</text>`;
       }
-      // === ОКРУЖНОСТЬ, ВПИСАННАЯ В УГОЛ ===
       else if(type==='angle_circle'){
-        const A=[50,140];
-        const M=[170,80]; // точка касания верхней стороны
-        const N=[170,200]; // точка касания нижней стороны
-        const O=[130,140]; // центр окружности
-        const r=40;
-        // Стороны угла
-        svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${M[0]+20}" y2="${M[1]-20}" class="line"/>`;
-        svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${N[0]+20}" y2="${N[1]+20}" class="line"/>`;
-        // Окружность
+        const A=[50,140], M=[170,80], N=[170,200], O=[130,140], r=40;
+        svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${M[0]+25}" y2="${M[1]-25}" class="line"/>`;
+        svg += `<line x1="${A[0]}" y1="${A[1]}" x2="${N[0]+25}" y2="${N[1]+25}" class="line"/>`;
         svg += `<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="line"/>`;
-        // Радиусы к точкам касания
         svg += `<line x1="${O[0]}" y1="${O[1]}" x2="${M[0]}" y2="${M[1]}" class="dashed"/>`;
         svg += `<line x1="${O[0]}" y1="${O[1]}" x2="${N[0]}" y2="${N[1]}" class="dashed"/>`;
-        // Прямые углы
         svg += `<rect x="${M[0]-4}" y="${M[1]-4}" width="8" height="8" fill="none" stroke="#dc2626" stroke-width="1.5"/>`;
         svg += `<rect x="${N[0]-4}" y="${N[1]-4}" width="8" height="8" fill="none" stroke="#dc2626" stroke-width="1.5"/>`;
-        // Подписи
-        vLabel(A[0], A[1], 'A', 'start', -12);
-        vLabel(O[0], O[1], 'O', 'middle', 18);
-        vLabel(M[0], M[1], 'M', 'end', -8);
-        vLabel(N[0], N[1], 'N', 'end', 18);
-        // Значения
-        svg += `<text x="${(A[0]+M[0])/2-5}" y="${(A[1]+M[1])/2-10}" text-anchor="middle" class="val">${p.AM}</text>`;
-        svg += `<text x="${O[0]+15}" y="${O[1]-r-5}" text-anchor="middle" class="ask">R=?</text>`;
+        vLabel(A[0], A[1], 'A', -15, -15);
+        vLabel(O[0], O[1], 'O', 0, 25);
+        vLabel(M[0], M[1], 'M', 12, -12);
+        vLabel(N[0], N[1], 'N', 12, 12);
+        svg += `<text x="${(A[0]+M[0])/2-8}" y="${(A[1]+M[1])/2-15}" text-anchor="middle" class="val">${p.AM}</text>`;
+        svg += `<text x="${O[0]+22}" y="${O[1]-r-8}" text-anchor="start" class="ask">R</text>`;
       }
-      // === ВЫСОТА В ПРЯМОУГОЛЬНОМ ТРЕУГОЛЬНИКЕ ===
       else if(type==='right_tri_alt'){
-        const A=[70,180], B=[260,180], C=[130,50]; 
-        const H=[130,180];
+        const A=[70,180], B=[260,180], C=[130,50], H=[130,180];
         svg += `<polygon points="${A} ${B} ${C}" class="line"/>`;
         svg += `<line x1="${C[0]}" y1="${C[1]}" x2="${H[0]}" y2="${H[1]}" class="dashed blue"/>`;
         svg += `<rect x="${H[0]-4}" y="${H[1]-4}" width="8" height="8" fill="none" stroke="#475569" stroke-width="1.5"/>`;
         svg += `<rect x="${A[0]}" y="${A[1]-10}" width="10" height="10" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-        vLabel(A[0], A[1], 'A', 'start', 12); 
-        vLabel(B[0], B[1], 'B', 'end', 12); 
-        vLabel(C[0], C[1], 'C', 'middle', -10); 
-        vLabel(H[0], H[1], 'H', 'start', 15);
-        svg += `<text x="${C[0]+12}" y="${(C[1]+H[1])/2+5}" text-anchor="start" class="ask">h=?</text>`;
+        vLabel(A[0], A[1], 'A', -12, 15); vLabel(B[0], B[1], 'B', 12, 15); vLabel(C[0], C[1], 'C', 0, -22); vLabel(H[0], H[1], 'H', -12, 18);
+        svg += `<text x="${C[0]+22}" y="${(C[1]+H[1])/2+8}" text-anchor="start" class="ask">h</text>`;
       }
       else if(type==='trapezoid_diag'){
         svg += `<polygon points="90,170 250,170 200,50 110,50" class="line"/>`;
         svg += `<line x1="90" y1="170" x2="200" y2="50" class="dashed blue"/>`;
         svg += `<line x1="250" y1="170" x2="110" y2="50" class="dashed red"/>`;
-        vLabel(90,170,'A','start',12); vLabel(250,170,'B','end',12); 
-        vLabel(200,50,'C','end',-10); vLabel(110,50,'D','start',-10);
+        vLabel(90,170,'A',-12,15); vLabel(250,170,'B',12,15); vLabel(200,50,'C',12,-12); vLabel(110,50,'D',-12,-12);
       }
       else {
         svg += `<text x="170" y="100" text-anchor="middle" fill="#334155" font-size="16" font-weight="600">📐 ${type==='proof'?'Задача на доказательство':'Клетчатая бумага / Утверждения'}</text>`;
