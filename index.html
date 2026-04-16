@@ -55,14 +55,14 @@
     <div class="selector-block">
       <label class="selector-label">Выбери задание для тренировки:</label>
       <div class="task-selector">
-        <button class="task-btn active" data-task="15">№15</button>
-        <button class="task-btn" data-task="16">№16</button>
-        <button class="task-btn" data-task="17">№17</button>
-        <button class="task-btn" data-task="18">№18</button>
-        <button class="task-btn" data-task="19">№19</button>
-        <button class="task-btn part2" data-task="23">№23</button>
-        <button class="task-btn part2" data-task="24">№24</button>
-        <button class="task-btn part2" data-task="25">№25</button>
+        <button type="button" class="task-btn active" data-task="15">№15</button>
+        <button type="button" class="task-btn" data-task="16">№16</button>
+        <button type="button" class="task-btn" data-task="17">№17</button>
+        <button type="button" class="task-btn" data-task="18">№18</button>
+        <button type="button" class="task-btn" data-task="19">№19</button>
+        <button type="button" class="task-btn part2" data-task="23">№23</button>
+        <button type="button" class="task-btn part2" data-task="24">№24</button>
+        <button type="button" class="task-btn part2" data-task="25">№25</button>
       </div>
       <div id="task-info" class="task-info"><strong>Задание 15</strong> <span class="difficulty diff-basic">Базовый уровень</span><br>Треугольники, четырёхугольники, многоугольники</div>
     </div>
@@ -73,17 +73,17 @@
         <p id="problem-text">Нажми «🎲 Новая задача», чтобы начать!</p>
         <div class="input-row">
           <input type="text" id="answer-input" placeholder="Например: 2.4 или 12/5" disabled>
-          <button class="math-btn" id="sqrt-btn" disabled>√</button>
-          <button class="math-btn" id="div-btn" disabled>/</button>
+          <button type="button" class="math-btn" id="sqrt-btn" disabled>√</button>
+          <button type="button" class="math-btn" id="div-btn" disabled>/</button>
         </div>
         <div class="hint">Принимаются: <b>2.4</b>, <b>2,4</b>, <b>12/5</b>, <b>4√3</b>. Калькулятор не нужен!</div>
-        <button id="check-btn" class="btn primary" disabled>✅ Проверить</button>
-        <button id="solution-btn" class="btn secondary" disabled>📝 Показать решение</button>
+        <button type="button" id="check-btn" class="btn primary" disabled>✅ Проверить</button>
+        <button type="button" id="solution-btn" class="btn secondary" disabled>📝 Показать решение</button>
         <div id="feedback" class="feedback hidden"></div>
         <div id="solution-text" class="solution hidden"></div>
       </div>
     </div>
-    <button id="new-task-btn" class="btn large hidden">🎲 Новая задача</button>
+    <button type="button" id="new-task-btn" class="btn large hidden">🎲 Новая задача</button>
     <div class="footer">Сделано для подготовки к ОГЭ • Данные хранятся только в твоём браузере</div>
   </div>
 
@@ -111,10 +111,14 @@
     function saveState(){ safeSet('oge_geo_state',JSON.stringify({currentTaskNum:state.currentTaskNum,solved:state.solved,correct:state.correct,lastDate:state.lastDate})); }
     function updateProgress(){ document.getElementById('progress').textContent=`📊 Решено: ${state.solved} | ✅ Верно: ${state.correct} | Текущее: №${state.currentTaskNum}`; }
     function updateTaskInfo(num){
-      state.currentTaskNum=num; const info=taskInfo[num];
-      const diffClass=num>=23?'diff-advanced':'diff-basic';
+      state.currentTaskNum=String(num); 
+      const info=taskInfo[state.currentTaskNum] || taskInfo['15'];
+      const diffClass=Number(state.currentTaskNum)>=23?'diff-advanced':'diff-basic';
       document.getElementById('task-info').innerHTML=`<strong>${info.title}</strong> <span class="difficulty ${diffClass}">${info.diff}</span><br>${info.desc}`;
-      document.querySelectorAll('.task-btn').forEach(btn=>{btn.classList.remove('active');if(btn.dataset.task===num) btn.classList.add('active');});
+      document.querySelectorAll('.task-btn').forEach(btn=>{
+        btn.classList.remove('active');
+        if(String(btn.dataset.task)===state.currentTaskNum) btn.classList.add('active');
+      });
       saveState();
     }
 
@@ -174,7 +178,9 @@
 
     function generateTask(){
       const num=state.currentTaskNum;
-      state.currentTask=templates[num][Math.floor(Math.random()*templates[num].length)].gen();
+      const pool = templates[num];
+      if (!pool || pool.length === 0) return;
+      state.currentTask=pool[Math.floor(Math.random()*pool.length)].gen();
       state.solved++; saveState(); updateProgress();
       document.getElementById('problem-text').textContent=state.currentTask.text;
       renderSVG(state.currentTask.draw, state.currentTask.params);
@@ -185,19 +191,20 @@
       document.getElementById('solution-btn').textContent='📝 Показать решение';
     }
 
-    document.querySelectorAll('.task-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        updateTaskInfo(btn.dataset.task);
-        document.getElementById('task-area').classList.remove('hidden');
-        document.getElementById('new-task-btn').classList.remove('hidden');
-        document.getElementById('progress').classList.remove('hidden');
-        document.getElementById('problem-text').textContent='Нажми «🎲 Новая задача», чтобы начать!';
-        document.getElementById('svg-container').innerHTML='';
-        ['answer-input','check-btn','solution-btn','sqrt-btn','div-btn'].forEach(id=>document.getElementById(id).disabled=true);
-        document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('solution-text').classList.add('hidden');
-        window.scrollTo({ top: document.getElementById('task-area').offsetTop - 20, behavior: 'smooth' });
-      });
+    // ДЕЛЕГИРОВАНИЕ СОБЫТИЙ (самый надёжный метод для всех кнопок)
+    document.getElementById('task-selector').addEventListener('click', (e) => {
+      const btn = e.target.closest('.task-btn');
+      if (!btn) return;
+      updateTaskInfo(btn.dataset.task);
+      document.getElementById('task-area').classList.remove('hidden');
+      document.getElementById('new-task-btn').classList.remove('hidden');
+      document.getElementById('progress').classList.remove('hidden');
+      document.getElementById('problem-text').textContent='Нажми «🎲 Новая задача», чтобы начать!';
+      document.getElementById('svg-container').innerHTML='';
+      ['answer-input','check-btn','solution-btn','sqrt-btn','div-btn'].forEach(id=>document.getElementById(id).disabled=true);
+      document.getElementById('feedback').classList.add('hidden');
+      document.getElementById('solution-text').classList.add('hidden');
+      window.scrollTo({ top: document.getElementById('task-area').offsetTop - 20, behavior: 'smooth' });
     });
 
     document.getElementById('new-task-btn').addEventListener('click',generateTask);
