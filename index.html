@@ -78,6 +78,7 @@ h1{text-align:center;margin:10px 0}
 </div>
 
 <script>
+// ГЛОБАЛЬНЫЙ ОБРАБОТЧИК ОШИБОК
 window.onerror = function(msg, url, line) {
   document.getElementById('err').innerHTML = '❌ Ошибка: ' + msg + ' (строка ' + line + ')';
   document.getElementById('err').style.display = 'block';
@@ -85,10 +86,12 @@ window.onerror = function(msg, url, line) {
 };
 
 try {
+  // 1. СЛУЧАЙНЫЕ ЧИСЛА (стоит в самом начале, чтобы не пропасть)
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  
   let mem = {};
   function gs(k){ try{return localStorage.getItem(k)}catch(e){return mem[k]||null} }
   function ss(k,v){ try{localStorage.setItem(k,v)}catch(e){mem[k]=v} }
-  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
   const S = { n:'15', task:null, solved:0, ok:0 };
   const Info = {
