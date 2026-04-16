@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Геометрия ОГЭ — практика по заданиям</title>
+  <title>Геометрия ОГЭ — практика</title>
   <style>
     :root { --primary: #2563eb; --success: #16a34a; --error: #dc2626; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -52,7 +52,6 @@
 <body>
   <div class="container">
     <h1>📐 Геометрия ОГЭ — практика</h1>
-    
     <div class="selector-block">
       <label class="selector-label">Выбери задание для тренировки:</label>
       <div class="task-selector">
@@ -65,35 +64,26 @@
         <button class="task-btn part2" data-task="24">№24</button>
         <button class="task-btn part2" data-task="25">№25</button>
       </div>
-      <div id="task-info" class="task-info">
-        <strong>Задание 15</strong> <span class="difficulty diff-basic">Базовый уровень</span><br>
-        Треугольники, четырёхугольники, многоугольники
-      </div>
+      <div id="task-info" class="task-info"><strong>Задание 15</strong> <span class="difficulty diff-basic">Базовый уровень</span><br>Треугольники, четырёхугольники, многоугольники</div>
     </div>
-
-    <div id="progress" class="progress hidden">📊 Загрузка...</div>
-    
+    <div id="progress" class="progress hidden">📊 Статистика...</div>
     <div id="task-area" class="hidden">
       <div id="problem-block" class="card">
         <div id="svg-container"></div>
         <p id="problem-text">Нажми «🎲 Новая задача», чтобы начать!</p>
-        
         <div class="input-row">
           <input type="text" id="answer-input" placeholder="Например: 2.4 или 12/5" disabled>
           <button class="math-btn" id="sqrt-btn" disabled>√</button>
           <button class="math-btn" id="div-btn" disabled>/</button>
         </div>
         <div class="hint">Принимаются: <b>2.4</b>, <b>2,4</b>, <b>12/5</b>, <b>4√3</b>. Калькулятор не нужен!</div>
-        
         <button id="check-btn" class="btn primary" disabled>✅ Проверить</button>
         <button id="solution-btn" class="btn secondary" disabled>📝 Показать решение</button>
         <div id="feedback" class="feedback hidden"></div>
         <div id="solution-text" class="solution hidden"></div>
       </div>
     </div>
-
     <button id="new-task-btn" class="btn large hidden">🎲 Новая задача</button>
-
     <div class="footer">Сделано для подготовки к ОГЭ • Данные хранятся только в твоём браузере</div>
   </div>
 
@@ -103,7 +93,6 @@
     function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
     const state={currentTask:null,currentTaskNum:'15',solved:0,correct:0,lastDate:new Date().toDateString()};
-
     const taskInfo = {
       '15': { title: 'Задание 15', diff: 'Базовый уровень', desc: 'Треугольники, четырёхугольники, многоугольники' },
       '16': { title: 'Задание 16', diff: 'Базовый уровень', desc: 'Окружность, круг и их элементы' },
@@ -116,15 +105,13 @@
     };
 
     function loadState(){
-      const s=safeGet('oge_geo_state');
-      if(s) Object.assign(state,JSON.parse(s));
+      const s=safeGet('oge_geo_state'); if(s) Object.assign(state,JSON.parse(s));
       updateProgress(); updateTaskInfo(state.currentTaskNum);
     }
     function saveState(){ safeSet('oge_geo_state',JSON.stringify({currentTaskNum:state.currentTaskNum,solved:state.solved,correct:state.correct,lastDate:state.lastDate})); }
     function updateProgress(){ document.getElementById('progress').textContent=`📊 Решено: ${state.solved} | ✅ Верно: ${state.correct} | Текущее: №${state.currentTaskNum}`; }
     function updateTaskInfo(num){
-      state.currentTaskNum=num;
-      const info=taskInfo[num];
+      state.currentTaskNum=num; const info=taskInfo[num];
       const diffClass=num>=23?'diff-advanced':'diff-basic';
       document.getElementById('task-info').innerHTML=`<strong>${info.title}</strong> <span class="difficulty ${diffClass}">${info.diff}</span><br>${info.desc}`;
       document.querySelectorAll('.task-btn').forEach(btn=>{btn.classList.remove('active');if(btn.dataset.task===num) btn.classList.add('active');});
@@ -133,82 +120,50 @@
 
     function insertAtCursor(symbol) {
       const input = document.getElementById('answer-input');
-      const start = input.selectionStart;
-      const end = input.selectionEnd;
-      const text = input.value;
+      const start = input.selectionStart; const end = input.selectionEnd; const text = input.value;
       input.value = text.substring(0, start) + symbol + text.substring(end);
-      input.selectionStart = input.selectionEnd = start + symbol.length;
-      input.focus();
+      input.selectionStart = input.selectionEnd = start + symbol.length; input.focus();
     }
 
-    // === УМНЫЙ ПАРСЕР ОТВЕТОВ ===
     function parseMathExpr(str) {
       if (!str) return NaN;
       str = str.toString().toLowerCase().trim().replace(/\s+/g, '').replace(/,/g, '.');
       str = str.replace(/корень(ей|я|и)?\s*(из\s*)?/gi, '√').replace(/sqrt\s*\(?/gi, '√').replace(/\)/g, '');
-      
-      // Дроби
-      if (str.includes('/')) {
-        const [n, d] = str.split('/').map(Number);
-        if (!isNaN(n) && !isNaN(d) && d !== 0) return n / d;
-      }
-      // Корни: 4√3, √2, -2.5√5
+      if (str.includes('/')) { const [n, d] = str.split('/').map(Number); if (!isNaN(n) && !isNaN(d) && d !== 0) return n / d; }
       const sqrtMatch = str.match(/^(-?\d*\.?\d*)√(\d+)$/);
-      if (sqrtMatch) {
-        const c = sqrtMatch[1] === '' ? 1 : (sqrtMatch[1] === '-' ? -1 : parseFloat(sqrtMatch[1]));
-        return c * Math.sqrt(parseInt(sqrtMatch[2]));
-      }
-      // Число
-      const num = parseFloat(str);
-      return isNaN(num) ? NaN : num;
+      if (sqrtMatch) { const c = sqrtMatch[1] === '' ? 1 : (sqrtMatch[1] === '-' ? -1 : parseFloat(sqrtMatch[1])); return c * Math.sqrt(parseInt(sqrtMatch[2])); }
+      const num = parseFloat(str); return isNaN(num) ? NaN : num;
     }
 
     function checkAnswer(){
-      const inp = document.getElementById('answer-input').value.trim();
-      if(!inp) return;
-      
+      const inp = document.getElementById('answer-input').value.trim(); if(!inp) return;
       if(state.currentTask.answer === 'proof'){
         document.getElementById('feedback').innerHTML = '✅ <b>Задача на доказательство!</b><br>Сверь своё решение с образцом ниже.';
         document.getElementById('feedback').className = 'feedback proof-hint';
-        document.getElementById('feedback').classList.remove('hidden');
-        toggleSolution(); return;
+        document.getElementById('feedback').classList.remove('hidden'); toggleSolution(); return;
       }
-
-      const userVal = parseMathExpr(inp);
-      const correctVal = parseMathExpr(state.currentTask.answer);
-      const f = document.getElementById('feedback');
-      let isCorrect = false;
-
-      if (!isNaN(userVal) && !isNaN(correctVal)) {
-        // Допуск 0.01 для десятичных, точное совпадение для корней
-        if (Math.abs(userVal - correctVal) < 0.015) isCorrect = true;
-      } else {
-        // Фоллбэк на строковое сравнение
-        if (inp.toLowerCase().replace(/\s+/g,'').replace(',','.') === state.currentTask.answer.toLowerCase().replace(/\s+/g,'').replace(',','.')) isCorrect = true;
-      }
+      const userVal = parseMathExpr(inp); const correctVal = parseMathExpr(state.currentTask.answer);
+      const f = document.getElementById('feedback'); let isCorrect = false;
+      if (!isNaN(userVal) && !isNaN(correctVal) && Math.abs(userVal - correctVal) < 0.015) isCorrect = true;
+      else if (inp.toLowerCase().replace(/\s+/g,'').replace(',','.') === state.currentTask.answer.toLowerCase().replace(/\s+/g,'').replace(',','.')) isCorrect = true;
 
       if(isCorrect){
         const praise = ['🎉 <b>Верно! Молодец!</b><br>Ответ принят.','✅ <b>Отлично!</b><br>Точно как в бланке ОГЭ.','🌟 <b>Супер!</b><br>Так держать.','👍 <b>Правильно!</b><br>Записывай без пробелов.'];
-        f.innerHTML = praise[rand(0, praise.length-1)];
-        f.className = 'feedback success';
-        state.correct++;
+        f.innerHTML = praise[rand(0, praise.length-1)]; f.className = 'feedback success'; state.correct++;
       } else {
-        let hint = '';
-        const num = state.currentTaskNum;
-        if(num==='15') hint = '💡 <b>Подсказка:</b> Ищи равные углы, сумму углов треугольника (180°) или свойства параллельных прямых.'; 
-        else if(num==='16') hint = '💡 <b>Подсказка:</b> Вспомни: угол между касательной и хордой = ½ дуги. Вписанный на диаметр = 90°.'; 
-        else if(num==='17') hint = '💡 <b>Подсказка:</b> S = a·b·sinα, S = ½·d₁·d₂·sinφ, или разбей фигуру на части.'; 
-        else if(num==='18') hint = '💡 <b>Подсказка:</b> Окружи прямоугольником, вычти лишние треугольники или используй формулу Пика.'; 
-        else if(num==='19') hint = '💡 <b>Подсказка:</b> Проверяй контрпримером. Не путай свойства ромба и параллелограмма.'; 
-        else if(num==='23') hint = '💡 <b>Подсказка:</b> Ищи подобные треугольники, используй теорему о пересекающихся хордах или метрические соотношения.'; 
-        else if(num==='24') hint = '✅ <b>Задача на доказательство.</b><br>Сверь ход с образцом. Главное — логика.'; 
+        let hint = ''; const num = state.currentTaskNum;
+        if(num==='15') hint = '💡 <b>Подсказка:</b> Ищи равные углы, сумму углов треугольника (180°) или свойства параллельных прямых.';
+        else if(num==='16') hint = '💡 <b>Подсказка:</b> Вспомни: угол между касательной и хордой = ½ дуги. Вписанный на диаметр = 90°.';
+        else if(num==='17') hint = '💡 <b>Подсказка:</b> S = a·b·sinα, S = ½·d₁·d₂·sinφ, или разбей фигуру на части.';
+        else if(num==='18') hint = '💡 <b>Подсказка:</b> Окружи прямоугольником, вычти лишние треугольники или используй формулу Пика.';
+        else if(num==='19') hint = '💡 <b>Подсказка:</b> Проверяй контрпримером. Не путай свойства ромба и параллелограмма.';
+        else if(num==='23') hint = '💡 <b>Подсказка:</b> Ищи подобные треугольники, используй теорему о пересекающихся хордах или метрические соотношения.';
+        else if(num==='24') hint = '✅ <b>Задача на доказательство.</b><br>Сверь ход с образцом. Главное — логика.';
         else if(num==='25') hint = '💡 <b>Подсказка:</b> Проведи высоту/радиус. Ищи подобие или используй площади.';
-        
         f.innerHTML = `❌ <b>Неверно.</b><br>Правильный ответ: <b>${state.currentTask.answer}</b><br><br>${hint}<br><br>📝 <i>Нажми «Показать решение», чтобы увидеть полный разбор.</i>`;
         f.className = 'feedback error';
       }
-      f.classList.remove('hidden');
-      saveState(); updateProgress();
+      f.classList.remove('hidden'); saveState(); updateProgress();
     }
 
     function toggleSolution(){
@@ -221,7 +176,6 @@
       const num=state.currentTaskNum;
       state.currentTask=templates[num][Math.floor(Math.random()*templates[num].length)].gen();
       state.solved++; saveState(); updateProgress();
-      
       document.getElementById('problem-text').textContent=state.currentTask.text;
       renderSVG(state.currentTask.draw, state.currentTask.params);
       document.getElementById('answer-input').value='';
@@ -253,7 +207,6 @@
     document.getElementById('div-btn').addEventListener('click', () => insertAtCursor('/'));
     document.getElementById('answer-input').addEventListener('keydown', (e) => { if(e.key==='Enter') checkAnswer(); });
 
-    // === ГЕНЕРАТОРЫ (ОГЭ-СТАНДАРТ) ===
     const templates = {
       '15': [
         {gen:()=>{const A=rand(40,80),B=rand(40,80);return{text:`В треугольнике ABC ∠A=${A}°, ∠B=${B}°. Найдите внешний угол при вершине C.`,answer:A+B,solution:`Внешний ∠ = ∠A+∠B = ${A}°+${B}° = ${A+B}°\nОтвет: ${A+B}`,draw:'triangle',params:{A,B}}}},
@@ -316,7 +269,6 @@
       else { svg += `<text x="180" y="110" text-anchor="middle" fill="#334155" font-size="16" font-weight="600">📐 Задача</text>`; }
       svg += `</svg>`; c.innerHTML = svg;
     }
-
     loadState();
   </script>
 </body>
