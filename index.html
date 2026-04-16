@@ -5,39 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Геометрия ОГЭ</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-  body{background:#f8fafc;color:#1e293b;padding:12px}
-  .wrap{max-width:600px;margin:0 auto}
-  h1{text-align:center;margin:10px 0}
-  .box{background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.05);margin-bottom:12px}
-  .btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
-  .b{padding:8px 12px;border:2px solid #e2e8f0;background:#fff;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px}
-  .b:hover{background:#eff6ff;border-color:#2563eb}
-  .b.on{background:#2563eb;color:#fff;border-color:#2563eb}
-  .b.hard{background:#fef3c7;border-color:#f59e0b}
-  .b.hard.on{background:#f59e0b;color:#fff}
-  .info{text-align:center;font-size:13px;color:#64748b;background:#f1f5f9;padding:6px;border-radius:6px;margin-bottom:8px}
-  #err{display:none;background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;margin-bottom:10px;border-left:4px solid #dc2626;font-size:14px}
-  #task{display:none}
-  #task.show{display:block}
-  #svg{min-height:220px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px;margin-bottom:10px}
-  #q{font-size:15px;text-align:center;margin-bottom:10px;line-height:1.4}
-  .row{display:flex;gap:6px;margin-bottom:6px}
-  .row input{flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:6px;font-size:15px}
-  .row input:focus{outline:none;border-color:#2563eb}
-  .sym{padding:0 10px;background:#e2e8f0;border:2px solid #cbd5e1;border-radius:6px;cursor:pointer;font-weight:700;font-size:15px}
-  .hint{font-size:12px;color:#64748b;text-align:center;margin-bottom:8px;background:#f0f9ff;padding:4px;border-radius:4px}
-  .act{display:block;width:100%;padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;margin-bottom:6px}
-  .act:disabled{opacity:0.5;cursor:not-allowed}
-  .ok{background:#2563eb;color:#fff}
-  .sec{background:#e2e8f0;color:#334155}
-  .main{background:#f59e0b;color:#fff;font-size:16px;margin-bottom:12px}
-  .fb{padding:10px;border-radius:8px;margin-top:8px;font-size:14px;display:none}
-  .fb.y{display:block;background:#dcfce7;color:#166534;border-left:4px solid #16a34a}
-  .fb.n{display:block;background:#fee2e2;color:#991b1b;border-left:4px solid #dc2626}
-  .fb.p{display:block;background:#e0f2fe;color:#0369a1;border-left:4px solid #0284c7}
-  .sol{margin-top:8px;padding:10px;background:#f8fafc;border-radius:6px;font-size:13px;white-space:pre-line;border-left:4px solid #2563eb;display:none}
-  .sol.show{display:block}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+body{background:#f8fafc;color:#1e293b;padding:12px}
+.wrap{max-width:600px;margin:0 auto}
+h1{text-align:center;margin:10px 0}
+.box{background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.05);margin-bottom:12px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.b{padding:8px 12px;border:2px solid #e2e8f0;background:#fff;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px}
+.b:hover{background:#eff6ff;border-color:#2563eb}
+.b.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.b.hard{background:#fef3c7;border-color:#f59e0b}
+.b.hard.on{background:#f59e0b;color:#fff}
+.info{text-align:center;font-size:13px;color:#64748b;background:#f1f5f9;padding:6px;border-radius:6px;margin-bottom:8px}
+#err{display:none;background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;margin-bottom:10px;border-left:4px solid #dc2626;font-size:14px}
+#task{display:none}
+#task.show{display:block}
+#svg{min-height:220px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px;margin-bottom:10px}
+#q{font-size:15px;text-align:center;margin-bottom:10px;line-height:1.4}
+.row{display:flex;gap:6px;margin-bottom:6px}
+.row input{flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:6px;font-size:15px}
+.row input:focus{outline:none;border-color:#2563eb}
+.sym{padding:0 10px;background:#e2e8f0;border:2px solid #cbd5e1;border-radius:6px;cursor:pointer;font-weight:700;font-size:15px}
+.hint{font-size:12px;color:#64748b;text-align:center;margin-bottom:8px;background:#f0f9ff;padding:4px;border-radius:4px}
+.act{display:block;width:100%;padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;margin-bottom:6px}
+.act:disabled{opacity:0.5;cursor:not-allowed}
+.ok{background:#2563eb;color:#fff}
+.sec{background:#e2e8f0;color:#334155}
+.main{background:#f59e0b;color:#fff;font-size:16px;margin-bottom:12px}
+.fb{padding:10px;border-radius:8px;margin-top:8px;font-size:14px;display:none}
+.fb.y{display:block;background:#dcfce7;color:#166534;border-left:4px solid #16a34a}
+.fb.n{display:block;background:#fee2e2;color:#991b1b;border-left:4px solid #dc2626}
+.fb.p{display:block;background:#e0f2fe;color:#0369a1;border-left:4px solid #0284c7}
+.sol{margin-top:8px;padding:10px;background:#f8fafc;border-radius:6px;font-size:13px;white-space:pre-line;border-left:4px solid #2563eb;display:none}
+.sol.show{display:block}
 </style>
 </head>
 <body>
@@ -78,18 +78,17 @@
 </div>
 
 <script>
-// Диагностика: если JS сломается, покажет ошибку прямо на экране
 window.onerror = function(msg, url, line) {
-  document.getElementById('err').innerHTML = '❌ Ошибка скрипта: ' + msg + ' <br>(строка ' + line + ')';
+  document.getElementById('err').innerHTML = '❌ Ошибка: ' + msg + ' (строка ' + line + ')';
   document.getElementById('err').style.display = 'block';
   return true;
 };
 
 try {
-  // Безопасное хранилище (работает даже без localStorage)
   let mem = {};
   function gs(k){ try{return localStorage.getItem(k)}catch(e){return mem[k]||null} }
   function ss(k,v){ try{localStorage.setItem(k,v)}catch(e){mem[k]=v} }
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
   const S = { n:'15', task:null, solved:0, ok:0 };
   const Info = {
@@ -125,7 +124,6 @@ try {
     document.getElementById('sol').disabled = true;
     document.getElementById('fb').className = 'fb';
     document.getElementById('sol-box').classList.remove('show');
-    window.scrollTo({top: document.getElementById('task').offsetTop-10, behavior:'smooth'});
   };
 
   window.ins = function(sym){
