@@ -54,7 +54,8 @@
     <h1>📐 Геометрия ОГЭ — практика</h1>
     <div class="selector-block">
       <label class="selector-label">Выбери задание для тренировки:</label>
-      <div class="task-selector">
+      <!-- ДОБАВЛЕН ID="task-selector" -->
+      <div id="task-selector" class="task-selector">
         <button type="button" class="task-btn active" data-task="15">№15</button>
         <button type="button" class="task-btn" data-task="16">№16</button>
         <button type="button" class="task-btn" data-task="17">№17</button>
@@ -191,21 +192,24 @@
       document.getElementById('solution-btn').textContent='📝 Показать решение';
     }
 
-    // ДЕЛЕГИРОВАНИЕ СОБЫТИЙ (самый надёжный метод для всех кнопок)
-    document.getElementById('task-selector').addEventListener('click', (e) => {
-      const btn = e.target.closest('.task-btn');
-      if (!btn) return;
-      updateTaskInfo(btn.dataset.task);
-      document.getElementById('task-area').classList.remove('hidden');
-      document.getElementById('new-task-btn').classList.remove('hidden');
-      document.getElementById('progress').classList.remove('hidden');
-      document.getElementById('problem-text').textContent='Нажми «🎲 Новая задача», чтобы начать!';
-      document.getElementById('svg-container').innerHTML='';
-      ['answer-input','check-btn','solution-btn','sqrt-btn','div-btn'].forEach(id=>document.getElementById(id).disabled=true);
-      document.getElementById('feedback').classList.add('hidden');
-      document.getElementById('solution-text').classList.add('hidden');
-      window.scrollTo({ top: document.getElementById('task-area').offsetTop - 20, behavior: 'smooth' });
-    });
+    // ИСПРАВЛЕННОЕ ДЕЛЕГИРОВАНИЕ СОБЫТИЙ
+    const taskContainer = document.getElementById('task-selector');
+    if (taskContainer) {
+      taskContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.task-btn');
+        if (!btn) return;
+        updateTaskInfo(btn.dataset.task);
+        document.getElementById('task-area').classList.remove('hidden');
+        document.getElementById('new-task-btn').classList.remove('hidden');
+        document.getElementById('progress').classList.remove('hidden');
+        document.getElementById('problem-text').textContent='Нажми «🎲 Новая задача», чтобы начать!';
+        document.getElementById('svg-container').innerHTML='';
+        ['answer-input','check-btn','solution-btn','sqrt-btn','div-btn'].forEach(id=>document.getElementById(id).disabled=true);
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('solution-text').classList.add('hidden');
+        window.scrollTo({ top: document.getElementById('task-area').offsetTop - 20, behavior: 'smooth' });
+      });
+    }
 
     document.getElementById('new-task-btn').addEventListener('click',generateTask);
     document.getElementById('check-btn').addEventListener('click',checkAnswer);
