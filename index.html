@@ -2,45 +2,59 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Геометрия ОГЭ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Геометрия ОГЭ 2.0</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-body{background:#f8fafc;color:#1e293b;padding:12px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif}
+:root{--bg:#f8fafc;--text:#1e293b;--card:#fff;--primary:#2563eb;--primary-f:#fff;--warn:#f59e0b;--err:#dc2626;--ok:#16a34a;--border:#e2e8f0;--hint-bg:#f0f9ff;--hint-text:#0369a1}
+@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--text:#f1f5f9;--card:#1e293b;--border:#334155;--hint-bg:#1e3a5f;--hint-text:#7dd3fc}}
+body{background:var(--bg);color:var(--text);padding:12px;line-height:1.4}
 .wrap{max-width:600px;margin:0 auto}
-h1{text-align:center;margin:10px 0}
-.box{background:#fff;padding:14px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.05);margin-bottom:12px}
+h1{text-align:center;margin:10px 0;font-size:clamp(1.3rem,5vw,1.5rem)}
+.box{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:12px}
 .btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
-.b{padding:8px 12px;border:2px solid #e2e8f0;background:#fff;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px}
-.b:hover{background:#eff6ff;border-color:#2563eb}
-.b.on{background:#2563eb;color:#fff;border-color:#2563eb}
-.b.hard{background:#fef3c7;border-color:#f59e0b}
-.b.hard.on{background:#f59e0b;color:#fff}
-.info{text-align:center;font-size:13px;color:#64748b;background:#f1f5f9;padding:6px;border-radius:6px;margin-bottom:8px}
-#err{display:none;background:#fee2e2;color:#991b1b;padding:10px;border-radius:8px;margin-bottom:10px;border-left:4px solid #dc2626;font-size:14px}
+.b{padding:8px 12px;border:2px solid var(--border);background:var(--card);border-radius:8px;cursor:pointer;font-weight:600;font-size:clamp(13px,3.5vw,14px);min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+.b:hover{background:var(--primary);color:var(--primary-f);border-color:var(--primary)}
+.b.on{background:var(--primary);color:var(--primary-f);border-color:var(--primary)}
+.b.hard{background:#fef3c7;border-color:var(--warn);color:#92400e}
+.b.hard.on{background:var(--warn);color:#fff}
+.info{text-align:center;font-size:13px;color:var(--text);opacity:.85;background:var(--hint-bg);padding:8px;border-radius:8px;margin-bottom:8px}
+#err{display:none;background:#fee2e2;color:var(--err);padding:10px;border-radius:8px;margin-bottom:10px;border-left:4px solid var(--err);font-size:14px}
 #task{display:none}#task.show{display:block}
-#svg{min-height:220px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px;margin-bottom:10px}
-#q{font-size:15px;text-align:center;margin-bottom:10px;line-height:1.4}
-.row{display:flex;gap:6px;margin-bottom:6px}
-.row input{flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:6px;font-size:15px}
-.row input:focus{outline:none;border-color:#2563eb}
-.sym{padding:0 10px;background:#e2e8f0;border:2px solid #cbd5e1;border-radius:6px;cursor:pointer;font-weight:700;font-size:15px}
-.hint{font-size:12px;color:#64748b;text-align:center;margin-bottom:8px;background:#f0f9ff;padding:4px;border-radius:4px}
-.act{display:block;width:100%;padding:12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;margin-bottom:6px}
-.act:disabled{opacity:0.5;cursor:not-allowed}
-.ok{background:#2563eb;color:#fff}.sec{background:#e2e8f0;color:#334155}
-.main{background:#f59e0b;color:#fff;font-size:16px;margin-bottom:12px}
+#svg{min-height:240px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:10px;overflow:visible}
+#q{font-size:clamp(14px,4vw,15px);text-align:center;margin-bottom:12px;line-height:1.5}
+.row{display:flex;gap:6px;margin-bottom:8px}
+.row input{flex:1;padding:12px;border:2px solid var(--border);border-radius:8px;font-size:16px;background:var(--card);color:var(--text);min-height:44px}
+.row input:focus{outline:none;border-color:var(--primary)}
+.sym{padding:0 14px;background:var(--border);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:16px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+.sym:hover{background:var(--primary);color:var(--primary-f);border-color:var(--primary)}
+.hint{font-size:12px;color:var(--text);opacity:.8;text-align:center;margin-bottom:10px;background:var(--hint-bg);padding:6px;border-radius:6px}
+.act{display:block;width:100%;padding:12px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:15px;margin-bottom:6px;min-height:48px}
+.act:disabled{opacity:.5;cursor:not-allowed}
+.ok{background:var(--primary);color:var(--primary-f)}.sec{background:var(--border);color:var(--text)}.hint-btn{background:var(--hint-bg);color:var(--hint-text);border:2px solid var(--hint-text);margin-bottom:8px}
+.main{background:var(--warn);color:#fff;font-size:16px;margin-bottom:12px}
 .fb{padding:10px;border-radius:8px;margin-top:8px;font-size:14px;display:none}
-.fb.y{display:block;background:#dcfce7;color:#166534;border-left:4px solid #16a34a}
-.fb.n{display:block;background:#fee2e2;color:#991b1b;border-left:4px solid #dc2626}
+.fb.y{display:block;background:#dcfce7;color:#166534;border-left:4px solid var(--ok)}
+.fb.n{display:block;background:#fee2e2;color:var(--err);border-left:4px solid var(--err)}
 .fb.p{display:block;background:#e0f2fe;color:#0369a1;border-left:4px solid #0284c7}
-.sol{margin-top:8px;padding:10px;background:#f8fafc;border-radius:6px;font-size:13px;white-space:pre-line;border-left:4px solid #2563eb;display:none}
+.sol{margin-top:10px;padding:12px;background:var(--card);border-radius:8px;font-size:14px;white-space:pre-line;border-left:4px solid var(--primary);display:none}
 .sol.show{display:block}
+/* Подсказка-карточка */
+.hint-card{background:var(--hint-bg);border:2px solid var(--hint-text);border-radius:10px;padding:12px;margin:8px 0;font-size:14px;display:none;animation:slideIn .2s ease}
+.hint-card.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.hint-title{font-weight:700;color:var(--hint-text);margin-bottom:4px}
+/* Метки на чертежах */
+.tick{stroke:var(--text);stroke-width:2;fill:none}
+.mark-rt{fill:none;stroke:var(--text);stroke-width:1.5}
+.arc-mark{fill:none;stroke:var(--warn);stroke-width:2}
+/* Адаптив */
+@media(max-width:480px){.wrap{padding:0 4px}.box{padding:12px}.btns{gap:4px}.b{padding:6px 10px;font-size:13px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>📐 Геометрия ОГЭ</h1>
+  <h1>📐 Геометрия ОГЭ 2.0</h1>
   <div id="err"></div>
   <div class="box">
     <div class="btns">
@@ -57,14 +71,17 @@ h1{text-align:center;margin:10px 0}
   </div>
   <div id="task" class="show">
     <div class="box">
+      <button type="button" id="hintBtn" class="act hint-btn" onclick="toggleHint()" disabled>💡 Показать подсказку</button>
+      <div id="hintCard" class="hint-card"><div class="hint-title">📘 Теорема</div><div id="hintText"></div></div>
       <div id="svg"></div>
       <div id="q">Нажми «🎲 Новая задача»</div>
       <div class="row">
         <input type="text" id="ans" placeholder="Ответ: 2.4 или 12/5" disabled>
         <button type="button" class="sym" onclick="ins('√')">√</button>
         <button type="button" class="sym" onclick="ins('/')">/</button>
+        <button type="button" class="sym" onclick="ins('*')">×</button>
       </div>
-      <div class="hint">Принимаются: 2.4 | 2,4 | 12/5 | 4√3</div>
+      <div class="hint">Принимаются: 2.4 | 2,4 | 12/5 | 4√3 | √12*2</div>
       <button type="button" id="chk" class="act ok" disabled>✅ Проверить</button>
       <button type="button" id="sol" class="act sec" disabled>📝 Решение</button>
       <div id="fb" class="fb"></div>
@@ -72,184 +89,257 @@ h1{text-align:center;margin:10px 0}
     </div>
   </div>
   <button type="button" class="act main" onclick="gen()">🎲 Новая задача</button>
-  <footer style="text-align:center;margin-top:16px;font-size:12px;color:#64748b">Данные хранятся только в браузере</footer>
+  <footer style="text-align:center;margin-top:16px;font-size:12px;color:var(--text);opacity:.7">Данные хранятся только в браузере • Модуль v2.0</footer>
 </div>
 
 <script>
+// ==================== МОДУЛЬ ЗАДАЧ (можно вынести в tasks.js) ====================
+const TASK_BANK = {
+'15':[
+  {f:()=>{const A=rand(40,80),B=rand(40,80);return{txt:`В △ABC ∠A=${A}°, ∠B=${B}°. Найди ∠C.`,ans:180-A-B,sol:`∠A+∠B+∠C=180° ⇒ ∠C=180°-${A}°-${B}°=${180-A-B}°\nОтвет: ${180-A-B}`,d:'triangle',p:{A,B},hint:'Сумма углов треугольника равна 180°'}},
+  {f:()=>{const A=rand(40,80),B=rand(40,80);return{txt:`В △ABC ∠A=${A}°, ∠B=${B}°. Найди внешний ∠ при C.`,ans:A+B,sol:`Внешний ∠ = ∠A+∠B = ${A}+${B} = ${A+B}°\nОтвет: ${A+B}`,d:'triangle',p:{A,B},hint:'Внешний угол треугольника равен сумме двух внутренних, не смежных с ним'}},
+  {f:()=>{const α=rand(60,100);return{txt:`В △ABC AD — биссектриса, ∠BAC=${α}°. Найди ∠BAD.`,ans:α/2,sol:`Биссектриса делит угол пополам ⇒ ∠BAD = ∠BAC/2 = ${α}°/2 = ${α/2}°\nОтвет: ${α/2}`,d:'bisector',p:{alpha:α},hint:'Биссектриса делит угол пополам'}},
+  {f:()=>{const base=rand(10,16),leg=rand(6,12);return{txt:`P равнобедр. △ = ${base+2*leg}, основание=${base}. Найди боковую.`,ans:leg,sol:`2a = P-b = ${base+2*leg}-${base} = ${2*leg} ⇒ a=${leg}\nОтвет: ${leg}`,d:'isosceles',p:{base,side:leg},hint:'Периметр равнобедренного треугольника: P = 2a + b'}},
+  {f:()=>{const a=rand(50,70);return{txt:`В равноб. трапеции ∠BAD=${a}°. Найди ∠ABC.`,ans:180-a,sol:`∠ABC=180°-${a}°=${180-a}°\nОтвет: ${180-a}`,d:'isosceles_trap',p:{A:a},hint:'Сумма углов при боковой стороне трапеции = 180°'}},
+  {f:()=>{const A=rand(30,50);return{txt:`В △ABC AB=BC, ∠A=${A}°. Найди ∠B.`,ans:180-2*A,sol:`△ равнобедр. ⇒ ∠C=∠A=${A}° ⇒ ∠B=180°-2·${A}°=${180-2*A}°\nОтвет: ${180-2*A}`,d:'isosceles',p:{A},hint:'В равнобедренном треугольнике углы при основании равны'}},
+  {f:()=>{const A=rand(70,100);return{txt:`В △ABC биссектрисы ∠A и ∠B пересекаются в O, ∠A=${A}°, ∠B=${A-20}°. Найди ∠AOB.`,ans:90+A/2-10,sol:`∠AOB=90°+∠C/2; ∠C=180-${A}-${A-20}=${200-2*A} ⇒ ∠AOB=90+${100-A}=${190-A}°\nОтвет: ${190-A}`,d:'bisector_int',p:{A},hint:'Угол между биссектрисами: ∠AOB = 90° + ∠C/2'}},
+  {f:()=>{const h=rand(4,8),a=rand(5,9);return{txt:`S△=${h*a/2}, высота=${h}. Найди основание.`,ans:a,sol:`S=½ah ⇒ a=2S/h=2·${h*a/2}/${h}=${a}\nОтвет: ${a}`,d:'triangle_area',p:{S:h*a/2,h},hint:'Площадь треугольника: S = ½·a·h'}}
+],
+'16':[
+  {f:()=>{const arc=rand(80,160);return{txt:`Дуга AB=${arc}°. Угол между хордой и касательной в B?`,ans:arc/2,sol:`Угол = ½ дуги = ${arc}/2 = ${arc/2}°\nОтвет: ${arc/2}`,d:'tangent_chord_angle',p:{arc},hint:'Угол между касательной и хордой равен половине дуги, заключённой между ними'}},
+  {f:()=>{const R=rand(5,12);return{txt:`C окр. = ${Math.round(2*3.14*R*10)/10} (π≈3.14). Найди R.`,ans:R,sol:`R=C/2π=${Math.round(2*3.14*R*10)/10}/6.28=${R}\nОтвет: ${R}`,d:'circle',p:{R},hint:'Длина окружности: C = 2πR'}},
+  {f:()=>{const A=rand(30,60);return{txt:`AC — диаметр. ∠BAC=${A}°. Найди ∠BCA.`,ans:90-A,sol:`∠B=90° (вписанный, опирается на диаметр) ⇒ ∠C=90°-${A}°=${90-A}°\nОтвет: ${90-A}`,d:'diameter_tri',p:{A},hint:'Вписанный угол, опирающийся на диаметр — прямой'}},
+  {f:()=>{const arc=rand(100,140);return{txt:`Вписанный ∠ опирается на дугу ${arc}°. Чему равен угол?`,ans:arc/2,sol:`Вписанный ∠ = ½ дуги = ${arc}/2 = ${arc/2}°\nОтвет: ${arc/2}`,d:'inscribed_angle',p:{arc},hint:'Вписанный угол равен половине дуги, на которую он опирается'}},
+  {f:()=>{const R=rand(4,9),d=rand(2*R+1,2*R+8);return{txt:`Расстояние от центра до хорды=${d-2*R}, R=${R}. Длина хорды?`,ans:Math.round(2*Math.sqrt(R*R-(d-2*R)*(d-2*R))*10)/10,sol:`Половина хорды = √(R²-d²) ⇒ полная = 2·√(...)\nОтвет: ${Math.round(2*Math.sqrt(R*R-(d-2*R)*(d-2*R))*10)/10}`,d:'chord_dist',p:{R,d},hint:'Если из центра опущен перпендикуляр на хорду, он делит её пополам'}},
+  {f:()=>{const α=rand(40,70);return{txt:`Центральный ∠=${α}°. Вписанный, опирающийся на ту же дугу?`,ans:α/2,sol:`Вписанный = ½ центрального = ${α}/2 = ${α/2}°\nОтвет: ${α/2}`,d:'central_inscribed',p:{α},hint:'Вписанный угол равен половине центрального, опирающегося на ту же дугу'}}
+],
+'17':[
+  {f:()=>{const d1=rand(8,16),d2=rand(6,12);return{txt:`d₁=${d1}, d₂=${d2}. S ромба?`,ans:(d1*d2)/2,sol:`S=d₁d₂/2 = ${d1*d2}/2 = ${(d1*d2)/2}\nОтвет: ${(d1*d2)/2}`,d:'rhombus',p:{d1,d2},hint:'Площадь ромба: S = ½·d₁·d₂'}},
+  {f:()=>{const a=rand(5,10),h=rand(4,9);return{txt:`Сторона=${a}, высота=${h}. S параллелограмма?`,ans:a*h,sol:`S=ah=${a*h}\nОтвет: ${a*h}`,d:'rectangle',p:{a,b:h},hint:'Площадь параллелограмма: S = a·h'}},
+  {f:()=>{const a=rand(4,8),b=rand(4,8),α=rand(30,60);const S=Math.round(a*b*Math.sin(α*Math.PI/180)*10)/10;return{txt:`a=${a}, b=${b}, ∠=${α}°. S△?`,ans:S,sol:`S=½ab·sinα ≈ ${S}\nОтвет: ${S}`,d:'triangle_area_2sides',p:{a,b,C:α},hint:'Площадь треугольника по двум сторонам и углу между ними: S = ½ab·sinγ'}},
+  {f:()=>{const a=rand(3,7),b=rand(3,7);return{txt:`Катеты прямот. △: ${a} и ${b}. S?`,ans:(a*b)/2,sol:`S=½·${a}·${b}=${(a*b)/2}\nОтвет: ${(a*b)/2}`,d:'right_tri_area',p:{a,b},hint:'Площадь прямоугольного треугольника: половина произведения катетов'}},
+  {f:()=>{const R=rand(3,6);return{txt:`R вписанной в прямот. △ окружности = ${R}, катеты ${3*R} и ${4*R}. S△?`,ans:6*R*R,sol:`S=p·r; p=(${3*R}+${4*R}+${5*R})/2=${6*R} ⇒ S=${6*R}·${R}=${6*R*R}\nОтвет: ${6*R*R}`,d:'inscribed_circle_tri',p:{R},hint:'Площадь треугольника через полупериметр и радиус вписанной окружности: S = p·r'}}
+],
+'18':[
+  {f:()=>{const w=rand(3,7),h=rand(3,6);return{txt:`Прямоугольник ${w}×${h} клеток. S?`,ans:w*h,sol:`S=${w*h}\nОтвет: ${w*h}`,d:'grid_rect',p:{w,h},hint:'Площадь прямоугольника на клетчатой бумаге: перемножь количество клеток по сторонам'}},
+  {f:()=>{const a=rand(2,5),b=rand(2,5);return{txt:`Прямоуг. △ катеты ${a}, ${b}. S?`,ans:(a*b)/2,sol:`S=${(a*b)/2}\nОтвет: ${(a*b)/2}`,d:'grid_tri',p:{a,b},hint:'Площадь прямоугольного треугольника на клетках: половина произведения катетов'}},
+  {f:()=>{const x1=rand(0,4),y1=rand(0,4),x2=rand(5,9),y2=rand(5,9),x3=rand(2,7),y3=rand(8,12);const S=Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;return{txt:`△(${x1},${y1}), (${x2},${y2}), (${x3},${y3}). S?`,ans:S,sol:`Формула гаусса: |x₁(y₂-y₃)+x₂(y₃-y₁)+x₃(y₁-y₂)|/2 = ${S}\nОтвет: ${S}`,d:'grid_tri_coords',p:{S},hint:'Площадь по координатам: используй формулу гаусса (метод узлов)'}},
+  {f:()=>{const n=rand(4,8);return{txt:`Квадрат разбит на ${n}×${n} клеток. Сколько △ площадью 0.5 можно вписать?`,ans:n*n,sol:`Каждый маленький квадрат 1×1 даёт 2 △ по 0.5 ⇒ всего ${n*n}·2/2 = ${n*n}\nОтвет: ${n*n}`,d:'grid_count',p:{n},hint:'В квадрате 1×1 можно вписать 2 треугольника площадью 0.5'}}
+],
+'19':[
+  {f:()=>({txt:`Верны? (номера подряд)\n1) В любой △ вписана окр.\n2) Диаг. прямоуг. ⟂\n3) Прот. стороны параллелогр. равны`,ans:'13',sol:`1) ✓ 2) ✗ (только у ромба) 3) ✓\nОтвет: 13`,d:'statements',p:{},hint:'Проверяй каждое утверждение на контрпримерах'}),
+  {f:()=>({txt:`Неверно?\n1) Сумма углов △ 180°\n2) В любой параллелогр. вписана окр.\n3) Sквадрата=a²`,ans:'2',sol:`2) ✗ (только если суммы прот. сторон равны)\nОтвет: 2`,d:'statements',p:{},hint:'В четырёхугольник можно вписать окружность ⇔ суммы противоположных сторон равны'}),
+  {f:()=>({txt:`Верно?\n1) Биссектриса равноб. △ — медиана\n2) Диаг. трапеции равны\n3) Центр описанной окр. △ — пересечение медиан`,ans:'1',sol:`1) ✓ 2) ✗ (только равноб. трапеция) 3) ✗ (пересечение серединных перпендикуляров)\nОтвет: 1`,d:'statements',p:{},hint:'Запоминай отличия: медианы, биссектрисы, высоты, серединные перпендикуляры'})
+],
+'23':[
+  {f:()=>{const BC=rand(3,6),AD=rand(BC*2,BC*4);const AC=Math.round(Math.sqrt(BC*AD)*10)/10;return{txt:`В трапеции ∠ABC=∠ACD, BC=${BC}, AD=${AD}. AC?`,ans:AC,sol:`△ABC~△DCA ⇒ AC²=BC·AD=${BC*AD} ⇒ AC=${AC}\nОтвет: ${AC}`,d:'trapezoid_similar',p:{BC,AD,AC},hint:'Ищи подобные треугольники: если углы равны — стороны пропорциональны'}},
+  {f:()=>{const AK=rand(3,8),KB=rand(2,6),CK=rand(2,5);const KD=Math.round((AK*KB)/CK*10)/10;return{txt:`Хорды пересекаются в K. AK=${AK}, KB=${KB}, CK=${CK}. KD?`,ans:KD,sol:`AK·KB=CK·KD ⇒ KD=${KD}\nОтвет: ${KD}`,d:'intersecting_chords',p:{AK,KB,CK,KD},hint:'Теорема о пересекающихся хордах: произведение отрезков одной хорды равно произведению отрезков другой'}},
+  {f:()=>{const AH=rand(3,6),CH=rand(4,8);const BH=Math.round(CH*CH/AH*10)/10;return{txt:`В прямот. △ высота CH. AH=${AH}, CH=${CH}. BH?`,ans:BH,sol:`CH²=AH·BH ⇒ BH=${BH}\nОтвет: ${BH}`,d:'right_alt_seg',p:{AH,CH,BH},hint:'В прямоугольном треугольнике высота, проведённая к гипотенузе, есть среднее пропорциональное отрезков гипотенузы'}},
+  {f:()=>{const a=rand(4,7),b=rand(5,9);const h=Math.round(a*b/Math.sqrt(a*a+b*b)*10)/10;return{txt:`Катеты прямот. △: ${a} и ${b}. Высота к гипотенузе?`,ans:h,sol:`h=ab/c; c=√(a²+b²)=${Math.round(Math.sqrt(a*a+b*b)*10)/10} ⇒ h=${h}\nОтвет: ${h}`,d:'right_alt_hyp',p:{a,b,h},hint:'Высота к гипотенузе: h = (a·b)/c, где c — гипотенуза'}},
+  {f:()=>{const R=rand(5,9),d=rand(R+1,R+4);const chord=Math.round(2*Math.sqrt(R*R-d*d)*10)/10;return{txt:`R=${R}, расстояние до хорды=${d}. Длина хорды?`,ans:chord,sol:`Половина хорды = √(R²-d²) ⇒ полная = 2·√(...)=${chord}\nОтвет: ${chord}`,d:'chord_len',p:{R,d,chord},hint:'Из центра окружности перпендикуляр к хорде делит её пополам — применяй теорему Пифагора'}}
+],
+'24':[
+  {f:()=>({txt:`В △ABC высоты AD и BE. Докажи: △ABE ~ △ADC.`,ans:'proof',sol:`1) ∠AEB=∠ADC=90° (высоты)\n2) ∠A — общий\n3) △ABE ~ △ADC по двум углам (∠A, прямой)\n✓ Что и требовалось`,d:'proof_altitudes',p:{},hint:'Подобие по двум углам: если два угла одного треугольника равны двум углам другого — треугольники подобны'}),
+  {f:()=>({txt:`ABCD — параллелогр., M — сер. BC, AM∩BD=K. Докажи: BK:KD=1:2`,ans:'proof',sol:`1) AD∥BC ⇒ ∠KAD=∠KMB, ∠KDA=∠KBM (накрест лежащие)\n2) △BKM ~ △DKA по двум углам\n3) BK/KD = BM/AD = (½BC)/BC = 1/2\n✓ BK:KD=1:2`,d:'proof_midpoint',p:{},hint:'Используй подобие и свойства параллелограмма: противоположные стороны равны и параллельны'}),
+  {f:()=>({txt:`В △ABC биссектриса BD. Докажи: AB/BC = AD/DC.`,ans:'proof',sol:`1) Проведём CE ∥ BD, E на продолжении AB\n2) ∠ABD=∠BEC (соответственные), ∠DBC=∠BCE (накрест)\n3) Но ∠ABD=∠DBC (биссектриса) ⇒ ∠BEC=∠BCE ⇒ △BCE равнобедр.\n4) По теореме Фалеса: AB/AE = AD/DC, но AE=BC ⇒ AB/BC=AD/DC\n✓ Свойство биссектрисы доказано`,d:'proof_bisector',p:{},hint:'Свойство биссектрисы: она делит противоположную сторону на отрезки, пропорциональные прилежащим сторонам'}),
+  {f:()=>({txt:`ABCD — вписанный четырёхугольник. Докажи: ∠A+∠C=180°.`,ans:'proof',sol:`1) ∠A = ½ дуги BCD, ∠C = ½ дуги BAD (вписанные углы)\n2) Дуга BCD + дуга BAD = 360° (вся окружность)\n3) ⇒ ∠A+∠C = ½·360° = 180°\n✓ Сумма противоположных углов вписанного четырёхугольника = 180°`,d:'proof_cyclic',p:{},hint:'Вписанный угол равен половине дуги, на которую он опирается'}),
+  {f:()=>({txt:`В △ABC медианы AM и BN пересекаются в O. Докажи: AO:OM=2:1.`,ans:'proof',sol:`1) Соединим середины AB и AC — получим среднюю линию, параллельную BC\n2) △AON ~ △COB по двум углам, коэффициент 2 (т.к. средняя линия = ½ основания)\n3) ⇒ AO:OM = 2:1\n✓ Свойство медиан: точка пересечения делит каждую в отношении 2:1, считая от вершины`,d:'proof_median',p:{},hint:'Точка пересечения медиан (центроид) делит каждую медиану в отношении 2:1 от вершины'}),
+  {f:()=>({txt:`Из точки A проведены касательная AB и секущая AC (C на окр.). Докажи: AB² = AC·AD, где D — вторая точка пересечения.`,ans:'proof',sol:`1) ∠ABC = ∠ADB (угол между касательной и хордой = вписанный, опирающийся на ту же дугу)\n2) ∠A — общий\n3) △ABC ~ △ADB по двум углам ⇒ AB/AD = AC/AB ⇒ AB² = AC·AD\n✓ Свойство касательной и секущей доказано`,d:'proof_tangent_secant',p:{},hint:'Квадрат отрезка касательной равен произведению всей секущей на её внешнюю часть'})
+],
+'25':[
+  {f:()=>{const S1=rand(2,4),S2=rand(S1*3,S1*7);const S=Math.round((Math.sqrt(S1)+Math.sqrt(S2))**2);return{txt:`В трапеции диагонали пересекаются в O. S△BOC=${S1}, S△AOD=${S2}. Sтрап?`,ans:S,sol:`△BOC ~ △AOD ⇒ k=√(S2/S1)\nSтрап = S1+S2+2√(S1S2) = (√S1+√S2)² = ${S}\nОтвет: ${S}`,d:'trapezoid_diag_areas',p:{S1,S2,S},hint:'Площади треугольников, образованных диагоналями трапеции, связаны: S₁/S₂ = k², а боковые треугольники равновелики'}),
+  {f:()=>{const AB=rand(6,9),BC=rand(8,11),CA=Math.round(Math.hypot(AB,BC)*10)/10;const AD=Math.round(AB*CA/BC*10)/10;return{txt:`В прямот. трапеции ABCD (∠A=∠B=90°) AC⊥CD, AB=${AB}, BC=${BC}. AD?`,ans:AD,sol:`AC=√(AB²+BC²)=${CA}\n△ABC ~ △CAD (по двум углам: прямой + общий ∠ACB)\n⇒ AD = (AC·BC)/AB = ${AD}\nОтвет: ${AD}`,d:'right_trapezoid_similar',p:{AB,BC,CA,AD},hint:'Ищи подобие: если в трапеции есть перпендикулярные диагонали/стороны — часто появляются подобные прямоугольные треугольники'}),
+  {f:()=>{const R=rand(4,7),α=rand(30,60);const chord=Math.round(2*R*Math.sin(α*Math.PI/180)*10)/10;return{txt:`R=${R}, центральный ∠=${α}°. Длина хорды?`,ans:chord,sol:`Хорда = 2R·sin(α/2) = 2·${R}·sin(${α/2}°) ≈ ${chord}\nОтвет: ${chord}`,d:'chord_central_angle',p:{R,α,chord},hint:'Длина хорды через центральный угол: 2R·sin(α/2)'})}
+]
+};
+
+// ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 window.onerror=function(m,u,l){document.getElementById('err').innerHTML='❌ Ошибка: '+m+' (строка '+l+')';document.getElementById('err').style.display='block';return true};
 try{
 function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 let mem={};function gs(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}}function ss(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}
 const S={n:'15',task:null,solved:0,ok:0};
 const Info={'15':['№15','Базовый','Треугольники, биссектрисы'],'16':['№16','Базовый','Окружность'],'17':['№17','Базовый','Площади'],'18':['№18','Базовый','Клетчатая бумага'],'19':['№19','Базовый','Утверждения'],'23':['№23','Повышенный','Вычисления'],'24':['№24','Повышенный','Доказательства'],'25':['№25','Повышенный','Сложные']};
-function init(){const d=gs('oge_s');if(d)Object.assign(S,JSON.parse(d));upd()}
-function save(){ss('oge_s',JSON.stringify({n:S.n,solved:S.solved,ok:S.ok}))}
-function upd(){document.getElementById('inf').innerHTML=`<b>${Info[S.n][0]}</b><br>${Info[S.n][2]}`;document.querySelectorAll('.btns .b').forEach(b=>{b.classList.remove('on');if(b.textContent.includes(S.n))b.classList.add('on')})}
-window.sel=function(n){S.n=n;save();upd();document.getElementById('q').textContent='Нажми «🎲 Новая задача»';document.getElementById('svg').innerHTML='';document.getElementById('ans').disabled=true;document.getElementById('chk').disabled=true;document.getElementById('sol').disabled=true;document.getElementById('fb').className='fb';document.getElementById('sol-box').classList.remove('show')};
+function init(){const d=gs('oge_s2');if(d)Object.assign(S,JSON.parse(d));upd()}
+function save(){ss('oge_s2',JSON.stringify({n:S.n,solved:S.solved,ok:S.ok}))}
+function upd(){document.getElementById('inf').innerHTML=`<b>${Info[S.n][0]}</b><br>${Info[S.n][2]}`;document.querySelectorAll('.btns .b').forEach(b=>{b.classList.remove('on');if(b.textContent.includes(S.n))b.classList.add('on')});document.getElementById('hintBtn').disabled=true;document.getElementById('hintCard').classList.remove('show')}
+window.sel=function(n){S.n=n;save();upd();document.getElementById('q').textContent='Нажми «🎲 Новая задача»';document.getElementById('svg').innerHTML='';document.getElementById('ans').disabled=true;document.getElementById('chk').disabled=true;document.getElementById('sol').disabled=true;document.getElementById('fb').className='fb';document.getElementById('sol-box').classList.remove('show');document.getElementById('hintCard').classList.remove('show')};
 window.ins=function(sym){const i=document.getElementById('ans');const s=i.selectionStart,e=i.selectionEnd,v=i.value;i.value=v.slice(0,s)+sym+v.slice(e);i.selectionStart=i.selectionEnd=s+sym.length;i.focus()};
-function parse(str){if(!str)return NaN;str=str.toString().toLowerCase().trim().replace(/\s/g,'').replace(',','.');str=str.replace(/корень(ей|я|и)?\s*(из\s*)?/g,'√').replace(/sqrt\s*\(?/g,'√').replace(/\)/g,'');if(str.includes('/')){const[a,b]=str.split('/').map(Number);if(!isNaN(a)&&!isNaN(b)&&b)return a/b}const m=str.match(/^(-?\d*\.?\d*)√(\d+)$/);if(m){const c=m[1]===''?1:(m[1]==='-'?-1:parseFloat(m[1]));return c*Math.sqrt(parseInt(m[2]))}const n=parseFloat(str);return isNaN(n)?NaN:n}
-window.check=function(){const v=document.getElementById('ans').value.trim();if(!v)return;if(S.task&&S.task.ans==='proof'){document.getElementById('fb').innerHTML='✅ <b>Доказательство!</b><br>Сверь ход с образцом.';document.getElementById('fb').className='fb p';document.getElementById('sol-box').textContent=S.task.sol;document.getElementById('sol-box').classList.add('show');return}const uv=parse(v),cv=parse(S.task.ans);const f=document.getElementById('fb');let ok=false;if(!isNaN(uv)&&!isNaN(cv)&&Math.abs(uv-cv)<0.02)ok=true;else if(v.toLowerCase().replace(/\s/g,'').replace(',','.')===String(S.task.ans).toLowerCase().replace(/\s/g,'').replace(',','.'))ok=true;if(ok){f.innerHTML='🎉 <b>Верно!</b><br>Ответ принят.';f.className='fb y';S.ok++}else{let h='';if(S.n==='15')h='💡 Сумма углов △=180°. Биссектриса делит угол пополам.';else if(S.n==='16')h='💡 Вписанный ∠=½ дуги. Касательная ⟂ радиусу.';else if(S.n==='17')h='💡 S△=½ah, Sромба=½d₁d₂.';else if(S.n==='18')h='💡 Окружи прямоугольником, вычти лишнее.';else if(S.n==='19')h='💡 Проверяй контрпримерами.';else if(S.n==='23')h='💡 Ищи подобие △, теорему о хордах.';else if(S.n==='24')h='✅ Сверь логику с образцом.';else if(S.n==='25')h='💡 Проведи высоту/радиус. Ищи подобие.';f.innerHTML=`❌ <b>Неверно.</b><br>Правильно: <b>${S.task.ans}</b><br><br>${h}<br><br>📝 <i>Жми «Решение».</i>`;f.className='fb n'}S.solved++;save()};
-window.showSol=function(){const b=document.getElementById('sol-box');if(b.classList.contains('show')){b.classList.remove('show');document.getElementById('sol').textContent='📝 Решение'}else{b.textContent=S.task.sol;b.classList.add('show');document.getElementById('sol').textContent='📝 Скрыть'}};
-window.gen=function(){const pool=TMP[S.n];if(!pool||!pool.length)return;S.task=pool[Math.floor(Math.random()*pool.length)].f();document.getElementById('q').textContent=S.task.txt;draw(S.task.d,S.task.p);document.getElementById('ans').value='';document.getElementById('ans').disabled=false;document.getElementById('chk').disabled=false;document.getElementById('sol').disabled=false;document.getElementById('fb').className='fb';document.getElementById('sol-box').classList.remove('show');document.getElementById('sol').textContent='📝 Решение'};
-function draw(type,p){
-let s=`<svg viewBox="0 0 360 260" style="width:100%;max-width:320px;overflow:visible">`;
-// Стиль с белой обводкой для читаемости текста поверх линий
-s+=`<style>.l{stroke:#334155;stroke-width:2;stroke-linecap:round;fill:none}.d{stroke:#334155;stroke-width:1.5;stroke-dasharray:4,3;fill:none}.b{stroke:#2563eb}.r{stroke:#dc2626}.lbl{fill:#334155;font-family:sans-serif;font-weight:600;font-size:16px;stroke:#ffffff;stroke-width:4px;paint-order:stroke fill}.val{fill:#2563eb;font-family:sans-serif;font-weight:600;font-size:15px;stroke:#ffffff;stroke-width:3px;paint-order:stroke fill}.ask{fill:#dc2626;font-weight:700;font-size:16px;stroke:#ffffff;stroke-width:3px;paint-order:stroke fill}</style>`;
 
-// Безопасные координаты для букв (далеко от линий)
-if(type==='triangle'){
-  const A=[180,60],B=[60,200],C=[300,200];
-  s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
-  s+=`<text x="180" y="35" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="40" y="225" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="320" y="225" text-anchor="middle" class="lbl">C</text>`;
-  if(p.A)s+=`<text x="125" y="90" text-anchor="middle" class="val">${p.A}°</text>`;
-  if(p.B)s+=`<text x="85" y="175" text-anchor="middle" class="val">${p.B}°</text>`;
-  s+=`<text x="245" y="175" text-anchor="middle" class="ask">∠C=?</text>`;
-}else if(type==='bisector'){
-  const A=[180,60],B=[60,200],C=[300,200],D=[180,200];
-  s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
-  s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${D[0]}" y2="${D[1]}" class="b d"/>`;
-  s+=`<text x="180" y="35" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="40" y="225" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="320" y="225" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="180" y="225" text-anchor="middle" class="lbl">D</text>`;
-  if(p.alpha)s+=`<text x="125" y="90" text-anchor="middle" class="val">${p.alpha}°</text>`;
-  s+=`<text x="180" y="135" text-anchor="middle" class="ask">∠BAD=?</text>`;
-}else if(type==='isosceles'){
-  const A=[80,200],B=[280,200],C=[180,50];
-  s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
-  s+=`<text x="55" y="225" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="305" y="225" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="180" y="25" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="180" y="225" text-anchor="middle" class="val">${p.base||''}</text>`;
-  s+=`<text x="110" y="125" text-anchor="middle" class="val">${p.side||''}</text>`;
-}else if(type==='rectangle'){
-  const x=50,y=70,w=260,h=120;
-  s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" class="l"/>`;
-  s+=`<text x="35" y="55" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="325" y="55" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="325" y="210" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="35" y="210" text-anchor="middle" class="lbl">D</text>`;
-  s+=`<text x="180" y="45" text-anchor="middle" class="val">${p.a||''}</text>`;
-  s+=`<text x="25" y="140" text-anchor="middle" class="val">${p.b||''}</text>`;
-}else if(type==='rhombus'){
-  const cx=180,cy=130,dx=90,dy=60;
-  s+=`<polygon points="${cx},${cy-dy} ${cx+dx},${cy} ${cx},${cy+dy} ${cx-dx},${cy}" class="l"/>`;
-  s+=`<line x1="${cx-dx}" y1="${cy}" x2="${cx+dx}" y2="${cy}" class="d"/>`;
-  s+=`<line x1="${cx}" y1="${cy-dy}" x2="${cx}" y2="${cy+dy}" class="d"/>`;
-  s+=`<text x="180" y="45" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="300" y="140" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="180" y="220" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="60" y="140" text-anchor="middle" class="lbl">D</text>`;
-}else if(type==='circle'||type==='diameter_tri'){
-  const O=[160,130],r=60;
-  s+=`<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="l"/>`;
-  s+=`<text x="160" y="160" text-anchor="middle" class="lbl">O</text>`;
-  if(type==='diameter_tri'){
-    s+=`<line x1="${O[0]-r}" y1="${O[1]}" x2="${O[0]+r}" y2="${O[1]}" class="b"/>`;
-    s+=`<polygon points="${O[0]-r},${O[1]} ${O[0]+r},${O[1]} ${O[0]},${O[1]-r}" class="l"/>`;
-    s+=`<rect x="${O[0]-4}" y="${O[1]-4}" width="8" height="8" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-    s+=`<text x="80" y="155" text-anchor="middle" class="lbl">A</text>`;
-    s+=`<text x="240" y="155" text-anchor="middle" class="lbl">C</text>`;
-    s+=`<text x="160" y="45" text-anchor="middle" class="lbl">B</text>`;
-    if(p.A)s+=`<text x="105" y="90" text-anchor="middle" class="val">${p.A}°</text>`;
-  }
-}else if(type==='tangent_chord_angle'){
-  const O=[160,130],r=60;
-  s+=`<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="l"/>`;
-  s+=`<line x1="${O[0]+r}" y1="${O[1]}" x2="${O[0]+r+60}" y2="${O[1]-60}" class="b"/>`;
-  s+=`<line x1="${O[0]+r}" y1="${O[1]}" x2="${O[0]-r}" y2="${O[1]}" class="d"/>`;
-  s+=`<text x="160" y="160" text-anchor="middle" class="lbl">O</text>`;
-  s+=`<text x="230" y="155" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="80" y="155" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="240" y="90" text-anchor="middle" class="ask">∠=?</text>`;
-}else if(type==='trapezoid_similar'||type==='trapezoid_mid'||type==='trapezoid_diag_areas'||type==='isosceles_trap'){
-  s+=`<polygon points="90,180 270,180 220,60 140,60" class="l"/>`;
-  s+=`<line x1="90" y1="180" x2="220" y2="60" class="b d"/>`;
-  s+=`<text x="70" y="210" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="290" y="210" text-anchor="middle" class="lbl">D</text>`;
-  s+=`<text x="240" y="35" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="120" y="35" text-anchor="middle" class="lbl">B</text>`;
-  if(p.a)s+=`<text x="180" y="205" text-anchor="middle" class="val">${p.a}</text>`;
-  if(p.b)s+=`<text x="180" y="40" text-anchor="middle" class="val">${p.b}</text>`;
-}else if(type==='intersecting_chords'){
-  s+=`<circle cx="180" cy="130" r="70" class="l"/>`;
-  s+=`<line x1="110" y1="130" x2="250" y2="130" class="b"/>`;
-  s+=`<line x1="130" y1="70" x2="230" y2="190" class="r"/>`;
-  s+=`<text x="180" y="160" text-anchor="middle" class="lbl">K</text>`;
-  s+=`<text x="90" y="155" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="270" y="155" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="110" y="50" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="250" y="215" text-anchor="middle" class="lbl">D</text>`;
-}else if(type==='right_alt_seg'){
-  const A=[100,180],B=[260,180],C=[180,60],H=[180,180];
-  s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
-  s+=`<line x1="${C[0]}" y1="${C[1]}" x2="${H[0]}" y2="${H[1]}" class="b d"/>`;
-  s+=`<rect x="${H[0]-4}" y="${H[1]-4}" width="8" height="8" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-  s+=`<rect x="${C[0]-4}" y="${C[1]-4}" width="8" height="8" fill="none" stroke="#475569" stroke-width="1.5"/>`;
-  s+=`<text x="80" y="205" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="280" y="205" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="180" y="35" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="195" y="205" text-anchor="middle" class="lbl">H</text>`;
-  if(p.AH)s+=`<text x="140" y="205" text-anchor="middle" class="val">AH=${p.AH}</text>`;
-  if(p.CH)s+=`<text x="205" y="120" text-anchor="middle" class="val">CH=${p.CH}</text>`;
-  if(p.BH!==undefined)s+=`<text x="220" y="205" text-anchor="middle" class="ask">BH=?</text>`;
-}else if(type==='proof_altitudes'||type==='proof_midpoint'){
-  s+=`<polygon points="100,180 260,180 180,60" class="l"/>`;
-  s+=`<line x1="180" y1="60" x2="180" y2="180" class="b d"/>`;
-  s+=`<line x1="140" y1="180" x2="200" y2="120" class="r d"/>`;
-  s+=`<text x="80" y="210" text-anchor="middle" class="lbl">A</text>`;
-  s+=`<text x="280" y="210" text-anchor="middle" class="lbl">B</text>`;
-  s+=`<text x="180" y="35" text-anchor="middle" class="lbl">C</text>`;
-  s+=`<text x="180" y="210" text-anchor="middle" class="lbl">D</text>`;
-  s+=`<text x="180" y="125" text-anchor="middle" class="lbl">H</text>`;
-}else{
-  s+=`<text x="180" y="110" text-anchor="middle" fill="#334155" font-size="16" font-weight="600">📐 Задача</text>`;
+// 🔢 УМНЫЙ ПАРСЕР: поддерживает √, *, /, +, -, скобки, запятые
+function parse(str){
+  if(!str)return NaN;
+  str=str.toString().toLowerCase().trim().replace(/\s/g,'').replace(',','.');
+  // Заменяем √ на Math.sqrt(), обрабатываем √12, 2√3, √(5)*2 и т.д.
+  str=str.replace(/√\(([^)]+)\)/g,'Math.sqrt($1)').replace(/√(\d+)/g,'Math.sqrt($1)').replace(/(\d)√/g,'$1*Math.sqrt(').replace(/√\*/g,'Math.sqrt(');
+  // Добавляем закрывающую скобку для случаев типа 2√3
+  if((str.match(/\*/g)||[]).length < (str.match(/Math\.sqrt/g)||[]).length){str=str.replace(/Math\.sqrt\((\d+)\)/g,'Math.sqrt($1)');}
+  try{
+    // Безопасное вычисление: разрешаем только цифры, + - * / . ( ) и Math.sqrt
+    if(/^[0-9+\-*/().\sMathsqrt,]+$/.test(str.replace(/Math\.sqrt/g,''))){
+      const val=Function('"use strict";return ('+str+')')();
+      return typeof val==='number'&&!isNaN(val)?val:NaN;
+    }
+  }catch(e){}
+  // Фолбэк: простые случаи
+  if(str.includes('/')){const[a,b]=str.split('/').map(Number);if(!isNaN(a)&&!isNaN(b)&&b)return a/b}
+  const m=str.match(/^(-?\d*\.?\d*)√(\d+)$/);if(m){const c=m[1]===''?1:(m[1]==='-'?-1:parseFloat(m[1]));return c*Math.sqrt(parseInt(m[2]))}
+  return parseFloat(str)||NaN;
 }
-s+=`</svg>`;document.getElementById('svg').innerHTML=s}
-const TMP={
-'15':[
-{f:()=>{const A=rand(40,80),B=rand(40,80);return{txt:`В △ABC ∠A=${A}°, ∠B=${B}°. Найди ∠C.`,ans:180-A-B,sol:`∠A+∠B+∠C=180° ⇒ ∠C=180°-${A}°-${B}°=${180-A-B}°\nОтвет: ${180-A-B}`,d:'triangle',p:{A,B}}}},
-{f:()=>{const A=rand(40,80),B=rand(40,80);return{txt:`В △ABC ∠A=${A}°, ∠B=${B}°. Найди внешний ∠ при C.`,ans:A+B,sol:`Внешний ∠ = ∠A+∠B = ${A}+${B} = ${A+B}°\nОтвет: ${A+B}`,d:'triangle',p:{A,B}}}},
-{f:()=>{const α=rand(60,100);return{txt:`В △ABC AD — биссектриса, ∠BAC=${α}°. Найди ∠BAD.`,ans:α/2,sol:`Биссектриса делит угол пополам ⇒ ∠BAD = ∠BAC/2 = ${α}°/2 = ${α/2}°\nОтвет: ${α/2}`,d:'bisector',p:{alpha:α}}}},
-{f:()=>{const base=rand(10,16),leg=rand(6,12);return{txt:`P равнобедр. △ = ${base+2*leg}, основание=${base}. Найди боковую.`,ans:leg,sol:`2a = P-b = ${base+2*leg}-${base} = ${2*leg} ⇒ a=${leg}\nОтвет: ${leg}`,d:'isosceles',p:{base:base,side:leg}}}},
-{f:()=>{const a=rand(50,70);return{txt:`В равноб. трапеции ∠BAD=${a}°. Найди ∠ABC.`,ans:180-a,sol:`∠ABC=180°-${a}°=${180-a}°\nОтвет: ${180-a}`,d:'isosceles_trap',p:{A:a}}}}
-],
-'16':[
-{f:()=>{const arc=rand(80,160);return{txt:`Дуга AB=${arc}°. Угол между хордой и касательной в B?`,ans:arc/2,sol:`Угол = ½ дуги = ${arc}/2 = ${arc/2}°\nОтвет: ${arc/2}`,d:'tangent_chord_angle',p:{arc}}}},
-{f:()=>{const R=rand(5,12);return{txt:`C окр. = ${Math.round(2*3.14*R*10)/10} (π≈3.14). Найди R.`,ans:R,sol:`R=C/2π=${Math.round(2*3.14*R*10)/10}/6.28=${R}\nОтвет: ${R}`,d:'circle',p:{R}}}},
-{f:()=>{const A=rand(30,60);return{txt:`AC — диаметр. ∠BAC=${A}°. Найди ∠BCA.`,ans:90-A,sol:`∠B=90° ⇒ ∠C=90°-${A}°=${90-A}°\nОтвет: ${90-A}`,d:'diameter_tri',p:{A}}}}
-],
-'17':[
-{f:()=>{const d1=rand(8,16),d2=rand(6,12);return{txt:`d₁=${d1}, d₂=${d2}. S ромба?`,ans:(d1*d2)/2,sol:`S=d₁d₂/2 = ${d1*d2}/2 = ${(d1*d2)/2}\nОтвет: ${(d1*d2)/2}`,d:'rhombus',p:{d1,d2}}}},
-{f:()=>{const a=rand(5,10),h=rand(4,9);return{txt:`Сторона=${a}, высота=${h}. S параллелограмма?`,ans:a*h,sol:`S=ah=${a*h}\nОтвет: ${a*h}`,d:'rectangle',p:{a,b:h}}}},
-{f:()=>{const a=rand(4,8),b=rand(4,8),α=rand(30,60);const S=Math.round(a*b*Math.sin(α*Math.PI/180)*10)/10;return{txt:`a=${a}, b=${b}, ∠=${α}°. S△?`,ans:S,sol:`S=½ab·sinα ≈ ${S}\nОтвет: ${S}`,d:'triangle_area_2sides',p:{a,b,C:α,S}}}}
-],
-'18':[
-{f:()=>{const w=rand(3,7),h=rand(3,6);return{txt:`Прямоугольник ${w}×${h} клеток. S?`,ans:w*h,sol:`S=${w*h}\nОтвет: ${w*h}`,d:'grid_rect',p:{w,h}}}},
-{f:()=>{const a=rand(2,5),b=rand(2,5);return{txt:`Прямоуг. △ катеты ${a}, ${b}. S?`,ans:(a*b)/2,sol:`S=${(a*b)/2}\nОтвет: ${(a*b)/2}`,d:'grid_tri',p:{a,b}}}},
-{f:()=>{const x1=rand(0,4),y1=rand(0,4),x2=rand(5,9),y2=rand(5,9),x3=rand(2,7),y3=rand(8,12);const S=Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;return{txt:`△(${x1},${y1}), (${x2},${y2}), (${x3},${y3}). S?`,ans:S,sol:`S=${S}\nОтвет: ${S}`,d:'grid_tri_coords',p:{S}}}}
-],
-'19':[
-{f:()=>({txt:`Верны? (номера подряд)\n1) В любой △ вписана окр.\n2) Диаг. прямоуг. ⟂\n3) Прот. стороны параллелогр. равны`,ans:'13',sol:`1) ✓ 2) ✗ 3) ✓\nОтвет: 13`,d:'statements',p:{}})},
-{f:()=>({txt:`Неверно?\n1) Сумма углов △ 180°\n2) В любой параллелогр. вписана окр.\n3) Sквадрата=a²`,ans:'2',sol:`2) ✗\nОтвет: 2`,d:'statements',p:{}})}
-],
-'23':[
-{f:()=>{const BC=rand(3,6),AD=rand(BC*2,BC*4);const AC=Math.round(Math.sqrt(BC*AD)*10)/10;return{txt:`В трапеции ∠ABC=∠ACD, BC=${BC}, AD=${AD}. AC?`,ans:AC,sol:`△ABC~△DCA ⇒ AC²=BC·AD=${BC*AD} ⇒ AC=${AC}\nОтвет: ${AC}`,d:'trapezoid_similar',p:{BC,AD,AC}}}},
-{f:()=>{const AK=rand(3,8),KB=rand(2,6),CK=rand(2,5);const KD=Math.round((AK*KB)/CK*10)/10;return{txt:`Хорды пересекаются в K. AK=${AK}, KB=${KB}, CK=${CK}. KD?`,ans:KD,sol:`AK·KB=CK·KD ⇒ KD=${KD}\nОтвет: ${KD}`,d:'intersecting_chords',p:{AK,KB,CK,KD}}}},
-{f:()=>{const AH=rand(3,6),CH=rand(4,8);const BH=Math.round(CH*CH/AH*10)/10;return{txt:`В прямот. △ высота CH. AH=${AH}, CH=${CH}. BH?`,ans:BH,sol:`CH²=AH·BH ⇒ BH=${BH}\nОтвет: ${BH}`,d:'right_alt_seg',p:{AH,CH,BH}}}}
-],
-'24':[
-{f:()=>({txt:`В △ABC высоты AD и BE. Докажи: △ABE ~ △ADC.`,ans:'proof',sol:`1) ∠AEB=∠ADC=90°\n2) ∠A — общий\n3) ~ по двум углам`,d:'proof_altitudes',p:{}})},
-{f:()=>({txt:`ABCD — параллелогр., M — сер. BC, AM∩BD=K. Докажи: BK:KD=1:2`,ans:'proof',sol:`1) AD∥BC ⇒ накрест лежащие равны\n2) △BKM ~ △DKA\n3) BK/KD=BM/AD=1/2`,d:'proof_midpoint',p:{}})}
-],
-'25':[
-{f:()=>{const S1=rand(2,4),S2=rand(S1*3,S1*7);const S=Math.round((Math.sqrt(S1)+Math.sqrt(S2))**2);return{txt:`В трапеции S△BOC=${S1}, S△AOD=${S2}. Sтрап?`,ans:S,sol:`S=(√${S1}+√${S2})²=${S}\nОтвет: ${S}`,d:'trapezoid_diag_areas',p:{S1,S2,S}}}},
-{f:()=>{const AB=rand(6,9),BC=rand(8,11),CA=Math.round(Math.hypot(AB,BC)*10)/10;const AD=Math.round(AB*CA/BC*10)/10;return{txt:`В прямот. трапеции AC⊥CD, AB=${AB}, BC=${BC}. AD?`,ans:AD,sol:`AC=${CA}, △ABC~△CAD ⇒ AD=(AC·BC)/AB=${AD}\nОтвет: ${AD}`,d:'right_trapezoid_similar',p:{AB,BC,CA,AD}}}}
-]
+
+window.check=function(){
+  const v=document.getElementById('ans').value.trim();if(!v)return;
+  if(S.task&&S.task.ans==='proof'){
+    document.getElementById('fb').innerHTML='✅ <b>Доказательство!</b><br>Сверь ход с образцом.';
+    document.getElementById('fb').className='fb p';
+    document.getElementById('sol-box').textContent=S.task.sol;
+    document.getElementById('sol-box').classList.add('show');
+    return;
+  }
+  const uv=parse(v),cv=parse(S.task.ans);
+  const f=document.getElementById('fb');let ok=false;
+  if(!isNaN(uv)&&!isNaN(cv)&&Math.abs(uv-cv)<0.02)ok=true;
+  else if(String(v).toLowerCase().replace(/\s/g,'').replace(',','.')===String(S.task.ans).toLowerCase().replace(/\s/g,'').replace(',','.'))ok=true;
+  if(ok){f.innerHTML='🎉 <b>Верно!</b><br>Ответ принят.';f.className='fb y';S.ok++}
+  else{
+    let h=S.task.hint||'💡 Повтори теорию по этому типу задач.';
+    f.innerHTML=`❌ <b>Неверно.</b><br>Правильно: <b>${S.task.ans}</b><br><br>${h}<br><br>📝 <i>Жми «Решение».</i>`;
+    f.className='fb n';
+  }
+  S.solved++;save();
+  document.getElementById('hintBtn').disabled=true;
+  document.getElementById('hintCard').classList.remove('show');
 };
-document.getElementById('chk').onclick=check;document.getElementById('sol').onclick=showSol;document.getElementById('ans').onkeydown=e=>{if(e.key==='Enter')check()};
+
+window.toggleHint=function(){
+  const card=document.getElementById('hintCard');
+  if(card.classList.contains('show')){
+    card.classList.remove('show');
+    document.getElementById('hintBtn').textContent='💡 Показать подсказку';
+  }else if(S.task&&S.task.hint){
+    document.getElementById('hintText').textContent=S.task.hint;
+    card.classList.add('show');
+    document.getElementById('hintBtn').textContent='🔽 Скрыть подсказку';
+  }
+};
+
+window.showSol=function(){
+  const b=document.getElementById('sol-box');
+  if(b.classList.contains('show')){
+    b.classList.remove('show');
+    document.getElementById('sol').textContent='📝 Решение';
+  }else{
+    b.textContent=S.task.sol;
+    b.classList.add('show');
+    document.getElementById('sol').textContent='📝 Скрыть';
+  }
+};
+
+window.gen=function(){
+  const pool=TASK_BANK[S.n];
+  if(!pool||!pool.length)return;
+  S.task=pool[Math.floor(Math.random()*pool.length)].f();
+  document.getElementById('q').textContent=S.task.txt;
+  draw(S.task.d,S.task.p);
+  document.getElementById('ans').value='';
+  document.getElementById('ans').disabled=false;
+  document.getElementById('chk').disabled=false;
+  document.getElementById('sol').disabled=false;
+  document.getElementById('hintBtn').disabled=false;
+  document.getElementById('fb').className='fb';
+  document.getElementById('sol-box').classList.remove('show');
+  document.getElementById('hintCard').classList.remove('show');
+  document.getElementById('sol').textContent='📝 Решение';
+  document.getElementById('hintBtn').textContent='💡 Показать подсказку';
+};
+
+// 🎨 ОТРИСОВКА С ВИЗУАЛЬНЫМИ МЕТКАМИ
+function draw(type,p){
+  let s=`<svg viewBox="0 0 360 260" style="width:100%;max-width:320px;overflow:visible" role="img" aria-label="Геометрический чертёж">`;
+  s+=`<style>.l{stroke:var(--text);stroke-width:2;stroke-linecap:round;fill:none}.d{stroke:var(--text);stroke-width:1.5;stroke-dasharray:4,3;fill:none}.b{stroke:var(--primary)}.r{stroke:var(--err)}.lbl{fill:var(--text);font-family:sans-serif;font-weight:600;font-size:16px;stroke:var(--card);stroke-width:4px;paint-order:stroke fill}.val{fill:var(--primary);font-family:sans-serif;font-weight:600;font-size:15px;stroke:var(--card);stroke-width:3px;paint-order:stroke fill}.ask{fill:var(--err);font-weight:700;font-size:16px;stroke:var(--card);stroke-width:3px;paint-order:stroke fill}.tick{stroke:var(--text);stroke-width:2;fill:none}.rt{fill:none;stroke:var(--text);stroke-width:1.5}.arc{fill:none;stroke:var(--warn);stroke-width:2}</style>`;
+
+  if(type==='triangle'){
+    const A=[180,60],B=[60,200],C=[300,200];
+    s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
+    s+=`<text x="180" y="35" text-anchor="middle" class="lbl">A</text><text x="40" y="225" text-anchor="middle" class="lbl">B</text><text x="320" y="225" text-anchor="middle" class="lbl">C</text>`;
+    if(p.A)s+=`<text x="125" y="90" text-anchor="middle" class="val">${p.A}°</text><path d="M165 75 A15 15 0 0 1 180 65" class="arc"/>`;
+    if(p.B)s+=`<text x="85" y="175" text-anchor="middle" class="val">${p.B}°</text><path d="M75 185 A12 12 0 0 1 65 195" class="arc"/>`;
+    s+=`<text x="245" y="175" text-anchor="middle" class="ask">∠C=?</text>`;
+  }else if(type==='bisector'){
+    const A=[180,60],B=[60,200],C=[300,200],D=[180,200];
+    s+=`<polygon points="${A} ${B} ${C}" class="l"/><line x1="${A[0]}" y1="${A[1]}" x2="${D[0]}" y2="${D[1]}" class="b d"/>`;
+    s+=`<text x="180" y="35" text-anchor="middle" class="lbl">A</text><text x="40" y="225" text-anchor="middle" class="lbl">B</text><text x="320" y="225" text-anchor="middle" class="lbl">C</text><text x="180" y="225" text-anchor="middle" class="lbl">D</text>`;
+    if(p.alpha){s+=`<text x="125" y="90" text-anchor="middle" class="val">${p.alpha}°</text><path d="M165 75 A15 15 0 0 1 180 65" class="arc"/><path d="M180 65 A15 15 0 0 0 195 75" class="arc"/>`;}
+    s+=`<text x="180" y="135" text-anchor="middle" class="ask">∠BAD=?</text>`;
+  }else if(type==='isosceles'){
+    const A=[80,200],B=[280,200],C=[180,50];
+    s+=`<polygon points="${A} ${B} ${C}" class="l"/>`;
+    // Метки равных сторон
+    s+=`<line x1="130" y1="125" x2="135" y2="130" class="tick"/><line x1="230" y1="125" x2="225" y2="130" class="tick"/>`;
+    s+=`<text x="55" y="225" text-anchor="middle" class="lbl">A</text><text x="305" y="225" text-anchor="middle" class="lbl">B</text><text x="180" y="25" text-anchor="middle" class="lbl">C</text>`;
+    if(p.base)s+=`<text x="180" y="225" text-anchor="middle" class="val">${p.base}</text>`;
+    if(p.side)s+=`<text x="110" y="125" text-anchor="middle" class="val">${p.side}</text>`;
+  }else if(type==='rectangle'){
+    const x=50,y=70,w=260,h=120;
+    s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" class="l"/>`;
+    // Прямой угол в A
+    s+=`<rect x="${x+2}" y="${y+h-10}" width="8" height="8" class="rt"/>`;
+    s+=`<text x="35" y="55" text-anchor="middle" class="lbl">A</text><text x="325" y="55" text-anchor="middle" class="lbl">B</text><text x="325" y="210" text-anchor="middle" class="lbl">C</text><text x="35" y="210" text-anchor="middle" class="lbl">D</text>`;
+    if(p.a)s+=`<text x="180" y="45" text-anchor="middle" class="val">${p.a}</text>`;
+    if(p.b)s+=`<text x="25" y="140" text-anchor="middle" class="val">${p.b}</text>`;
+  }else if(type==='rhombus'){
+    const cx=180,cy=130,dx=90,dy=60;
+    s+=`<polygon points="${cx},${cy-dy} ${cx+dx},${cy} ${cx},${cy+dy} ${cx-dx},${cy}" class="l"/>`;
+    s+=`<line x1="${cx-dx}" y1="${cy}" x2="${cx+dx}" y2="${cy}" class="d"/><line x1="${cx}" y1="${cy-dy}" x2="${cx}" y2="${cy+dy}" class="d"/>`;
+    // Метки равных сторон (по одной на каждой)
+    s+=`<line x1="${cx-45}" y1="${cy-dy+30}" x2="${cx-40}" y2="${cy-dy+35}" class="tick"/><line x1="${cx+45}" y1="${cy-dy+30}" x2="${cx+40}" y2="${cy-dy+35}" class="tick"/>`;
+    s+=`<line x1="${cx+45}" y1="${cy+dy-30}" x2="${cx+40}" y2="${cy+dy-35}" class="tick"/><line x1="${cx-45}" y1="${cy+dy-30}" x2="${cx-40}" y2="${cy+dy-35}" class="tick"/>`;
+    s+=`<text x="180" y="45" text-anchor="middle" class="lbl">A</text><text x="300" y="140" text-anchor="middle" class="lbl">B</text><text x="180" y="220" text-anchor="middle" class="lbl">C</text><text x="60" y="140" text-anchor="middle" class="lbl">D</text>`;
+  }else if(type==='circle'||type==='diameter_tri'){
+    const O=[160,130],r=60;
+    s+=`<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="l"/><text x="160" y="160" text-anchor="middle" class="lbl">O</text>`;
+    if(type==='diameter_tri'){
+      s+=`<line x1="${O[0]-r}" y1="${O[1]}" x2="${O[0]+r}" y2="${O[1]}" class="b"/><polygon points="${O[0]-r},${O[1]} ${O[0]+r},${O[1]} ${O[0]},${O[1]-r}" class="l"/>`;
+      s+=`<rect x="${O[0]-4}" y="${O[1]-4}" width="8" height="8" class="rt"/>`;
+      s+=`<text x="80" y="155" text-anchor="middle" class="lbl">A</text><text x="240" y="155" text-anchor="middle" class="lbl">C</text><text x="160" y="45" text-anchor="middle" class="lbl">B</text>`;
+      if(p.A)s+=`<text x="105" y="90" text-anchor="middle" class="val">${p.A}°</text><path d="M145 110 A20 20 0 0 1 160 100" class="arc"/>`;
+    }
+  }else if(type==='tangent_chord_angle'){
+    const O=[160,130],r=60;
+    s+=`<circle cx="${O[0]}" cy="${O[1]}" r="${r}" class="l"/><line x1="${O[0]+r}" y1="${O[1]}" x2="${O[0]+r+60}" y2="${O[1]-60}" class="b"/><line x1="${O[0]+r}" y1="${O[1]}" x2="${O[0]-r}" y2="${O[1]}" class="d"/>`;
+    s+=`<text x="160" y="160" text-anchor="middle" class="lbl">O</text><text x="230" y="155" text-anchor="middle" class="lbl">B</text><text x="80" y="155" text-anchor="middle" class="lbl">A</text><text x="240" y="90" text-anchor="middle" class="ask">∠=?</text>`;
+    // Угол между касательной и хордой
+    s+=`<path d="M220 130 A30 30 0 0 1 235 115" class="arc"/>`;
+  }else if(type==='trapezoid_similar'||type==='trapezoid_mid'||type==='trapezoid_diag_areas'||type==='isosceles_trap'){
+    s+=`<polygon points="90,180 270,180 220,60 140,60" class="l"/><line x1="90" y1="180" x2="220" y2="60" class="b d"/>`;
+    s+=`<text x="70" y="210" text-anchor="middle" class="lbl">A</text><text x="290" y="210" text-anchor="middle" class="lbl">D</text><text x="240" y="35" text-anchor="middle" class="lbl">C</text><text x="120" y="35" text-anchor="middle" class="lbl">B</text>`;
+    if(p.a)s+=`<text x="180" y="205" text-anchor="middle" class="val">${p.a}</text>`;
+    if(p.b)s+=`<text x="180" y="40" text-anchor="middle" class="val">${p.b}</text>`;
+  }else if(type==='intersecting_chords'){
+    s+=`<circle cx="180" cy="130" r="70" class="l"/><line x1="110" y1="130" x2="250" y2="130" class="b"/><line x1="130" y1="70" x2="230" y2="190" class="r"/>`;
+    s+=`<text x="180" y="160" text-anchor="middle" class="lbl">K</text><text x="90" y="155" text-anchor="middle" class="lbl">A</text><text x="270" y="155" text-anchor="middle" class="lbl">B</text><text x="110" y="50" text-anchor="middle" class="lbl">C</text><text x="250" y="215" text-anchor="middle" class="lbl">D</text>`;
+  }else if(type==='right_alt_seg'){
+    const A=[100,180],B=[260,180],C=[180,60],H=[180,180];
+    s+=`<polygon points="${A} ${B} ${C}" class="l"/><line x1="${C[0]}" y1="${C[1]}" x2="${H[0]}" y2="${H[1]}" class="b d"/>`;
+    s+=`<rect x="${H[0]-4}" y="${H[1]-4}" width="8" height="8" class="rt"/><rect x="${C[0]-4}" y="${C[1]-4}" width="8" height="8" class="rt"/>`;
+    s+=`<text x="80" y="205" text-anchor="middle" class="lbl">A</text><text x="280" y="205" text-anchor="middle" class="lbl">B</text><text x="180" y="35" text-anchor="middle" class="lbl">C</text><text x="195" y="205" text-anchor="middle" class="lbl">H</text>`;
+    if(p.AH)s+=`<text x="140" y="205" text-anchor="middle" class="val">AH=${p.AH}</text>`;
+    if(p.CH)s+=`<text x="205" y="120" text-anchor="middle" class="val">CH=${p.CH}</text>`;
+    if(p.BH!==undefined)s+=`<text x="220" y="205" text-anchor="middle" class="ask">BH=?</text>`;
+  }else if(type==='proof_altitudes'||type==='proof_midpoint'){
+    s+=`<polygon points="100,180 260,180 180,60" class="l"/><line x1="180" y1="60" x2="180" y2="180" class="b d"/><line x1="140" y1="180" x2="200" y2="120" class="r d"/>`;
+    s+=`<rect x="176" y="176" width="8" height="8" class="rt"/>`;
+    s+=`<text x="80" y="210" text-anchor="middle" class="lbl">A</text><text x="280" y="210" text-anchor="middle" class="lbl">B</text><text x="180" y="35" text-anchor="middle" class="lbl">C</text><text x="180" y="210" text-anchor="middle" class="lbl">D</text><text x="180" y="125" text-anchor="middle" class="lbl">H</text>`;
+  }else{
+    s+=`<text x="180" y="110" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">📐 Задача</text>`;
+  }
+  s+=`</svg>`;document.getElementById('svg').innerHTML=s;
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+document.getElementById('chk').onclick=check;
+document.getElementById('sol').onclick=showSol;
+document.getElementById('ans').onkeydown=e=>{if(e.key==='Enter')check()};
 init();
 }catch(e){document.getElementById('err').innerHTML='❌ Критическая ошибка: '+e.message;document.getElementById('err').style.display='block'}
 </script>
