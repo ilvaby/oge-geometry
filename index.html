@@ -317,7 +317,7 @@ var TASKS_DB = {
   15: {
     title: 'Треугольники и их элементы',
     variants: [
-      // 👇 ЗАДАЧА 1: БИССЕКТРИСА (индекс 0)
+      // 👇 ЗАДАЧА 1: БИССЕКТРИСА
       { 
         name: 'Углы', 
         gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; },
@@ -348,10 +348,14 @@ var TASKS_DB = {
              '</svg>'; 
         }
       },
-      // 👇 ЗАДАЧА 2: СУММА УГЛОВ (индекс 1)
+      // 👇 ЗАДАЧА 2: СУММА УГЛОВ (С РАНДОМНЫМИ УГЛАМИ!)
       { 
         name: 'Углы', 
-        gen: function(){ return {angleB: 62, angleC: 40}; },
+        gen: function(){ 
+          var angleB = Math.floor(Math.random() * 40) + 40; // 40-79°
+          var angleC = Math.floor(Math.random() * 40) + 40; // 40-79°
+          return {angleB: angleB, angleC: angleC}; 
+        },
         txt: function(p){ return 'В треугольнике угол C = ' + p.angleC + '° и угол B = ' + p.angleB + '°. Найдите его третий угол. Ответ дайте в градусах.'; }, 
         
         solRight: function(p){ 
@@ -376,6 +380,7 @@ var TASKS_DB = {
              '</svg>'; 
         }
       },
+      // 👇 ПУСТЫЕ ЗАГЛУШКИ
       { name: 'Общие треугольники' }, 
       { name: 'Равнобедренные' },     
       { name: 'Прямоугольные' }       
@@ -391,7 +396,7 @@ var TASKS_DB = {
 };
 
 var SUCCESS_MSGS = ["МОЛОДЕЦ! 🎉", "МОЛОДЦОМ!!!", "В ОТЛИЧНОМ СТИЛЕ! 👍", "МОЛОДЦОМ!!!", "Молодцом!!!"];
-var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦♂️", "НЕ ТО! 📉", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
+var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦️", "НЕ ТО! ", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
 
 function switchTab(modeName) {
   appState.mode = modeName;
