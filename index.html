@@ -2,84 +2,243 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Генератор ОГЭ Геометрия</title>
 <style>
   :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f1f5f9; }
-  body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+  * { -webkit-tap-highlight-color: transparent; }
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    background: var(--bg); 
+    margin: 0; 
+    padding: 0; 
+    display: flex; 
+    justify-content: center; 
+    min-height: 100vh; 
+    min-height: -webkit-fill-available;
+    overscroll-behavior: none;
+  }
   
-  .app { width: 100%; max-width: 500px; background: white; height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow: hidden; }
+  .app { 
+    width: 100%; 
+    max-width: 500px; 
+    background: white; 
+    height: 100vh; 
+    height: -webkit-fill-available;
+    display: flex; 
+    flex-direction: column; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+    overflow: hidden; 
+  }
   
-  header { background: var(--primary); color: white; padding: 15px; text-align: center; }
-  h1 { margin: 0; font-size: 20px; font-weight: bold; }
+  header { 
+    background: var(--primary); 
+    color: white; 
+    padding: 12px 15px; 
+    text-align: center; 
+    flex-shrink: 0;
+  }
+  h1 { margin: 0; font-size: 18px; font-weight: bold; }
   
-  .tabs { display: flex; border-bottom: 2px solid #e2e8f0; }
-  .tab { flex: 1; padding: 15px; border: none; cursor: pointer; font-weight: bold; color: #94a3b8; transition: 0.2s; background: white; }
+  .tabs { display: flex; border-bottom: 2px solid #e2e8f0; flex-shrink: 0; }
+  .tab { 
+    flex: 1; 
+    padding: 15px 10px; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 14px;
+    color: #94a3b8; 
+    transition: 0.2s; 
+    background: white; 
+    -webkit-appearance: none;
+  }
   .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #eff6ff; }
   .tab.exam-tab.active { color: #ea580c; border-color: #ea580c; background: #fff7ed; }
 
-  .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; }
+  .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; padding: 15px; -webkit-overflow-scrolling: touch; }
   .screen.active { display: flex; flex-direction: column; align-items: center; }
   
-  .exam-dash { display: none; background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 10px; width: 100%; text-align: center; margin-bottom: 15px; }
+  .exam-dash { 
+    display: none; 
+    background: #fffbeb; 
+    border: 1px solid #fcd34d; 
+    padding: 12px; 
+    border-radius: 10px; 
+    width: 100%; 
+    text-align: center; 
+    margin-bottom: 15px; 
+    font-size: 14px;
+    box-sizing: border-box;
+  }
   .exam-dash.show { display: block; }
   .score-text { font-size: 18px; font-weight: bold; color: #ea580c; }
   .win-msg { color: var(--success); font-weight: bold; display: none; margin-top: 5px; animation: popIn 0.3s; }
 
-  .grid-numbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; margin-bottom: 15px; }
-  .num-btn { aspect-ratio: 1; border: 2px solid #cbd5e1; border-radius: 12px; background: white; font-size: 17px; font-weight: bold; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; user-select: none; }
+  .grid-numbers { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 8px; 
+    width: 100%; 
+    margin-bottom: 15px; 
+  }
+  .num-btn { 
+    aspect-ratio: 1; 
+    border: 2px solid #cbd5e1; 
+    border-radius: 12px; 
+    background: white; 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #334155; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: 0.2s; 
+    position: relative; 
+    user-select: none;
+    min-height: 60px;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+  }
   .num-btn:hover { background: #eff6ff; border-color: var(--primary); }
+  .num-btn:active { transform: scale(0.95); }
   .num-btn.selected { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
   .num-btn.solved { background: #dcfce7; border-color: var(--success); color: #166534; }
   .num-btn.solved::after { content: '✓'; position: absolute; top: 2px; right: 4px; font-size: 14px; font-weight: 900; }
 
-  .sub-nav { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; margin-bottom: 12px; }
+  .sub-nav { display: none; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; margin-bottom: 12px; }
   .sub-nav.active { display: grid; }
-  .sub-btn { padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; }
+  .sub-btn { 
+    padding: 12px 8px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 8px; 
+    background: #f8fafc; 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: #475569; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    text-align: center; 
+    user-select: none;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    min-height: 44px;
+  }
   .sub-btn:hover { background: #eff6ff; border-color: var(--primary); }
+  .sub-btn:active { transform: scale(0.95); }
   .sub-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
   .task-card { width: 100%; animation: slideUp 0.3s; }
-  .meta { display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; }
+  .meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; }
   
   .canvas-box { 
-    width: 100%; height: 220px; background: #ffffff; border: 2px solid #cbd5e1; 
-    border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-    margin-bottom: 15px; position: relative; overflow: hidden;
+    width: 100%; 
+    height: 200px; 
+    background: #ffffff; 
+    border: 2px solid #cbd5e1; 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin-bottom: 15px; 
+    position: relative; 
+    overflow: hidden;
+    flex-shrink: 0;
   }
-  svg { width: 100%; height: 100%; max-width: 300px; max-height: 200px; }
+  svg { width: 100%; height: 100%; max-width: 280px; max-height: 180px; }
 
   .reaction-box {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     width: 100%; height: 100%; text-align: center;
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    padding: 0 5px;
+    padding: 10px;
   }
-  .reaction-emoji { font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
-  .reaction-text { font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+  .reaction-emoji { font-size: 50px; margin-bottom: 8px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
+  .reaction-text { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
   .reaction-text.ok { color: var(--success); }
   .reaction-text.fail { color: var(--danger); }
 
-  .question { font-size: 17px; line-height: 1.5; text-align: left; margin-bottom: 20px; font-weight: 500; color: #1e293b; padding: 0 5px; }
-  input[type="number"] { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 18px; text-align: center; margin-bottom: 14px; outline: none; box-sizing: border-box; }
+  .question { 
+    font-size: 16px; 
+    line-height: 1.5; 
+    text-align: left; 
+    margin-bottom: 15px; 
+    font-weight: 500; 
+    color: #1e293b; 
+    padding: 0 5px; 
+  }
+  
+  input[type="number"] { 
+    width: 100%; 
+    padding: 15px; 
+    border: 2px solid #cbd5e1; 
+    border-radius: 10px; 
+    font-size: 16px; /* Важно для iOS - чтобы не зумило */
+    text-align: center; 
+    margin-bottom: 14px; 
+    outline: none; 
+    box-sizing: border-box;
+    -webkit-appearance: none;
+  }
   input:focus { border-color: var(--primary); }
 
   .actions { display: flex; gap: 8px; width: 100%; }
-  .btn-action { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 15px; color: white; transition: 0.2s; user-select: none; display: flex; align-items: center; justify-content: center; }
+  .btn-action { 
+    flex: 1; 
+    padding: 15px 12px; 
+    border: none; 
+    border-radius: 10px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 15px; 
+    color: white; 
+    transition: 0.2s; 
+    user-select: none; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    min-height: 48px;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+  }
+  .btn-action:active { transform: scale(0.95); opacity: 0.9; }
   .btn-primary { background: var(--primary); }
   .btn-success { background: var(--success); }
   .btn-back { background: #cbd5e1; color: #334155; }
-  .btn-finish { background: #ea580c; width: 100%; display: none; margin-top: 10px; }
-  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-finish { background: #ea580c; width: 100%; display: none; margin-top: 10px; min-height: 48px; }
+  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-  .feedback { padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px; }
+  .feedback { padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px; font-size: 15px; }
   .fb-ok { background: #dcfce7; color: #166534; display: block; }
   .fb-no { background: #fee2e2; color: #991b1b; display: block; }
 
-  .solution { background: #f1f5f9; padding: 15px; border-left: 4px solid var(--primary); color: #334155; font-size: 15px; display: none; white-space: pre-wrap; line-height: 1.5; border-radius: 0 8px 8px 0; margin-bottom: 10px;}
-  .solution.correct-style { border-color: var(--success); color: var(--success); font-weight: bold; font-size: 18px; text-align: center; }
+  .solution { 
+    background: #f1f5f9; 
+    padding: 15px; 
+    border-left: 4px solid var(--primary); 
+    color: #334155; 
+    font-size: 14px; 
+    display: none; 
+    white-space: pre-wrap; 
+    line-height: 1.5; 
+    border-radius: 0 8px 8px 0; 
+    margin-bottom: 10px;
+    word-wrap: break-word;
+  }
+  .solution.correct-style { border-color: var(--success); color: var(--success); font-weight: bold; font-size: 16px; text-align: center; }
 
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  
+  /* Адаптация для очень маленьких экранов */
+  @media (max-height: 650px) {
+    .canvas-box { height: 160px; }
+    .reaction-emoji { font-size: 40px; }
+    .reaction-text { font-size: 16px; }
+    header { padding: 10px 15px; }
+    h1 { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -203,9 +362,8 @@ var TASKS_DB = {
   25: { title: 'Кольцо', variants: [] }
 };
 
-// 👇 ЗАМЕНИЛА НА "Молодцом!!!" БУКВА В БУКВУ
 var SUCCESS_MSGS = ["МОЛОДЕЦ! 🎉", "МОЛОДЦОМ!!!", "В ОТЛИЧНОМ СТИЛЕ! 👍", "МОЛОДЦОМ!!!", "Молодцом!!!"];
-var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦‍♂️", "НЕ ТО! 📉", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
+var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦♂️", "НЕ ТО! 📉", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
 
 function switchTab(modeName) {
   appState.mode = modeName;
@@ -313,7 +471,7 @@ function checkAnswer() {
     var failMsg = FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)];
     drawingArea.innerHTML = 
       '<div class="reaction-box">' +
-        '<div class="reaction-emoji">🤦‍♂️😤</div>' +
+        '<div class="reaction-emoji">🤦‍️😤</div>' +
         '<div class="reaction-text fail">' + failMsg + '</div>' +
       '</div>';
   }
