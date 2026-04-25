@@ -174,7 +174,7 @@
     padding: 15px; 
     border: 2px solid #cbd5e1; 
     border-radius: 10px; 
-    font-size: 16px; /* Важно для iOS - чтобы не зумило */
+    font-size: 16px;
     text-align: center; 
     margin-bottom: 14px; 
     outline: none; 
@@ -231,7 +231,6 @@
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   
-  /* Адаптация для очень маленьких экранов */
   @media (max-height: 650px) {
     .canvas-box { height: 160px; }
     .reaction-emoji { font-size: 40px; }
@@ -318,6 +317,7 @@ var TASKS_DB = {
   15: {
     title: 'Треугольники и их элементы',
     variants: [
+      // 👇 ЗАДАЧА 1: БИССЕКТРИСА (индекс 0)
       { 
         name: 'Углы', 
         gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; },
@@ -345,6 +345,34 @@ var TASKS_DB = {
              '<text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text>' +
              '<text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text>' +
              '<text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text>' +
+             '</svg>'; 
+        }
+      },
+      // 👇 ЗАДАЧА 2: СУММА УГЛОВ (индекс 1)
+      { 
+        name: 'Углы', 
+        gen: function(){ return {angleB: 62, angleC: 40}; },
+        txt: function(p){ return 'В треугольнике угол C = ' + p.angleC + '° и угол B = ' + p.angleB + '°. Найдите его третий угол. Ответ дайте в градусах.'; }, 
+        
+        solRight: function(p){ 
+          var angleA = 180 - p.angleB - p.angleC;
+          return 'МОЛОДЕЦ! ✅ Правильно, ' + angleA + '°.'; 
+        },
+        solWrong: function(p){ 
+          var angleA = 180 - p.angleB - p.angleC;
+          return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Сумма углов в треугольнике — это 180°, это база. Так что без танцев с бубном отнимаем известные: 180° - ' + p.angleB + '° - ' + p.angleC + '° = ' + angleA + '°. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
+        },
+        
+        ans: function(p){ return 180 - p.angleB - p.angleC; },
+        svg: function(p){ 
+          return '<svg viewBox="0 0 300 220" width="280" height="190">' +
+             '<polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/>' +
+             '<line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/>' +
+             '<line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/>' +
+             '<line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/>' +
+             '<text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text>' +
+             '<text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text>' +
+             '<text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text>' +
              '</svg>'; 
         }
       },
@@ -401,7 +429,16 @@ function generateTask() {
     alert('Эта задача пока в разработке! 🚧'); return;
   }
 
-  var variant = taskData.variants[appState.subIndex];
+  var variant;
+  
+  // 👇 ГЛАВНОЕ ИСПРАВЛЕНИЕ: если выбрали №15 и подпункт 0 или 1 (Углы или Общие) - случайно выбираем одну из двух задач про углы
+  if(n === 15 && (appState.subIndex === 0 || appState.subIndex === 1)) {
+    var randomIdx = Math.floor(Math.random() * 2); // 0 или 1
+    variant = taskData.variants[randomIdx];
+  } else {
+    variant = taskData.variants[appState.subIndex];
+  }
+  
   if(!variant || !variant.svg) {
     alert('Подпункт "' + (variant ? variant.name : '??') + '" пока в разработке! 🚧'); return;
   }
