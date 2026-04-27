@@ -158,19 +158,15 @@ var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="b
    '<text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text>' +
    '</svg>';
 
-// 👇 SVG: ВЫСОТА (НОВЫЙ РИСУНОК)
-var HEIGHT_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
-   // Треугольник ABC
-   '<polygon points="50,300 250,50 350,300" fill="#FFDDFF" stroke="#FF0000" stroke-width="3"/>' +
-   // Высота CE (перпендикуляр к AB)
-   '<line x1="350" y1="300" x2="150" y2="175" stroke="#00CED1" stroke-width="3"/>' +
-   // Значок прямого угла в точке E
-   '<polygon points="145,185 160,175 170,190 155,200" fill="#808080" stroke="#00CED1" stroke-width="2"/>' +
-   // Буквы
-   '<text x="30" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">A</text>' +
-   '<text x="240" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text>' +
-   '<text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text>' +
-   '<text x="120" y="160" font-family="serif" font-size="48" font-style="italic" fill="black">E</text>' +
+// 👇 SVG: ВЫСОТА (ТВОЙ НОВЫЙ РИСУНОК)
+var HEIGHT_SVG = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;">' +
+   '<polygon points="50,350 300,50 480,350" fill="#fcf" stroke="#c00" stroke-width="3"/>' +
+   '<polygon points="186,197 170,183 184,167 200,181" fill="#7f7f7f" stroke="#0bf" stroke-width="1.5"/>' +
+   '<line x1="480" y1="350" x2="186" y2="197" stroke="#0bf" stroke-width="3"/>' +
+   '<text x="10" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
+   '<text x="285" y="45" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
+   '<text x="485" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
+   '<text x="165" y="215" font-family="serif" font-size="45" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
 var TASKS_DB = {
@@ -299,9 +295,7 @@ var TASKS_DB = {
           // 👇 ЗАДАЧА 7: Площадь через высоту (Сторона AB и высота CE)
           { 
             gen: function(){ 
-              // Сторона AB четная (2..20), чтобы площадь была целой
               var ab = (Math.floor(Math.random() * 10) + 1) * 2; 
-              // Высота CE (7..40)
               var ce = Math.floor(Math.random() * 34) + 7; 
               var area = (ab * ce) / 2;
               return {ab: ab, ce: ce, area: area}; 
