@@ -144,6 +144,20 @@ var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style
    '<text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
+// 👇 SVG: МЕДИАНА (НОВЫЙ РИСУНОК)
+var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
+   '<polygon points="50,300 220,50 200,300" fill="#FFFACD" stroke="#00CED1" stroke-width="3"/>' +
+   '<polygon points="200,300 220,50 350,300" fill="#F0FFF0" stroke="#00CED1" stroke-width="3"/>' +
+   '<line x1="220" y1="50" x2="200" y2="300" stroke="#00CED1" stroke-width="3"/>' +
+   '<line x1="50" y1="300" x2="350" y2="300" stroke="#00CED1" stroke-width="3"/>' +
+   '<line x1="125" y1="290" x2="125" y2="310" stroke="#00CED1" stroke-width="3"/>' +
+   '<line x1="275" y1="290" x2="275" y2="310" stroke="#00CED1" stroke-width="3"/>' +
+   '<text x="30" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">A</text>' +
+   '<text x="210" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text>' +
+   '<text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text>' +
+   '<text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text>' +
+   '</svg>';
+
 var TASKS_DB = {
   15: {
     title: 'Треугольники и их элементы',
@@ -174,7 +188,7 @@ var TASKS_DB = {
           }
         ]
       },
-      1: { // 👇 ОБЩИЕ ТРЕУГОЛЬНИКИ (4 ЗАДАЧИ)
+      1: { // 👇 ОБЩИЕ ТРЕУГОЛЬНИКИ (ТЕПЕРЬ 6 ЗАДАЧ!)
         name: 'Общие треугольники',
         tasks: [
           // ЗАДАЧА 1: Длина средней линии (Найти DE)
@@ -209,12 +223,10 @@ var TASKS_DB = {
             ans: function(p){ return p.dbe; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // 👇 ЗАДАЧА 4: Даны отрезки AD, DB, DE. Найти AC.
+          // ЗАДАЧА 4: Даны отрезки AD, DB, DE. Найти AC.
           { 
             gen: function(){ 
-              // DE от 10 до 30
               var de = Math.floor(Math.random() * 21) + 10; 
-              // Сторона AB (AD=DB) от 10 до 20 (просто для вида, на расчет не влияет)
               var ad = Math.floor(Math.random() * 11) + 10; 
               return {ad: ad, db: ad, de: de, ac: de * 2}; 
             },
@@ -229,6 +241,44 @@ var TASKS_DB = {
             },
             ans: function(p){ return p.ac; },
             svg: function(p){ return TRAPEZOID_SVG; }
+          },
+          // 👇 ЗАДАЧА 5: Медиана. Дано AC, найти AD.
+          { 
+            gen: function(){ 
+              var ac = (Math.floor(Math.random() * 20) + 10) * 2; 
+              return {ac: ac, ad: ac / 2}; 
+            },
+            txt: function(p){ 
+              // Рандомно спрашиваем AD или DC
+              var target = Math.random() > 0.5 ? 'AD' : 'DC';
+              return 'В треугольнике ABC BD — медиана. AC = ' + p.ac + '. Найдите ' + target + '.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '. Медиана делит сторону пополам, значит ' + p.ac + ' / 2 = ' + p.ad + '. Это база!'; 
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Медиана BD делит сторону AC на две равные части. Значит, чтобы найти половину, делим целое на 2: ' + p.ac + ' / 2 = ' + p.ad + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
+            },
+            ans: function(p){ return p.ad; },
+            svg: function(p){ return MEDIAN_SVG; }
+          },
+          // 👇 ЗАДАЧА 6: Медиана. Дано AD, найти AC.
+          { 
+            gen: function(){ 
+              var ad = Math.floor(Math.random() * 20) + 5; 
+              return {ac: ad * 2, ad: ad}; 
+            },
+            txt: function(p){ 
+              return 'В треугольнике ABC BD — медиана. AD = ' + p.ad + '. Найдите AC.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '. Медиана делит сторону пополам, значит AC в 2 раза больше AD: ' + p.ad + ' × 2 = ' + p.ac + '. Это база!'; 
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Медиана BD делит сторону AC пополам. Значит целая сторона AC в два раза больше половинки: ' + p.ad + ' × 2 = ' + p.ac + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
+            },
+            ans: function(p){ return p.ac; },
+            svg: function(p){ return MEDIAN_SVG; }
           }
         ]
       },
