@@ -144,7 +144,7 @@ var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style
    '<text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
-// 👇 SVG: МЕДИАНА (НОВЫЙ РИСУНОК)
+// 👇 SVG: МЕДИАНА
 var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
    '<polygon points="50,300 220,50 200,300" fill="#FFFACD" stroke="#00CED1" stroke-width="3"/>' +
    '<polygon points="200,300 220,50 350,300" fill="#F0FFF0" stroke="#00CED1" stroke-width="3"/>' +
@@ -156,6 +156,21 @@ var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="b
    '<text x="210" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text>' +
    '<text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text>' +
    '<text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text>' +
+   '</svg>';
+
+// 👇 SVG: ВЫСОТА (НОВЫЙ РИСУНОК)
+var HEIGHT_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
+   // Треугольник ABC
+   '<polygon points="50,300 250,50 350,300" fill="#FFDDFF" stroke="#FF0000" stroke-width="3"/>' +
+   // Высота CE (перпендикуляр к AB)
+   '<line x1="350" y1="300" x2="150" y2="175" stroke="#00CED1" stroke-width="3"/>' +
+   // Значок прямого угла в точке E
+   '<polygon points="145,185 160,175 170,190 155,200" fill="#808080" stroke="#00CED1" stroke-width="2"/>' +
+   // Буквы
+   '<text x="30" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">A</text>' +
+   '<text x="240" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text>' +
+   '<text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text>' +
+   '<text x="120" y="160" font-family="serif" font-size="48" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
 var TASKS_DB = {
@@ -188,7 +203,7 @@ var TASKS_DB = {
           }
         ]
       },
-      1: { // 👇 ОБЩИЕ ТРЕУГОЛЬНИКИ (6 ЗАДАЧ)
+      1: { // 👇 ОБЩИЕ ТРЕУГОЛЬНИКИ (7 ЗАДАЧ!)
         name: 'Общие треугольники',
         tasks: [
           // ЗАДАЧА 1: Длина средней линии (Найти DE)
@@ -242,11 +257,11 @@ var TASKS_DB = {
             ans: function(p){ return p.ac; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // 👇 ЗАДАЧА 5: Медиана. Дано AC, найти AD. (С добавленной медианой BD)
+          // ЗАДАЧА 5: Медиана. Дано AC, найти AD.
           { 
             gen: function(){ 
               var ac = (Math.floor(Math.random() * 20) + 10) * 2; 
-              var bd = Math.floor(Math.random() * 15) + 5; // Длина медианы (лишняя инфа)
+              var bd = Math.floor(Math.random() * 15) + 5;
               return {ac: ac, ad: ac / 2, bd: bd}; 
             },
             txt: function(p){ 
@@ -262,11 +277,11 @@ var TASKS_DB = {
             ans: function(p){ return p.ad; },
             svg: function(p){ return MEDIAN_SVG; }
           },
-          // 👇 ЗАДАЧА 6: Медиана. Дано AD, найти AC. (С добавленной медианой BD)
+          // ЗАДАЧА 6: Медиана. Дано AD, найти AC.
           { 
             gen: function(){ 
               var ad = Math.floor(Math.random() * 20) + 5; 
-              var bd = Math.floor(Math.random() * 15) + 5; // Длина медианы (лишняя инфа)
+              var bd = Math.floor(Math.random() * 15) + 5;
               return {ac: ad * 2, ad: ad, bd: bd}; 
             },
             txt: function(p){ 
@@ -280,6 +295,29 @@ var TASKS_DB = {
             },
             ans: function(p){ return p.ac; },
             svg: function(p){ return MEDIAN_SVG; }
+          },
+          // 👇 ЗАДАЧА 7: Площадь через высоту (Сторона AB и высота CE)
+          { 
+            gen: function(){ 
+              // Сторона AB четная (2..20), чтобы площадь была целой
+              var ab = (Math.floor(Math.random() * 10) + 1) * 2; 
+              // Высота CE (7..40)
+              var ce = Math.floor(Math.random() * 34) + 7; 
+              var area = (ab * ce) / 2;
+              return {ab: ab, ce: ce, area: area}; 
+            },
+            txt: function(p){ 
+              return 'В треугольнике ABC сторона AB = ' + p.ab + ', а высота CE, проведенная к этой стороне, равна ' + p.ce + '. Найдите площадь треугольника ABC.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '. Площадь треугольника равна половине произведения основания на высоту: (' + p.ab + ' × ' + p.ce + ') / 2 = ' + p.area + '. Это база!'; 
+            },
+            solWrong: function(p){ 
+              var area = (p.ab * p.ce) / 2;
+              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Площадь треугольника — это половина произведения основания на высоту. Значит: (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
+            },
+            ans: function(p){ return p.area; },
+            svg: function(p){ return HEIGHT_SVG; }
           }
         ]
       },
