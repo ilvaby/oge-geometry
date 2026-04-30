@@ -165,7 +165,6 @@ var HEIGHT_SVG = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="b
    '<text x="200" y="130" font-family="serif" font-size="45" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
-// 👇 SVG: РАВНОБЕДРЕННЫЙ ТРЕУГОЛЬНИК (A и C опущены на 10px)
 var ISOSCELES_SVG = '<svg viewBox="0 0 550 360" width="100%" height="100%" style="background:white;">' +
    '<polygon points="60,300 225,50 400,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/>' +
    '<line x1="60" y1="300" x2="490" y2="300" stroke="#c00" stroke-width="3"/>' +
@@ -174,6 +173,18 @@ var ISOSCELES_SVG = '<svg viewBox="0 0 550 360" width="100%" height="100%" style
    '<text x="30" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
    '<text x="210" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
    '<text x="410" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
+   '</svg>';
+
+// 👇 SVG: РАВНОСТОРОННИЙ ТРЕУГОЛЬНИК (ЧЁРТОЧКИ ПРОДЛЕНЫ ВНИЗ)
+var EQUILATERAL_SVG = '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;">' +
+   '<polygon points="80,300 250,50 420,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/>' +
+   '<line x1="250" y1="50" x2="250" y2="300" stroke="#e67e22" stroke-width="3"/>' +
+   '<line x1="160" y1="300" x2="160" y2="293" stroke="#000" stroke-width="2"/>' +
+   '<line x1="340" y1="300" x2="340" y2="293" stroke="#000" stroke-width="2"/>' +
+   '<text x="50" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
+   '<text x="235" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
+   '<text x="430" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
+   '<text x="240" y="330" font-family="serif" font-size="35" font-style="italic" fill="black">H</text>' +
    '</svg>';
 
 var TASKS_DB = {
@@ -303,6 +314,21 @@ var TASKS_DB = {
             },
             ans: function(p){ return p.ans; },
             svg: function(p){ return ISOSCELES_SVG; }
+          },
+          {
+            gen: function(){
+              var n = Math.floor(Math.random() * 10) + 1;
+              var side = 2 * n;
+              var median = 3 * n;
+              return {sideCoeff: side, median: median};
+            },
+            txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану этого треугольника.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.median + '.\n\nПопробуй ещё! 💪'; },
+            solWrong: function(p){
+              return 'Ну Ты Чё!?!? В равностороннем треугольнике медиана = высоте. h = (a√3)/2 = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.median; },
+            svg: function(p){ return EQUILATERAL_SVG; }
           }
         ]
       },
