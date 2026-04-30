@@ -116,7 +116,6 @@
 <script>
 var appState = { mode: 'train', num: null, params: null, solved: [], subIndex: 0, currentSvg: null, taskQueue: {} };
 
-// 👇 SVG: ПАРАЛЛЕЛЬНЫЕ ПРЯМЫЕ (ИДЕАЛЬНЫЙ)
 var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;">' +
    '<line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
    '<line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
@@ -132,7 +131,6 @@ var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style
    '<text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text>' +
    '</svg>';
 
-// 👇 SVG: ТРАПЕЦИЯ + СРЕДНЯЯ ЛИНИЯ
 var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
    '<path d="M 50 350 L 350 350 L 275 200 L 125 200 Z" fill="#ffcccc" stroke="#c00000" stroke-width="3"/>' +
    '<path d="M 125 200 L 275 200 L 200 50 Z" fill="#e2f0d9" stroke="#c00000" stroke-width="3"/>' +
@@ -144,7 +142,6 @@ var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style
    '<text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
-// 👇 SVG: МЕДИАНА
 var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
    '<polygon points="50,300 220,50 200,300" fill="#FFFACD" stroke="#00CED1" stroke-width="3"/>' +
    '<polygon points="200,300 220,50 350,300" fill="#F0FFF0" stroke="#00CED1" stroke-width="3"/>' +
@@ -158,160 +155,123 @@ var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="b
    '<text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text>' +
    '</svg>';
 
-// 👇 SVG: ВЫСОТА (ТВОЙ КОД - ТОЧЬ В ТОЧЬ)
-var HEIGHT_SVG = '<svg width="500" height="400" xmlns="http://w3.org" style="background:white;">' +
+var HEIGHT_SVG = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;">' +
    '<polygon points="50,350 300,50 480,350" fill="#fcf" stroke="#c00" stroke-width="3"/>' +
-   '<polygon points="186,197 170,183 184,167 200,181" fill="#7f7f7f" stroke="#0bf" stroke-width="1.5"/>' +
-   '<line x1="480" y1="350" x2="186" y2="197" stroke="#0bf" stroke-width="3"/>' +
+   '<line x1="480" y1="350" x2="226" y2="139" stroke="#0bf" stroke-width="3"/>' +
+   '<polygon points="226,139 238,149 247,137 236,128" fill="#7f7f7f" stroke="#0bf" stroke-width="1.5"/>' +
    '<text x="10" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
    '<text x="285" y="45" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
    '<text x="485" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
-   '<text x="165" y="215" font-family="serif" font-size="45" font-style="italic" fill="black">E</text>' +
+   '<text x="200" y="130" font-family="serif" font-size="45" font-style="italic" fill="black">E</text>' +
    '</svg>';
 
 var TASKS_DB = {
   15: {
     title: 'Треугольники и их элементы',
     subTopics: {
-      0: { // Углы
-        name: 'Углы',
-        tasks: [
+      0: { name: 'Углы', tasks: [
           { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; },
             txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, 
             solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + (p.angle/2) + '°.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Биссектриса, как ты понимаешь, режет угол ровно напополам — это база. Так что без танцев с бубном берём ' + p.angle + '° и просто делим на 2. Считаем: ' + p.angle + '° / 2 = ' + (p.angle/2) + '°. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.angle / 2; },
             svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }
           },
           { gen: function(){ var a1 = Math.floor(Math.random() * 40) + 40; var a2 = Math.floor(Math.random() * 40) + 40; return {angleA: a1, angleB: a2}; },
-            txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол. Ответ дайте в градусах.'; }, 
+            txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол.'; }, 
             solRight: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'МОЛОДЕЦ! ✅ Правильно, ' + a3 + '°.'; },
-            solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Сумма углов в треугольнике — это 180°, это база. Так что без танцев с бубном отнимаем известные: 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; },
+            solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Сумма углов 180°. 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return 180 - p.angleA - p.angleB; },
             svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/><line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text></svg>'; }
           },
           { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; },
             txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, 
             solRight: function(p){ var angle3 = 180 - p.angle1; return 'МОЛОДЕЦ! ✅ Правильно, ' + angle3 + '°.'; },
-            solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Угол 1 и угол 3 — односторонние углы при параллельных прямых. Их сумма 180°, это база. Так что без танцев с бубном: 180° - ' + p.angle1 + '° = ' + angle3 + '°. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; },
+            solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return 180 - p.angle1; },
             svg: function(p){ return PARALLEL_SVG; }
           }
         ]
       },
-      1: { // 👇 ОБЩИЕ ТРЕУГОЛЬНИКИ (7 ЗАДАЧ!)
-        name: 'Общие треугольники',
-        tasks: [
-          // ЗАДАЧА 1: Длина средней линии (Найти DE)
-          { 
-            gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; },
+      1: { name: 'Общие треугольники', tasks: [
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; },
             txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '. Средняя линия треугольника равна половине основания — это база!'; },
-            solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Средняя линия треугольника параллельна основанию и равна его половине. Так что без танцев с бубном: ' + p.ac + ' / 2 = ' + de + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '.'; },
+            solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.de; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // ЗАДАЧА 2: Площадь (Дано DBE, найти ABC)
-          { 
-            gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; },
-            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь треугольника DBE равна ' + p.dbe + '. Найдите площадь треугольника ABC.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '. Средняя линия отсекает подобный треугольник DBE с коэффициентом 1/2, значит площадь относится как 1:4 — это база!'; },
-            solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Средняя линия делит треугольник так, что маленький треугольник DBE подобен большому ABC с коэффициентом 1/2. Площади подобных фигур относятся как квадрат коэффициента подобия, то есть (1/2)² = 1/4. Значит площадь ABC в 4 раза больше: ' + p.dbe + ' × 4 = ' + abc + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; },
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; },
+            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '.'; },
+            solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.abc; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // ЗАДАЧА 3: Площадь (Дано ABC, найти DBE)
-          { 
-            gen: function(){ 
-              var dbe = Math.floor(Math.random() * 191) + 10; 
-              return {dbe: dbe, abc: dbe * 4}; 
-            },
-            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь треугольника ABC равна ' + p.abc + '. Найдите площадь треугольника DBE.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '. Площадь маленького треугольника в 4 раза меньше большого — это база!'; },
-            solWrong: function(p){ 
-              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Средняя линия отсекает маленький треугольник, подобный большому с коэффициентом 1/2. Площади относятся как квадрат коэффициента (1/4). Значит, чтобы найти маленькую площадь, надо большую разделить на 4: ' + p.abc + ' / 4 = ' + p.dbe + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
-            },
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; },
+            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.dbe; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // ЗАДАЧА 4: Даны отрезки AD, DB, DE. Найти AC.
-          { 
-            gen: function(){ 
-              var de = Math.floor(Math.random() * 21) + 10; 
-              var ad = Math.floor(Math.random() * 11) + 10; 
-              return {ad: ad, db: ad, de: de, ac: de * 2}; 
-            },
-            txt: function(p){ 
-              return 'В треугольнике ABC DE — средняя линия. Дано: AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; 
-            }, 
-            solRight: function(p){ 
-              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '. Средняя линия в два раза меньше основания, значит AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '. Это база!'; 
-            },
-            solWrong: function(p){ 
-              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Если DE — средняя линия, то она равна половине основания AC. Нам не нужны AD и DB, они лишь подтверждают, что D — середина. Просто умножаем DE на 2: ' + p.de + ' × 2 = ' + p.ac + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
-            },
+          { gen: function(){ var de = Math.floor(Math.random() * 21) + 10; var ad = Math.floor(Math.random() * 11) + 10; return {ad: ad, db: ad, de: de, ac: de * 2}; },
+            txt: function(p){ return 'DE — средняя линия. AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.ac; },
             svg: function(p){ return TRAPEZOID_SVG; }
           },
-          // ЗАДАЧА 5: Медиана. Дано AC, найти AD.
-          { 
-            gen: function(){ 
-              var ac = (Math.floor(Math.random() * 20) + 10) * 2; 
-              var bd = Math.floor(Math.random() * 15) + 5;
-              return {ac: ac, ad: ac / 2, bd: bd}; 
-            },
-            txt: function(p){ 
-              var target = Math.random() > 0.5 ? 'AD' : 'DC';
-              return 'В треугольнике ABC BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; 
-            },
-            solRight: function(p){ 
-              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '. Медиана делит сторону пополам, значит ' + p.ac + ' / 2 = ' + p.ad + '. Это база!'; 
-            },
-            solWrong: function(p){ 
-              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Медиана BD делит сторону AC на две равные части. Длина самой медианы (' + p.bd + ') тут ни при чём. Значит, чтобы найти половину, делим целое на 2: ' + p.ac + ' / 2 = ' + p.ad + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
-            },
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ac, ad: ac / 2, bd: bd}; },
+            txt: function(p){ var target = Math.random() > 0.5 ? 'AD' : 'DC'; return 'BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Медиана делит пополам. ' + p.ac + ' / 2 = ' + p.ad + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.ad; },
             svg: function(p){ return MEDIAN_SVG; }
           },
-          // ЗАДАЧА 6: Медиана. Дано AD, найти AC.
-          { 
-            gen: function(){ 
-              var ad = Math.floor(Math.random() * 20) + 5; 
-              var bd = Math.floor(Math.random() * 15) + 5;
-              return {ac: ad * 2, ad: ad, bd: bd}; 
-            },
-            txt: function(p){ 
-              return 'В треугольнике ABC BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; 
-            },
-            solRight: function(p){ 
-              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '. Медиана делит сторону пополам, значит AC в 2 раза больше AD: ' + p.ad + ' × 2 = ' + p.ac + '. Это база!'; 
-            },
-            solWrong: function(p){ 
-              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Медиана BD делит сторону AC пополам. Длина самой медианы (' + p.bd + ') тут ни при чём. Значит целая сторона AC в два раза больше половинки: ' + p.ad + ' × 2 = ' + p.ac + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
-            },
+          { gen: function(){ var ad = Math.floor(Math.random() * 20) + 5; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ad * 2, ad: ad, bd: bd}; },
+            txt: function(p){ return 'BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? AC = AD × 2 = ' + p.ad + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.ac; },
             svg: function(p){ return MEDIAN_SVG; }
           },
-          // 👇 ЗАДАЧА 7: Площадь через высоту (Сторона AB и высота CE)
-          { 
-            gen: function(){ 
-              var ab = (Math.floor(Math.random() * 10) + 1) * 2; 
-              var ce = Math.floor(Math.random() * 34) + 7; 
-              var area = (ab * ce) / 2;
-              return {ab: ab, ce: ce, area: area}; 
-            },
-            txt: function(p){ 
-              return 'В треугольнике ABC сторона AB = ' + p.ab + ', а высота CE, проведенная к этой стороне, равна ' + p.ce + '. Найдите площадь треугольника ABC.'; 
-            },
-            solRight: function(p){ 
-              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '. Площадь треугольника равна половине произведения основания на высоту: (' + p.ab + ' × ' + p.ce + ') / 2 = ' + p.area + '. Это база!'; 
-            },
-            solWrong: function(p){ 
-              var area = (p.ab * p.ce) / 2;
-              return 'Ну Ты Чё!?!? Смотри, тут всё прозрачно. Площадь треугольника — это половина произведения основания на высоту. Значит: (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '. Вот и весь расклад.\n\nПопробуй ещё! У тебя всё получится! 💪'; 
-            },
+          { gen: function(){ var ab = (Math.floor(Math.random() * 10) + 1) * 2; var ce = Math.floor(Math.random() * 34) + 7; var area = (ab * ce) / 2; return {ab: ab, ce: ce, area: area}; },
+            txt: function(p){ return 'В △ABC сторона AB = ' + p.ab + ', высота CE = ' + p.ce + '. Найдите площадь.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; },
+            solWrong: function(p){ var area = (p.ab * p.ce) / 2; return 'Ну Ты Чё!?!? S = (AB × CE) / 2 = (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.area; },
             svg: function(p){ return HEIGHT_SVG; }
+          },
+          { gen: function(){
+              var ab = Math.floor(Math.random() * 19) + 2;
+              var cb = Math.floor(Math.random() * 19) + 2;
+              var sins = [
+                {str: "1/2", val: 0.5}, {str: "3/5", val: 0.6}, {str: "4/5", val: 0.8},
+                {str: "1/4", val: 0.25}, {str: "3/4", val: 0.75}, {str: "2/5", val: 0.4},
+                {str: "1/3", val: 1/3}, {str: "2/3", val: 2/3}
+              ];
+              var s = sins[Math.floor(Math.random() * sins.length)];
+              var area = (ab * cb * s.val) / 2;
+              return {ab: ab, cb: cb, sinStr: s.str, area: Math.round(area * 100) / 100};
+            },
+            txt: function(p){ return 'В △ABC: AB = ' + p.ab + ', CB = ' + p.cb + ', sin∠ABC = ' + p.sinStr + '. Найдите площадь.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = 1/2 · AB · CB · sinB = 1/2 · ' + p.ab + ' · ' + p.cb + ' · ' + p.sinStr + ' = ' + p.area + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.area; },
+            svg: function(p){ return '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#FAEBD7" stroke="#c00" stroke-width="3"/><text x="30" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }
+          },
+          { 
+            gen: function(){
+              var angleC = Math.floor(Math.random() * 51) + 100;
+              var extAngle = 180 - angleC;
+              return {angleC: angleC, extAngle: extAngle};
+            },
+            txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.extAngle; },
+            svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }
           }
         ]
       },
@@ -374,7 +334,7 @@ function generateTask() {
   var taskData = TASKS_DB[n];
   if(!taskData) { alert('Эта задача пока в разработке! 🚧'); return; }
   var topic = taskData.subTopics ? taskData.subTopics[appState.subIndex] : null;
-  if(!topic || !topic.tasks || topic.tasks.length === 0) { alert('Подпункт "' + (topic ? topic.name : '??') + '" пока в разработке! 🚧'); return; }
+  if(!topic || !topic.tasks || topic.tasks.length === 0) { alert('Подпункт пока в разработке! 🚧'); return; }
   var taskIdx = getNextTaskIndex(n, appState.subIndex);
   var variant = topic.tasks[taskIdx];
   var params = variant.gen();
@@ -399,8 +359,8 @@ function checkAnswer() {
   var raw = document.getElementById('inp-ans').value.replace(',', '.').trim();
   if(!raw) { alert('Введи ответ!'); return; }
   var val = parseFloat(raw);
-  if(isNaN(val)) { alert('Введи корректное число!'); return; }
-  if(!appState.params) { alert('Ошибка: нет активной задачи'); return; }
+  if(isNaN(val)) { alert('Введи число!'); return; }
+  if(!appState.params) { alert('Ошибка!'); return; }
   var target = appState.params;
   var diff = Math.abs(val - target.ans);
   var solBox = document.getElementById('sol-txt');
@@ -416,12 +376,12 @@ function checkAnswer() {
     document.getElementById('btn-continue').style.display = 'flex';
     handleExamWin();
   } else {
-    showFB('Неверно ❌ Посмотри разбор ниже.', false);
+    showFB('Неверно ❌', false);
     solBox.className = 'solution';
     solBox.innerHTML = target.solWrong;
     solBox.style.display = 'block'; 
     var failMsg = FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)];
-    drawingArea.innerHTML = '<div class="reaction-box"><div class="reaction-emoji">🤦️😤</div><div class="reaction-text fail">' + failMsg + '</div></div>';
+    drawingArea.innerHTML = '<div class="reaction-box"><div class="reaction-emoji">🤦️</div><div class="reaction-text fail">' + failMsg + '</div></div>';
   }
   document.getElementById('inp-ans').disabled = true;
   document.getElementById('btn-check').disabled = true;
@@ -432,7 +392,7 @@ function handleExamWin() {
   if(!appState.solved.includes(appState.params.num)) {
     appState.solved.push(appState.params.num);
     updateExamUI();
-    if(appState.solved.length >= 2) { document.getElementById('btn-finish').style.display = 'block'; document.getElementById('win-msg').style.display = 'block'; showFB('🎉 Поздравляем! Экзамен сдан! 🎉', true); }
+    if(appState.solved.length >= 2) { document.getElementById('btn-finish').style.display = 'block'; document.getElementById('win-msg').style.display = 'block'; showFB('🎉 Экзамен сдан! 🎉', true); }
   }
 }
 function updateExamUI() {
@@ -440,7 +400,7 @@ function updateExamUI() {
   document.querySelectorAll('.num-btn').forEach(function(b){ var num = parseInt(b.dataset.num); if(appState.solved.includes(num)) b.classList.add('solved'); else b.classList.remove('solved'); });
 }
 function resetExam() { appState.solved = []; updateExamUI(); document.getElementById('btn-finish').style.display = 'none'; document.getElementById('win-msg').style.display = 'none'; }
-function finishExam() { alert('Отлично! Ты справился с экзаменом! 🎉'); resetExam(); closeTask(); switchTab('train'); }
+function finishExam() { alert('Отлично! 🎉'); resetExam(); closeTask(); switchTab('train'); }
 function resetUI() { document.getElementById('inp-ans').value = ''; document.getElementById('inp-ans').disabled = false; document.getElementById('btn-check').disabled = false; document.getElementById('msg-fb').style.display = 'none'; document.getElementById('sol-txt').style.display = 'none'; }
 function closeTask() { document.getElementById('task-screen').classList.remove('active'); document.getElementById('menu-screen').classList.add('active'); appState.num = null; appState.params = null; appState.currentSvg = null; document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.remove('selected'); }); document.getElementById('sub-menu-15').classList.remove('active'); }
 
