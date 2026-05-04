@@ -49,7 +49,12 @@
   .sub-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
   .task-card { width: 100%; animation: slideUp 0.3s; }
   .meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; }
-  .canvas-box { width: 100%; height: 200px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; position: relative; overflow: hidden; flex-shrink: 0; }
+  .canvas-box { width: 100%; height: 200px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; position: relative; overflow: hidden; cursor: zoom-in; }
+  .canvas-box:active { transform: scale(0.98); }
+  .zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s; cursor: zoom-out; }
+  .zoom-overlay.show { display: flex; }
+  .zoom-content { background: white; width: 90%; max-width: 600px; aspect-ratio: 1/1; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .zoom-content svg { width: 100%; height: 100%; }
   svg, img { width: 100%; height: 100%; max-width: 280px; max-height: 180px; object-fit: contain; }
   .reaction-box { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 10px; }
   .reaction-emoji { font-size: 50px; margin-bottom: 8px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
@@ -74,6 +79,7 @@
   .solution.correct-style { border-color: var(--success); color: var(--success); font-weight: bold; font-size: 16px; text-align: center; }
   @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @media (max-height: 650px) { .canvas-box { height: 160px; } .reaction-emoji { font-size: 40px; } .reaction-text { font-size: 16px; } header { padding: 10px 15px; } h1 { font-size: 16px; } }
 </style>
 </head>
@@ -100,6 +106,12 @@
         <button class="sub-btn" data-sub="0">Углы</button><button class="sub-btn" data-sub="1">Общие треугольники</button>
         <button class="sub-btn" data-sub="2">Равнобедренные</button><button class="sub-btn" data-sub="3">Прямоугольные</button>
       </div>
+      <div id="sub-menu-16" class="sub-nav">
+        <button class="sub-btn" data-sub="0">Углы, касательные</button>
+        <button class="sub-btn" data-sub="1">Вписанные окружности</button>
+        <button class="sub-btn" data-sub="2">Описанные окружности</button>
+        <button class="sub-btn" data-sub="3">Хорды, секущие</button>
+      </div>
       <div class="canvas-box" id="drawing-area"></div>
       <div id="q-text" class="question">...</div>
       <input type="number" id="inp-ans" placeholder="Введите ответ" step="any">
@@ -113,258 +125,230 @@
     </div>
   </div>
 </div>
+<div class="zoom-overlay" id="zoom-overlay"><div class="zoom-content" id="zoom-content"></div></div>
+
 <script>
 var appState = { mode: 'train', num: null, params: null, solved: [], subIndex: 0, currentSvg: null, taskQueue: {}, lastParams: null };
 
-var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;">' +
-   '<line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
-   '<line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
-   '<line x1="0" y1="700" x2="600" y2="100" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
-   '<line x1="400" y1="100" x2="1000" y2="700" stroke="#c00000" stroke-width="4" stroke-linecap="round"/>' +
-   '<path d="M 500 200 L 410 200 A 90 90 0 0 0 436 263 Z" fill="#92d050" opacity="0.9"/>' +
-   '<path d="M 500 200 L 564 264 A 90 90 0 0 0 590 200 Z" fill="#ff0000" opacity="0.9"/>' +
-   '<path d="M 900 600 L 964 664 A 90 90 0 0 0 990 600 Z" fill="#ff0000" opacity="0.9"/>' +
-   '<path d="M 100 600 L 36 664 A 90 90 0 0 0 190 600 Z" fill="#0070c0" opacity="0.9"/>' +
-   '<text x="380" y="290" font-size="48" font-style="italic" fill="black" font-weight="bold">1</text>' +
-   '<text x="590" y="260" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text>' +
-   '<text x="990" y="660" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text>' +
-   '<text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text>' +
+var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;"><line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="700" x2="600" y2="100" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="400" y1="100" x2="1000" y2="700" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><path d="M 500 200 L 410 200 A 90 90 0 0 0 436 263 Z" fill="#92d050" opacity="0.9"/><path d="M 500 200 L 564 264 A 90 90 0 0 0 590 200 Z" fill="#ff0000" opacity="0.9"/><path d="M 900 600 L 964 664 A 90 90 0 0 0 990 600 Z" fill="#ff0000" opacity="0.9"/><path d="M 100 600 L 36 664 A 90 90 0 0 0 190 600 Z" fill="#0070c0" opacity="0.9"/><text x="380" y="290" font-size="48" font-style="italic" fill="black" font-weight="bold">1</text><text x="590" y="260" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="990" y="660" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text></svg>';
+
+var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><path d="M 50 350 L 350 350 L 275 200 L 125 200 Z" fill="#ffcccc" stroke="#c00000" stroke-width="3"/><path d="M 125 200 L 275 200 L 200 50 Z" fill="#e2f0d9" stroke="#c00000" stroke-width="3"/><line x1="125" y1="200" x2="275" y2="200" stroke="#00b0f0" stroke-width="3"/><text x="15" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">A</text><text x="190" y="40" font-family="serif" font-size="35" font-style="italic" fill="black">B</text><text x="360" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">C</text><text x="85" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">D</text><text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text></svg>';
+
+var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;"><polygon points="50,300 220,50 200,300" fill="#FFFACD" stroke="#00CED1" stroke-width="3"/><polygon points="200,300 220,50 350,300" fill="#F0FFF0" stroke="#00CED1" stroke-width="3"/><line x1="220" y1="50" x2="200" y2="300" stroke="#00CED1" stroke-width="3"/><line x1="50" y1="300" x2="350" y2="300" stroke="#00CED1" stroke-width="3"/><line x1="125" y1="290" x2="125" y2="310" stroke="#00CED1" stroke-width="3"/><line x1="275" y1="290" x2="275" y2="310" stroke="#00CED1" stroke-width="3"/><text x="10" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">A</text><text x="210" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text><text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text><text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text></svg>';
+
+var HEIGHT_SVG = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><polygon points="50,350 300,50 480,350" fill="#fcf" stroke="#c00" stroke-width="3"/><line x1="480" y1="350" x2="226" y2="139" stroke="#0bf" stroke-width="3"/><polygon points="226,139 238,149 247,137 236,128" fill="#7f7f7f" stroke="#0bf" stroke-width="1.5"/><text x="10" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="285" y="45" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="485" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">C</text><text x="200" y="130" font-family="serif" font-size="45" font-style="italic" fill="black">E</text></svg>';
+
+var ISOSCELES_SVG = '<svg viewBox="0 0 550 360" width="100%" height="100%" style="background:white;"><polygon points="60,300 225,50 400,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="490" y2="300" stroke="#c00" stroke-width="3"/><line x1="130" y1="185" x2="145" y2="165" stroke="#000" stroke-width="3" transform="rotate(90, 137.5, 175)"/><line x1="320" y1="185" x2="305" y2="165" stroke="#000" stroke-width="3" transform="rotate(-90, 312.5, 175)"/><text x="30" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="210" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="410" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>';
+
+var EQUILATERAL_SVG = '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="80,300 250,50 420,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/><line x1="250" y1="50" x2="250" y2="300" stroke="#e67e22" stroke-width="3"/><line x1="160" y1="288" x2="160" y2="312" stroke="#000" stroke-width="3"/><line x1="340" y1="288" x2="340" y2="312" stroke="#000" stroke-width="3"/><text x="50" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="430" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text><text x="240" y="330" font-family="serif" font-size="35" font-style="italic" fill="black">H</text></svg>';
+
+var BISECTOR_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><polygon points="200,50 50,310 350,310" fill="turquoise" fill-opacity="0.5" stroke="black" stroke-width="2"/><path d="M 200,50 L 172.5,97.6 A 55,55 0 0 0 200,105 Z" fill="lightcoral" fill-opacity="0.7"/><path d="M 200,50 L 200,100 A 50,50 0 0 0 225,93.3 Z" fill="lightcoral" fill-opacity="0.7"/><path d="M 172.5,97.6 A 55,55 0 0 0 200,105" fill="none" stroke="black" stroke-width="1.5"/><path d="M 200,100 A 50,50 0 0 0 225,93.3" fill="none" stroke="black" stroke-width="1.5"/><line x1="200" y1="50" x2="200" y2="310" stroke="orange" stroke-width="2.5"/><polyline points="200,295 215,295 215,310" fill="none" stroke="black" stroke-width="1"/><text x="195" y="40" font-family="serif" font-size="22" font-weight="bold">B</text><text x="35" y="330" font-family="serif" font-size="22" font-weight="bold">A</text><text x="355" y="330" font-family="serif" font-size="22" font-weight="bold">C</text><text x="193" y="335" font-family="serif" font-size="22" font-weight="bold">H</text></svg>';
+
+var CIRCUMCIRCLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="150" fill="lightblue" fill-opacity="0.3" stroke="black" stroke-width="2"/><polygon points="200,50 70,275 330,275" fill="lightgreen" fill-opacity="0.5" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="50" stroke="#e67e22" stroke-width="2"/><line x1="200" y1="200" x2="70" y2="275" stroke="#e67e22" stroke-width="2"/><line x1="200" y1="200" x2="330" y2="275" stroke="#e67e22" stroke-width="2"/><text x="55" y="295" font-family="serif" font-size="22" font-weight="bold">A</text><text x="335" y="295" font-family="serif" font-size="22" font-weight="bold">B</text><text x="190" y="45" font-family="serif" font-size="22" font-weight="bold">C</text><text x="210" y="200" font-family="serif" font-size="22" font-weight="bold">O</text></svg>';
+
+var TRIG_RIGHT_TRIANGLE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190">' +
+   '<polygon points="50,170 250,170 50,0" fill="#FFFACD" stroke="black" stroke-width="2"/>' +
+   '<polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/>' +
+   '<path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/>' +
+   '<text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text>' +
+   '<text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text>' +
+   '<text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text>' +
    '</svg>';
 
-var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
-   '<path d="M 50 350 L 350 350 L 275 200 L 125 200 Z" fill="#ffcccc" stroke="#c00000" stroke-width="3"/>' +
-   '<path d="M 125 200 L 275 200 L 200 50 Z" fill="#e2f0d9" stroke="#c00000" stroke-width="3"/>' +
-   '<line x1="125" y1="200" x2="275" y2="200" stroke="#00b0f0" stroke-width="3"/>' +
-   '<text x="15" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">A</text>' +
-   '<text x="190" y="40" font-family="serif" font-size="35" font-style="italic" fill="black">B</text>' +
-   '<text x="360" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">C</text>' +
-   '<text x="85" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">D</text>' +
-   '<text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text>' +
+var TRIG_SINE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190">' +
+   '<polygon points="50,170 250,170 50,0" fill="#90EE90" stroke="black" stroke-width="2"/>' +
+   '<polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/>' +
+   '<path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/>' +
+   '<text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text>' +
+   '<text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text>' +
+   '<text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text>' +
    '</svg>';
 
-var MEDIAN_SVG = '<svg viewBox="0 0 400 350" width="100%" height="100%" style="background:white;">' +
-   '<polygon points="50,300 220,50 200,300" fill="#FFFACD" stroke="#00CED1" stroke-width="3"/>' +
-   '<polygon points="200,300 220,50 350,300" fill="#F0FFF0" stroke="#00CED1" stroke-width="3"/>' +
-   '<line x1="220" y1="50" x2="200" y2="300" stroke="#00CED1" stroke-width="3"/>' +
-   '<line x1="50" y1="300" x2="350" y2="300" stroke="#00CED1" stroke-width="3"/>' +
-   '<line x1="125" y1="290" x2="125" y2="310" stroke="#00CED1" stroke-width="3"/>' +
-   '<line x1="275" y1="290" x2="275" y2="310" stroke="#00CED1" stroke-width="3"/>' +
-   '<text x="10" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">A</text>' +
-   '<text x="210" y="40" font-family="serif" font-size="48" font-style="italic" fill="black">B</text>' +
-   '<text x="360" y="330" font-family="serif" font-size="48" font-style="italic" fill="black">C</text>' +
-   '<text x="190" y="340" font-family="serif" font-size="48" font-style="italic" fill="black">D</text>' +
+// 👇 SVG ДЛЯ №16 (Светло-желтая окружность, голубой треугольник) - ПРАВИЛЬНЫЙ!
+var CIRCLE_ANGLES_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
+   '<circle cx="200" cy="200" r="150" fill="#FFFACD" stroke="black" stroke-width="2"/>' +
+   '<polygon points="200,50 85,300 315,300" fill="#ADD8E6" stroke="black" stroke-width="2"/>' +
+   '<line x1="200" y1="200" x2="85" y2="300" stroke="#e67e22" stroke-width="2"/>' +
+   '<line x1="200" y1="200" x2="315" y2="300" stroke="#e67e22" stroke-width="2"/>' +
+   '<text x="195" y="190" font-family="serif" font-size="22" font-weight="bold">O</text>' +
+   '<text x="70" y="320" font-family="serif" font-size="22" font-weight="bold">A</text>' +
+   '<text x="315" y="320" font-family="serif" font-size="22" font-weight="bold">B</text>' +
+   '<text x="190" y="40" font-family="serif" font-size="22" font-weight="bold">C</text>' +
    '</svg>';
 
-var HEIGHT_SVG = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;">' +
-   '<polygon points="50,350 300,50 480,350" fill="#fcf" stroke="#c00" stroke-width="3"/>' +
-   '<line x1="480" y1="350" x2="226" y2="139" stroke="#0bf" stroke-width="3"/>' +
-   '<polygon points="226,139 238,149 247,137 236,128" fill="#7f7f7f" stroke="#0bf" stroke-width="1.5"/>' +
-   '<text x="10" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
-   '<text x="285" y="45" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
-   '<text x="485" y="375" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
-   '<text x="200" y="130" font-family="serif" font-size="45" font-style="italic" fill="black">E</text>' +
-   '</svg>';
-
-var ISOSCELES_SVG = '<svg viewBox="0 0 550 360" width="100%" height="100%" style="background:white;">' +
-   '<polygon points="60,300 225,50 400,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/>' +
-   '<line x1="60" y1="300" x2="490" y2="300" stroke="#c00" stroke-width="3"/>' +
-   '<line x1="130" y1="185" x2="145" y2="165" stroke="#000" stroke-width="3" transform="rotate(90, 137.5, 175)"/>' +
-   '<line x1="320" y1="185" x2="305" y2="165" stroke="#000" stroke-width="3" transform="rotate(-90, 312.5, 175)"/>' +
-   '<text x="30" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
-   '<text x="210" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
-   '<text x="410" y="340" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
-   '</svg>';
-
-var EQUILATERAL_SVG = '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;">' +
-   '<polygon points="80,300 250,50 420,300" fill="#FFB3B3" stroke="#c00" stroke-width="3"/>' +
-   '<line x1="250" y1="50" x2="250" y2="300" stroke="#e67e22" stroke-width="3"/>' +
-   '<line x1="160" y1="288" x2="160" y2="312" stroke="#000" stroke-width="3"/>' +
-   '<line x1="340" y1="288" x2="340" y2="312" stroke="#000" stroke-width="3"/>' +
-   '<text x="50" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text>' +
-   '<text x="235" y="40" font-family="serif" font-size="45" font-style="italic" fill="black">B</text>' +
-   '<text x="430" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text>' +
-   '<text x="240" y="330" font-family="serif" font-size="35" font-style="italic" fill="black">H</text>' +
-   '</svg>';
-
-// 👇 SVG: БИССЕКТРИСА (С ЗАКРАШЕННЫМИ СЕКТОРАМИ)
-var BISECTOR_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
-   '<polygon points="200,50 50,310 350,310" fill="turquoise" fill-opacity="0.5" stroke="black" stroke-width="2"/>' +
-   '<path d="M 200,50 L 172.5,97.6 A 55,55 0 0 0 200,105 Z" fill="lightcoral" fill-opacity="0.7"/>' +
-   '<path d="M 200,50 L 200,100 A 50,50 0 0 0 225,93.3 Z" fill="lightcoral" fill-opacity="0.7"/>' +
-   '<path d="M 172.5,97.6 A 55,55 0 0 0 200,105" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<path d="M 200,100 A 50,50 0 0 0 225,93.3" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<line x1="200" y1="50" x2="200" y2="310" stroke="orange" stroke-width="2.5"/>' +
-   '<polyline points="200,295 215,295 215,310" fill="none" stroke="black" stroke-width="1"/>' +
-   '<text x="195" y="40" font-family="serif" font-size="22" font-weight="bold">B</text>' +
-   '<text x="35" y="330" font-family="serif" font-size="22" font-weight="bold">A</text>' +
-   '<text x="355" y="330" font-family="serif" font-size="22" font-weight="bold">C</text>' +
-   '<text x="193" y="335" font-family="serif" font-size="22" font-weight="bold">H</text>' +
+// 👇 SVG 1: Диаметры (для задачи про пересекающиеся диаметры)
+var DIAMETERS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
+   '<circle cx="200" cy="200" r="150" fill="#D4EDD4" stroke="black" stroke-width="2"/>' +
+   '<polygon points="200,200 94,94 350,200" fill="#FFCCCC" stroke="black" stroke-width="2"/>' +
+   '<polygon points="200,200 50,200 306,306" fill="#FFCCCC" stroke="black" stroke-width="2"/>' +
+   '<line x1="94" y1="94" x2="306" y2="306" stroke="black" stroke-width="2"/>' +
+   '<line x1="50" y1="200" x2="350" y2="200" stroke="black" stroke-width="2"/>' +
+   '<text x="195" y="180" font-family="serif" font-size="40" font-weight="bold">O</text>' +
+   '<text x="375" y="220" font-family="serif" font-size="40" font-weight="bold">B</text>' +
+   '<text x="5" y="220" font-family="serif" font-size="40" font-weight="bold">C</text>' +
+   '<text x="65" y="60" font-family="serif" font-size="40" font-weight="bold">A</text>' +
+   '<text x="325" y="350" font-family="serif" font-size="40" font-weight="bold">D</text>' +
    '</svg>';
 
 var TASKS_DB = {
   15: {
-    title: 'Треугольники и их элементы',
+    title: 'Треугольники',
     subTopics: {
       0: { name: 'Углы', tasks: [
-          { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; },
-            txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + (p.angle/2) + '°.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.angle / 2; },
-            svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }
-          },
-          { gen: function(){ var a1 = Math.floor(Math.random() * 40) + 40; var a2 = Math.floor(Math.random() * 40) + 40; return {angleA: a1, angleB: a2}; },
-            txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол.'; }, 
-            solRight: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'МОЛОДЕЦ! ✅ Правильно, ' + a3 + '°.'; },
-            solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Сумма углов 180°. 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return 180 - p.angleA - p.angleB; },
-            svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/><line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text></svg>'; }
-          },
-          { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; },
-            txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, 
-            solRight: function(p){ var angle3 = 180 - p.angle1; return 'МОЛОДЕЦ! ✅ Правильно, ' + angle3 + '°.'; },
-            solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return 180 - p.angle1; },
-            svg: function(p){ return PARALLEL_SVG; }
-          }
+          { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; }, txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + (p.angle/2) + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.angle / 2; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }},
+          { gen: function(){ var a1 = Math.floor(Math.random() * 40) + 40; var a2 = Math.floor(Math.random() * 40) + 40; return {angleA: a1, angleB: a2}; }, txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол.'; }, solRight: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'МОЛОДЕЦ! ✅ Правильно, ' + a3 + '°.'; }, solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Сумма углов 180°. 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angleA - p.angleB; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/><line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text></svg>'; }},
+          { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; }, txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, solRight: function(p){ var angle3 = 180 - p.angle1; return 'МОЛОДЕЦ! ✅ Правильно, ' + angle3 + '°.'; }, solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angle1; }, svg: function(p){ return PARALLEL_SVG; }}
         ]
       },
       1: { name: 'Общие треугольники', tasks: [
-          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; },
-            txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '.'; },
-            solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.de; },
-            svg: function(p){ return TRAPEZOID_SVG; }
-          },
-          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; },
-            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '.'; },
-            solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.abc; },
-            svg: function(p){ return TRAPEZOID_SVG; }
-          },
-          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; },
-            txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.dbe; },
-            svg: function(p){ return TRAPEZOID_SVG; }
-          },
-          { gen: function(){ var de = Math.floor(Math.random() * 21) + 10; var ad = Math.floor(Math.random() * 11) + 10; return {ad: ad, db: ad, de: de, ac: de * 2}; },
-            txt: function(p){ return 'DE — средняя линия. AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ac; },
-            svg: function(p){ return TRAPEZOID_SVG; }
-          },
-          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ac, ad: ac / 2, bd: bd}; },
-            txt: function(p){ var target = Math.random() > 0.5 ? 'AD' : 'DC'; return 'BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Медиана делит пополам. ' + p.ac + ' / 2 = ' + p.ad + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ad; },
-            svg: function(p){ return MEDIAN_SVG; }
-          },
-          { gen: function(){ var ad = Math.floor(Math.random() * 20) + 5; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ad * 2, ad: ad, bd: bd}; },
-            txt: function(p){ return 'BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? AC = AD × 2 = ' + p.ad + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ac; },
-            svg: function(p){ return MEDIAN_SVG; }
-          },
-          { gen: function(){ var ab = (Math.floor(Math.random() * 10) + 1) * 2; var ce = Math.floor(Math.random() * 34) + 7; var area = (ab * ce) / 2; return {ab: ab, ce: ce, area: area}; },
-            txt: function(p){ return 'В △ABC сторона AB = ' + p.ab + ', высота CE = ' + p.ce + '. Найдите площадь.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; },
-            solWrong: function(p){ var area = (p.ab * p.ce) / 2; return 'Ну Ты Чё!?!? S = (AB × CE) / 2 = (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.area; },
-            svg: function(p){ return HEIGHT_SVG; }
-          },
-          { gen: function(){
-              var ab = Math.floor(Math.random() * 19) + 2;
-              var cb = Math.floor(Math.random() * 19) + 2;
-              var sins = [
-                {str: "1/2", val: 0.5}, {str: "3/5", val: 0.6}, {str: "4/5", val: 0.8},
-                {str: "1/4", val: 0.25}, {str: "3/4", val: 0.75}, {str: "2/5", val: 0.4},
-                {str: "1/3", val: 1/3}, {str: "2/3", val: 2/3}
-              ];
-              var s = sins[Math.floor(Math.random() * sins.length)];
-              var area = (ab * cb * s.val) / 2;
-              return {ab: ab, cb: cb, sinStr: s.str, area: Math.round(area * 100) / 100};
-            },
-            txt: function(p){ return 'В △ABC: AB = ' + p.ab + ', CB = ' + p.cb + ', sin∠ABC = ' + p.sinStr + '. Найдите площадь.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? S = 1/2 · AB · CB · sinB = 1/2 · ' + p.ab + ' · ' + p.cb + ' · ' + p.sinStr + ' = ' + p.area + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.area; },
-            svg: function(p){ return '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#FAEBD7" stroke="#c00" stroke-width="3"/><text x="30" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }
-          },
-          { 
-            gen: function(){
-              var angleC = Math.floor(Math.random() * 51) + 100;
-              var extAngle = 180 - angleC;
-              return {angleC: angleC, extAngle: extAngle};
-            },
-            txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.extAngle; },
-            svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }
-          }
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; }, txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '.'; }, solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.de; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '.'; }, solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.abc; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.dbe; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var de = Math.floor(Math.random() * 21) + 10; var ad = Math.floor(Math.random() * 11) + 10; return {ad: ad, db: ad, de: de, ac: de * 2}; }, txt: function(p){ return 'DE — средняя линия. AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ac, ad: ac / 2, bd: bd}; }, txt: function(p){ var target = Math.random() > 0.5 ? 'AD' : 'DC'; return 'BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Медиана делит пополам. ' + p.ac + ' / 2 = ' + p.ad + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ad; }, svg: function(p){ return MEDIAN_SVG; }},
+          { gen: function(){ var ad = Math.floor(Math.random() * 20) + 5; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ad * 2, ad: ad, bd: bd}; }, txt: function(p){ return 'BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = AD × 2 = ' + p.ad + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return MEDIAN_SVG; }},
+          { gen: function(){ var ab = (Math.floor(Math.random() * 10) + 1) * 2; var ce = Math.floor(Math.random() * 34) + 7; var area = (ab * ce) / 2; return {ab: ab, ce: ce, area: area}; }, txt: function(p){ return 'В △ABC сторона AB = ' + p.ab + ', высота CE = ' + p.ce + '. Найдите площадь.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; }, solWrong: function(p){ var area = (p.ab * p.ce) / 2; return 'Ну Ты Чё!?!? S = (AB × CE) / 2 = (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return HEIGHT_SVG; }},
+          { gen: function(){ var ab = Math.floor(Math.random() * 19) + 2; var cb = Math.floor(Math.random() * 19) + 2; var sins = [{str: "1/2", val: 0.5}, {str: "3/5", val: 0.6}, {str: "4/5", val: 0.8}, {str: "1/4", val: 0.25}, {str: "3/4", val: 0.75}, {str: "2/5", val: 0.4}, {str: "1/3", val: 1/3}, {str: "2/3", val: 2/3}]; var s = sins[Math.floor(Math.random() * sins.length)]; var area = (ab * cb * s.val) / 2; return {ab: ab, cb: cb, sinStr: s.str, area: Math.round(area * 100) / 100}; }, txt: function(p){ return 'В △ABC: AB = ' + p.ab + ', CB = ' + p.cb + ', sin∠ABC = ' + p.sinStr + '. Найдите площадь.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S = 1/2 · AB · CB · sinB = 1/2 · ' + p.ab + ' · ' + p.cb + ' · ' + p.sinStr + ' = ' + p.area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#FAEBD7" stroke="#c00" stroke-width="3"/><text x="30" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }},
+          { gen: function(){ var angleC = Math.floor(Math.random() * 51) + 100; var extAngle = 180 - angleC; return {angleC: angleC, extAngle: extAngle}; }, txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.extAngle; }, svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }}
         ]
       },
       2: { name: 'Равнобедренные', tasks: [
-          {
-            gen: function(){
-              var extAngle = Math.floor(Math.random() * 51) + 100;
-              var baseAngle = 180 - extAngle;
-              var vertexAngle = 180 - 2 * baseAngle;
-              return {extAngle: extAngle, ans: vertexAngle};
-            },
-            txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){
-              var base = 180 - p.extAngle;
-              var vertex = 180 - 2*base;
-              return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = 180° − ' + p.extAngle + '° = ' + base + '°. При основании углы равны, значит ∠A тоже ' + base + '°. А вершинный ∠B = 180° − (' + base + '° + ' + base + '°) = ' + vertex + '°.\n\nПопробуй ещё! 💪';
-            },
-            ans: function(p){ return p.ans; },
-            svg: function(p){ return ISOSCELES_SVG; }
+          { gen: function(){ var extAngle = Math.floor(Math.random() * 51) + 100; var baseAngle = 180 - extAngle; var vertexAngle = 180 - 2 * baseAngle; return {extAngle: extAngle, ans: vertexAngle}; }, txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ var base = 180 - p.extAngle; var vertex = 180 - 2*base; return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = 180° − ' + p.extAngle + '° = ' + base + '°. При основании углы равны, значит ∠A тоже ' + base + '°. А вершинный ∠B = 180° − (' + base + '° + ' + base + '°) = ' + vertex + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return ISOSCELES_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.median + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике медиана = высоте. h = (a√3)/2 = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var bisector = n * Math.sqrt(3); var side = 2 * n; return {bisCoeff: n, ans: side}; }, txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике биссектриса = высоте. h = (a√3)/2. Значит a = 2h/√3. Подставляем: 2 · ' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return BISECTOR_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var sideCoeff = 2 * n; var radius = n * 2; return {sideCoeff: sideCoeff, ans: radius}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите радиус окружности, описанной около этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Для равностороннего треугольника: R = a/√3. Подставляем: R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 9) + 2; var sideCoeff = 2 * n; var diameter = sideCoeff * 2; return {sideCoeff: sideCoeff, ans: diameter}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите диаметр описанной окружности.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Диаметр = 2 × Радиус. R = a/√3 = ' + (p.ans/2) + '. Диаметр = 2 × ' + (p.ans/2) + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }}
+        ]
+      },
+      3: { name: 'Прямоугольные', tasks: [
+          { gen: function(){ 
+              var triples = [[3,4,5], [5,12,13], [8,15,17]];
+              var t = triples[Math.floor(Math.random() * triples.length)];
+              var k = Math.floor(Math.random() * 4) + 1; 
+              var cosNum = t[0];
+              var cosDen = t[2];
+              var leg = t[0] * k;
+              var ans = t[2] * k;
+              return {cosNum: cosNum, cosDen: cosDen, leg: leg, ans: ans};
+            }, 
+            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC = ' + p.leg + ', cos A = ' + p.cosNum + '/' + p.cosDen + '. Найдите AB.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? По определению: cos A = AC / AB. Значит AB = AC / cos A = ' + p.leg + ' / (' + p.cosNum + '/' + p.cosDen + ') = ' + p.leg + ' × ' + p.cosDen + '/' + p.cosNum + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; 
+            }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }
           },
-          {
-            gen: function(){
-              var n = Math.floor(Math.random() * 10) + 1;
-              var side = 2 * n;
-              var median = 3 * n;
-              return {sideCoeff: side, median: median};
-            },
-            txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану этого треугольника.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.median + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){
-              return 'Ну Ты Чё!?!? В равностороннем треугольнике медиана = высоте. h = (a√3)/2 = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪';
-            },
-            ans: function(p){ return p.median; },
-            svg: function(p){ return EQUILATERAL_SVG; }
+          { gen: function(){ 
+              var triples = [[3,4,5], [5,12,13], [8,15,17]];
+              var t = triples[Math.floor(Math.random() * triples.length)];
+              var k = Math.floor(Math.random() * 4) + 1;
+              var tanNum = t[1];
+              var tanDen = t[0];
+              var adj = t[0] * k;
+              var ans = t[1] * k;
+              return {tanNum: tanNum, tanDen: tanDen, adj: adj, ans: ans};
+            }, 
+            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC = ' + p.adj + ', tg A = ' + p.tanNum + '/' + p.tanDen + '. Найдите BC.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? tg A = BC / AC. Значит BC = AC × tg A = ' + p.adj + ' × (' + p.tanNum + '/' + p.tanDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; 
+            }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }
           },
+          { gen: function(){ 
+              var triples = [[3,4,5], [5,12,13], [8,15,17]];
+              var t = triples[Math.floor(Math.random() * triples.length)];
+              var k = Math.floor(Math.random() * 4) + 1; 
+              var sinNum = t[0];
+              var sinDen = t[2];
+              var opp = t[0] * k; 
+              var ans = t[2] * k; 
+              return {sinNum: sinNum, sinDen: sinDen, opp: opp, ans: ans};
+            }, 
+            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) BC = ' + p.opp + ', sin A = ' + p.sinNum + '/' + p.sinDen + '. Найдите AB.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? sin A = BC / AB. Значит AB = BC / sin A = ' + p.opp + ' / (' + p.sinNum + '/' + p.sinDen + ') = ' + p.opp + ' × ' + p.sinDen + '/' + p.sinNum + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; 
+            }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return TRIG_SINE_SVG; }
+          },
+          { gen: function(){ 
+              var triples = [[3,4,5], [5,12,13], [8,15,17]];
+              var t = triples[Math.floor(Math.random() * triples.length)];
+              var k = Math.floor(Math.random() * 4) + 1; 
+              var sinNum = t[0];
+              var sinDen = t[2];
+              var cosNum = t[1];
+              var cosDen = t[2];
+              var hyp = t[2] * k; 
+              var ans = t[1] * k; 
+              return {sinNum: sinNum, sinDen: sinDen, hyp: hyp, cosNum: cosNum, cosDen: cosDen, ans: ans};
+            }, 
+            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AB = ' + p.hyp + ', sin A = ' + p.sinNum + '/' + p.sinDen + '. Найдите AC.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Из sin A = ' + p.sinNum + '/' + p.sinDen + ' следует, что cos A = ' + p.cosNum + '/' + p.cosDen + '. AC = AB × cos A = ' + p.hyp + ' × (' + p.cosNum + '/' + p.cosDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; 
+            }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return TRIG_SINE_SVG; }
+          }
+        ]
+      }
+    }
+  },
+  16: {
+    title: 'Окружности/круги',
+    subTopics: {
+      0: { name: 'Углы, касательные', tasks: [
+          // 👇 ЗАДАЧА 1: Диаметры
+          { 
+            gen: function(){ 
+                var alpha = 2 * (Math.floor(Math.random() * 71) + 10); 
+                var beta = 180 - alpha;
+                var base = (180 - alpha) / 2;
+
+                var pool = [
+                  {given: '∠AOB', gv: alpha, find: '∠COD', av: alpha, sol: '∠AOB и ∠COD — вертикальные, значит равны.', svg: 'diameters'},
+                  {given: '∠COD', gv: alpha, find: '∠AOB', av: alpha, sol: '∠COD и ∠AOB — вертикальные, значит равны.', svg: 'diameters'},
+                  {given: '∠AOB', gv: alpha, find: '∠AOC', av: beta, sol: '∠AOB и ∠AOC — смежные. ∠AOC = 180° - ' + alpha + '° = ' + beta + '°.', svg: 'diameters'},
+                  {given: '∠AOC', gv: beta, find: '∠AOB', av: alpha, sol: '∠AOC и ∠AOB — смежные. ∠AOB = 180° - ' + beta + '° = ' + alpha + '°.', svg: 'diameters'},
+                  {given: '∠AOB', gv: alpha, find: '∠OAB', av: base, sol: '△OAB равнобедренный. ∠OAB = (180° - ' + alpha + '°)/2 = ' + base + '°.', svg: 'diameters'},
+                  {given: '∠OAB', gv: base, find: '∠AOB', av: alpha, sol: '△OAB равнобедренный. ∠AOB = 180° - 2·' + base + '° = ' + alpha + '°.', svg: 'diameters'},
+                  {given: '∠OAB', gv: base, find: '∠OCD', av: base, sol: '△OAB ≅ △COD. Значит ∠OAB = ∠OCD = ' + base + '°.', svg: 'diameters'},
+                  {given: '∠OCD', gv: base, find: '∠OAB', av: base, sol: '△COD ≅ △OAB. Значит ∠OCD = ∠OAB = ' + base + '°.', svg: 'diameters'},
+                ];
+                return pool[Math.floor(Math.random() * pool.length)];
+            },
+            txt: function(p){ return 'В окружности с центром O проведены диаметры AD и BC. Дано: ' + p.given + ' = ' + p.gv + '°. Найдите ' + p.find + '.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.av + '°.\n\n' + p.sol + '\n\nПопробуй ещё! 💪'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? ' + p.sol + '\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.av; },
+            svg: function(p){ return (p.svg === 'diameters') ? DIAMETERS_SVG : DIAMETERS_SVG; }
+          },
+          // 👇 ЗАДАЧА 2: Вписанный треугольник (ПРАВИЛЬНЫЙ SVG!)
           {
             gen: function(){
-              var n = Math.floor(Math.random() * 10) + 1;
-              var bisector = n * Math.sqrt(3);
-              var side = 2 * n;
-              return {bisCoeff: n, ans: side};
+                var angleC = Math.floor(Math.random() * 60) + 20;
+                var angleAOB = 2 * angleC;
+                var angleOAB = (180 - angleAOB) / 2;
+                return {angleC: angleC, ans: angleOAB};
             },
-            txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону этого треугольника.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){
-              return 'Ну Ты Чё!?!? В равностороннем треугольнике биссектриса = высоте. h = (a√3)/2. Значит a = 2h/√3. Подставляем: 2 · ' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪';
-            },
+            txt: function(p){ return 'Треугольник ABC вписан в окружность с центром O. Найдите ∠OAB, если ∠ACB = ' + p.angleC + '°.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nЦентральный ∠AOB = 2·∠ACB = ' + (2*p.angleC) + '°. △AOB равнобедренный (радиусы). ∠OAB = (180° - ' + (2*p.angleC) + '°)/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Центральный ∠AOB = 2·∠ACB = ' + (2*p.angleC) + '°. △AOB равнобедренный. ∠OAB = (180° - ' + (2*p.angleC) + '°)/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.ans; },
-            svg: function(p){ return BISECTOR_SVG; }
+            svg: function(p){ return CIRCLE_ANGLES_SVG; }
           }
         ]
       },
-      3: { name: 'Прямоугольные', tasks: [] }
+      1: { name: 'Вписанные окружности', tasks: [] },
+      2: { name: 'Описанные окружности', tasks: [] },
+      3: { name: 'Хорды, секущие', tasks: [] }
     }
   },
-  16: { title: 'Параллелограмм', tasks: [] },
   17: { title: 'Окружность', tasks: [] },
   18: { title: 'Подобие', tasks: [] },
   19: { title: 'Координаты', tasks: [] },
@@ -375,6 +359,22 @@ var TASKS_DB = {
 
 var SUCCESS_MSGS = ["МОЛОДЕЦ! 🎉", "МОЛОДЦОМ!!!", "В ОТЛИЧНОМ СТИЛЕ! 👍", "МОЛОДЦОМ!!!", "Молодцом!!!"];
 var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦️", "НЕ ТО! ", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
+
+var overlay = document.getElementById('zoom-overlay');
+var zoomContent = document.getElementById('zoom-content');
+var drawingArea = document.getElementById('drawing-area');
+
+drawingArea.onclick = function() {
+    var svg = drawingArea.innerHTML;
+    if(svg && svg.indexOf('<svg') !== -1) {
+        zoomContent.innerHTML = svg;
+        overlay.classList.add('show');
+    }
+};
+
+overlay.onclick = function() {
+    overlay.classList.remove('show');
+};
 
 function initTaskQueue(num, subIdx) {
   var key = num + '_' + subIdx;
@@ -404,14 +404,26 @@ function switchTab(modeName) {
 }
 function selectNum(n) {
   appState.num = n;
+  appState.subIndex = 0;
   document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.toggle('selected', parseInt(b.dataset.num) === n); });
   var subMenu15 = document.getElementById('sub-menu-15');
-  if(n === 15) subMenu15.classList.add('active'); else subMenu15.classList.remove('active');
+  var subMenu16 = document.getElementById('sub-menu-16');
+  if(n === 15) {
+    subMenu15.classList.add('active');
+    subMenu16.classList.remove('active');
+  } else if(n === 16) {
+    subMenu15.classList.remove('active');
+    subMenu16.classList.add('active');
+  } else {
+    subMenu15.classList.remove('active');
+    subMenu16.classList.remove('active');
+  }
 }
 function switchSub(idx) {
   appState.subIndex = idx;
-  document.querySelectorAll('#sub-menu-15 .sub-btn').forEach(function(b, i){ b.classList.toggle('active', i === idx); });
-  if(appState.num === 15) generateTask();
+  var currentMenu = (appState.num === 15) ? document.getElementById('sub-menu-15') : document.getElementById('sub-menu-16');
+  currentMenu.querySelectorAll('.sub-btn').forEach(function(b, i){ b.classList.toggle('active', i === idx); });
+  if(appState.num === 15 || appState.num === 16) generateTask();
 }
 function generateTask() {
   var n = appState.num;
@@ -425,7 +437,6 @@ function generateTask() {
   var variant = topic.tasks[taskIdx];
   var params = variant.gen();
   
-  // 👇 ПРОВЕРКА НА ПОВТОРЕНИЕ ПАРАМЕТРОВ
   var maxAttempts = 10;
   var attempts = 0;
   while(appState.lastParams && JSON.stringify(appState.lastParams) === JSON.stringify(params) && attempts < maxAttempts) {
@@ -433,7 +444,6 @@ function generateTask() {
     attempts++;
   }
   appState.lastParams = params;
-  // 👆 КОНЕЦ ПРОВЕРКИ
   
   var svgHtml = variant.svg(params);
   var qTxt = variant.txt(params);
@@ -441,7 +451,7 @@ function generateTask() {
   var solW = variant.solWrong(params);
   var corrAns = variant.ans(params);
   appState.currentSvg = svgHtml;
-  document.getElementById('drawing-area').innerHTML = svgHtml;
+  drawingArea.innerHTML = svgHtml;
   appState.params = { ans: corrAns, solRight: solR, solWrong: solW, num: n };
   document.getElementById('menu-screen').classList.remove('active');
   document.getElementById('task-screen').classList.add('active');
@@ -499,7 +509,7 @@ function updateExamUI() {
 function resetExam() { appState.solved = []; updateExamUI(); document.getElementById('btn-finish').style.display = 'none'; document.getElementById('win-msg').style.display = 'none'; }
 function finishExam() { alert('Отлично! 🎉'); resetExam(); closeTask(); switchTab('train'); }
 function resetUI() { document.getElementById('inp-ans').value = ''; document.getElementById('inp-ans').disabled = false; document.getElementById('btn-check').disabled = false; document.getElementById('msg-fb').style.display = 'none'; document.getElementById('sol-txt').style.display = 'none'; }
-function closeTask() { document.getElementById('task-screen').classList.remove('active'); document.getElementById('menu-screen').classList.add('active'); appState.num = null; appState.params = null; appState.currentSvg = null; appState.lastParams = null; document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.remove('selected'); }); document.getElementById('sub-menu-15').classList.remove('active'); }
+function closeTask() { document.getElementById('task-screen').classList.remove('active'); document.getElementById('menu-screen').classList.add('active'); appState.num = null; appState.params = null; appState.currentSvg = null; appState.lastParams = null; document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.remove('selected'); }); document.getElementById('sub-menu-15').classList.remove('active'); document.getElementById('sub-menu-16').classList.remove('active'); }
 
 document.getElementById('tab-train').onclick = function(){ switchTab('train'); };
 document.getElementById('tab-exam').onclick = function(){ switchTab('exam'); };
@@ -510,6 +520,7 @@ document.getElementById('btn-finish').onclick = finishExam;
 document.getElementById('btn-continue').onclick = function(){ generateTask(); };
 document.querySelectorAll('.num-btn').forEach(function(btn){ btn.onclick = function(){ selectNum(parseInt(btn.dataset.num)); }; });
 document.querySelectorAll('#sub-menu-15 .sub-btn').forEach(function(btn, idx){ btn.onclick = function(){ switchSub(idx); }; });
+document.querySelectorAll('#sub-menu-16 .sub-btn').forEach(function(btn, idx){ btn.onclick = function(){ switchSub(idx); }; });
 selectNum(15);
 </script>
 </body>
