@@ -7,8 +7,8 @@
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
-    --primary: #1e4b8f; --primary-light: #2b6cb0; --success: #0f7b3a;
-    --danger: #c52828; --gold: #d97706; --bg-light: #f8fafc;
+    --primary: #1e4b8f; --primary-light: #2b6cb0; --success: #10b981;
+    --success-dark: #059669; --danger: #c52828; --gold: #d97706; --bg-light: #f8fafc;
     --card-white: #ffffff; --border-dim: #e2e8f0;
   }
   body {
@@ -163,7 +163,16 @@
     font-size: 0.9rem; line-height: 1.4; margin: 12px 0;
     display: none; white-space: pre-wrap;
   }
-  .solution.correct-style { background: #e0f2e9; border-left: 4px solid var(--success); }
+  
+  /* ВОТ ЭТО ВОССТАНОВЛЕНО: Зелёный жирный текст для правильного ответа */
+  .solution.correct-style { 
+    background: #e0f2e9; 
+    border-left: 5px solid var(--success-dark);
+    color: var(--success-dark);
+    font-weight: 900;
+    font-size: 1.05rem;
+  }
+
   .zoom-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); display: none;
@@ -177,8 +186,26 @@
     display: flex; align-items: center; justify-content: center;
   }
   .zoom-content svg { width: 100%; height: auto; max-height: 70vh; }
-  .reaction-box { text-align: center; padding: 10px; }
-  .reaction-emoji { font-size: 4rem; }
+  
+  /* Стили для реакции (Эмодзи и текст) */
+  .reaction-box { text-align: center; padding: 15px; animation: popIn 0.4s; }
+  .reaction-emoji { font-size: 5rem; display: block; margin-bottom: 10px; }
+  
+  /* ВОТ ЭТО ВОССТАНОВЛЕНО: Крупный, Жирный, Зелёный текст реакции */
+  .reaction-text { 
+    font-size: 2.2rem; 
+    font-weight: 900; 
+    color: #166534; /* Густой зелёный */
+    text-transform: uppercase; 
+    line-height: 1.1;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   button:active { transform: scale(0.96); }
   footer { font-size: 0.65rem; text-align: center; padding: 8px; color: #8ba0bc; flex-shrink: 0; }
 </style>
@@ -319,81 +346,36 @@ const TASKS_DB = {
     title: '📐 Треугольники',
     subTopics: {
       0: { name: 'Углы', tasks: [
-          { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; }, txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + (p.angle/2) + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.angle / 2; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }},
-          { gen: function(){ var a1 = Math.floor(Math.random() * 40) + 40; var a2 = Math.floor(Math.random() * 40) + 40; return {angleA: a1, angleB: a2}; }, txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол.'; }, solRight: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'МОЛОДЕЦ! ✅ Правильно, ' + a3 + '°.'; }, solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Сумма углов 180°. 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angleA - p.angleB; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/><line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text></svg>'; }},
-          { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; }, txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, solRight: function(p){ var angle3 = 180 - p.angle1; return 'МОЛОДЕЦ! ✅ Правильно, ' + angle3 + '°.'; }, solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angle1; }, svg: function(p){ return PARALLEL_SVG; }}
+          { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; }, txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, solRight: function(p){ return '✅ Биссектриса делит угол пополам. ' + (p.angle/2) + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.angle / 2; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }},
+          { gen: function(){ var a1 = Math.floor(Math.random() * 40) + 40; var a2 = Math.floor(Math.random() * 40) + 40; return {angleA: a1, angleB: a2}; }, txt: function(p){ return 'В треугольнике два угла равны ' + p.angleA + '° и ' + p.angleB + '°. Найдите третий угол.'; }, solRight: function(p){ var a3 = 180 - p.angleA - p.angleB; return '✅ Сумма углов 180°. Третий = ' + a3 + '°.'; }, solWrong: function(p){ var a3 = 180 - p.angleA - p.angleB; return 'Ну Ты Чё!?!? Сумма углов 180°. 180° - ' + p.angleA + '° - ' + p.angleB + '° = ' + a3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angleA - p.angleB; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="150,30 30,190 270,190" fill="#ffb3c1" stroke="none"/><line x1="150" y1="30" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="30" y1="190" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text></svg>'; }},
+          { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; }, txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, solRight: function(p){ var angle3 = 180 - p.angle1; return '✅ Односторонние в сумме 180°. Ответ: ' + angle3 + '°.'; }, solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angle1; }, svg: function(p){ return PARALLEL_SVG; }}
         ]
       },
       1: { name: 'Общие тр-ки', tasks: [
-          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; }, txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '.'; }, solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.de; }, svg: function(p){ return TRAPEZOID_SVG; }},
-          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '.'; }, solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.abc; }, svg: function(p){ return TRAPEZOID_SVG; }},
-          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.dbe; }, svg: function(p){ return TRAPEZOID_SVG; }},
-          { gen: function(){ var de = Math.floor(Math.random() * 21) + 10; var ad = Math.floor(Math.random() * 11) + 10; return {ad: ad, db: ad, de: de, ac: de * 2}; }, txt: function(p){ return 'DE — средняя линия. AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return TRAPEZOID_SVG; }},
-          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ac, ad: ac / 2, bd: bd}; }, txt: function(p){ var target = Math.random() > 0.5 ? 'AD' : 'DC'; return 'BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ad + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Медиана делит пополам. ' + p.ac + ' / 2 = ' + p.ad + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ad; }, svg: function(p){ return MEDIAN_SVG; }},
-          { gen: function(){ var ad = Math.floor(Math.random() * 20) + 5; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ad * 2, ad: ad, bd: bd}; }, txt: function(p){ return 'BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = AD × 2 = ' + p.ad + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return MEDIAN_SVG; }},
-          { gen: function(){ var ab = (Math.floor(Math.random() * 10) + 1) * 2; var ce = Math.floor(Math.random() * 34) + 7; var area = (ab * ce) / 2; return {ab: ab, ce: ce, area: area}; }, txt: function(p){ return 'В △ABC сторона AB = ' + p.ab + ', высота CE = ' + p.ce + '. Найдите площадь.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; }, solWrong: function(p){ var area = (p.ab * p.ce) / 2; return 'Ну Ты Чё!?!? S = (AB × CE) / 2 = (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return HEIGHT_SVG; }},
-          { gen: function(){ var ab = Math.floor(Math.random() * 19) + 2; var cb = Math.floor(Math.random() * 19) + 2; var sins = [{str: "1/2", val: 0.5}, {str: "3/5", val: 0.6}, {str: "4/5", val: 0.8}, {str: "1/4", val: 0.25}, {str: "3/4", val: 0.75}, {str: "2/5", val: 0.4}, {str: "1/3", val: 1/3}, {str: "2/3", val: 2/3}]; var s = sins[Math.floor(Math.random() * sins.length)]; var area = (ab * cb * s.val) / 2; return {ab: ab, cb: cb, sinStr: s.str, area: Math.round(area * 100) / 100}; }, txt: function(p){ return 'В △ABC: AB = ' + p.ab + ', CB = ' + p.cb + ', sin∠ABC = ' + p.sinStr + '. Найдите площадь.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.area + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S = 1/2 · AB · CB · sinB = 1/2 · ' + p.ab + ' · ' + p.cb + ' · ' + p.sinStr + ' = ' + p.area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#FAEBD7" stroke="#c00" stroke-width="3"/><text x="30" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }},
-          { gen: function(){ var angleC = Math.floor(Math.random() * 51) + 100; var extAngle = 180 - angleC; return {angleC: angleC, extAngle: extAngle}; }, txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.extAngle; }, svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }}
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; }, txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, solRight: function(p){ return '✅ Средняя линия = половина основания: ' + p.de + '.'; }, solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.de; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, solRight: function(p){ return '✅ Коэф. подобия 1:2, площадей 1:4 → S = ' + p.abc + '.'; }, solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.abc; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, solRight: function(p){ return '✅ S мал = S бол / 4 = ' + p.dbe + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.dbe; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var de = Math.floor(Math.random() * 21) + 10; var ad = Math.floor(Math.random() * 11) + 10; return {ad: ad, db: ad, de: de, ac: de * 2}; }, txt: function(p){ return 'DE — средняя линия. AD = ' + p.ad + ', DB = ' + p.db + ', DE = ' + p.de + '. Найдите AC.'; }, solRight: function(p){ return '✅ AC = 2·DE = ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = DE × 2 = ' + p.de + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return TRAPEZOID_SVG; }},
+          { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ac, ad: ac / 2, bd: bd}; }, txt: function(p){ var target = Math.random() > 0.5 ? 'AD' : 'DC'; return 'BD — медиана, BD = ' + p.bd + '. AC = ' + p.ac + '. Найдите ' + target + '.'; }, solRight: function(p){ return '✅ Медиана делит пополам: ' + p.ad + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Медиана делит пополам. ' + p.ac + ' / 2 = ' + p.ad + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ad; }, svg: function(p){ return MEDIAN_SVG; }},
+          { gen: function(){ var ad = Math.floor(Math.random() * 20) + 5; var bd = Math.floor(Math.random() * 15) + 5; return {ac: ad * 2, ad: ad, bd: bd}; }, txt: function(p){ return 'BD — медиана, BD = ' + p.bd + '. AD = ' + p.ad + '. Найдите AC.'; }, solRight: function(p){ return '✅ AC = 2·AD = ' + p.ac + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC = AD × 2 = ' + p.ad + ' × 2 = ' + p.ac + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ac; }, svg: function(p){ return MEDIAN_SVG; }},
+          { gen: function(){ var ab = (Math.floor(Math.random() * 10) + 1) * 2; var ce = Math.floor(Math.random() * 34) + 7; var area = (ab * ce) / 2; return {ab: ab, ce: ce, area: area}; }, txt: function(p){ return 'В △ABC сторона AB = ' + p.ab + ', высота CE = ' + p.ce + '. Найдите площадь.'; }, solRight: function(p){ return '✅ S = (a·h)/2 = ' + p.area + '.'; }, solWrong: function(p){ var area = (p.ab * p.ce) / 2; return 'Ну Ты Чё!?!? S = (AB × CE) / 2 = (' + p.ab + ' × ' + p.ce + ') / 2 = ' + area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return HEIGHT_SVG; }},
+          { gen: function(){ var ab = Math.floor(Math.random() * 19) + 2; var cb = Math.floor(Math.random() * 19) + 2; var sins = [{str: "1/2", val: 0.5}, {str: "3/5", val: 0.6}, {str: "4/5", val: 0.8}, {str: "1/4", val: 0.25}, {str: "3/4", val: 0.75}, {str: "2/5", val: 0.4}, {str: "1/3", val: 1/3}, {str: "2/3", val: 2/3}]; var s = sins[Math.floor(Math.random() * sins.length)]; var area = (ab * cb * s.val) / 2; return {ab: ab, cb: cb, sinStr: s.str, area: Math.round(area * 100) / 100}; }, txt: function(p){ return 'В △ABC: AB = ' + p.ab + ', CB = ' + p.cb + ', sin∠ABC = ' + p.sinStr + '. Найдите площадь.'; }, solRight: function(p){ return '✅ S = ½ab·sinC = ' + p.area + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S = 1/2 · AB · CB · sinB = ' + p.area + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.area; }, svg: function(p){ return '<svg viewBox="0 0 500 350" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#FAEBD7" stroke="#c00" stroke-width="3"/><text x="30" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="330" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }},
+          { gen: function(){ var angleC = Math.floor(Math.random() * 51) + 100; var extAngle = 180 - angleC; return {angleC: angleC, extAngle: extAngle}; }, txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; }, solRight: function(p){ return '✅ Внешний угол смежный с внутр. (180°): ' + p.extAngle + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.extAngle; }, svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }}
         ]
       },
       2: { name: 'Равнобедр.', tasks: [
-          { gen: function(){ var extAngle = Math.floor(Math.random() * 51) + 100; var baseAngle = 180 - extAngle; var vertexAngle = 180 - 2 * baseAngle; return {extAngle: extAngle, ans: vertexAngle}; }, txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ var base = 180 - p.extAngle; var vertex = 180 - 2*base; return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = 180° − ' + p.extAngle + '° = ' + base + '°. При основании углы равны, значит ∠A тоже ' + base + '°. А вершинный ∠B = 180° − (' + base + '° + ' + base + '°) = ' + vertex + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return ISOSCELES_SVG; }},
-          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.median + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике медиана = высоте. h = (a√3)/2 = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
-          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var bisector = n * Math.sqrt(3); var side = 2 * n; return {bisCoeff: n, ans: side}; }, txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике биссектриса = высоте. h = (a√3)/2. Значит a = 2h/√3. Подставляем: 2 · ' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return BISECTOR_SVG; }},
-          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var sideCoeff = 2 * n; var radius = n * 2; return {sideCoeff: sideCoeff, ans: radius}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите радиус окружности, описанной около этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Для равностороннего треугольника: R = a/√3. Подставляем: R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }},
-          { gen: function(){ var n = Math.floor(Math.random() * 9) + 2; var sideCoeff = 2 * n; var diameter = sideCoeff * 2; return {sideCoeff: sideCoeff, ans: diameter}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите диаметр описанной окружности.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Диаметр = 2 × Радиус. R = a/√3 = ' + (p.ans/2) + '. Диаметр = 2 × ' + (p.ans/2) + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }}
+          { gen: function(){ var extAngle = Math.floor(Math.random() * 51) + 100; var baseAngle = 180 - extAngle; var vertexAngle = 180 - 2 * baseAngle; return {extAngle: extAngle, ans: vertexAngle}; }, txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; }, solRight: function(p){ return '✅ Угол при вершине = ' + p.ans + '°.'; }, solWrong: function(p){ var base = 180 - p.extAngle; var vertex = 180 - 2*base; return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = ' + base + '°. ∠B = 180° - 2·' + base + '° = ' + vertex + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return ISOSCELES_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану.'; }, solRight: function(p){ return '✅ h = m = (a√3)/2 = ' + p.median + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем m=h. h = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var bisector = n * Math.sqrt(3); var side = 2 * n; return {bisCoeff: n, ans: side}; }, txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону.'; }, solRight: function(p){ return '✅ a = 2h/√3 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? a = 2·' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return BISECTOR_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var sideCoeff = 2 * n; var radius = n * 2; return {sideCoeff: sideCoeff, ans: radius}; }, txt: function(p){ return 'Сторона равностороннего треугольника = ' + p.sideCoeff + '√3. Найдите R.'; }, solRight: function(p){ return '✅ R = a/√3 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 9) + 2; var sideCoeff = 2 * n; var diameter = sideCoeff * 2; return {sideCoeff: sideCoeff, ans: diameter}; }, txt: function(p){ return 'Сторона равностороннего треугольника = ' + p.sideCoeff + '√3. Найдите диаметр описанной окружности.'; }, solRight: function(p){ return '✅ D = 2R = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? R = ' + (p.ans/2) + '. D = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }}
         ]
       },
       3: { name: 'Прямоуг-ные', tasks: [
-          { gen: function(){ 
-              var triples = [[3,4,5], [5,12,13], [8,15,17]];
-              var t = triples[Math.floor(Math.random() * triples.length)];
-              var k = Math.floor(Math.random() * 4) + 1; 
-              var cosNum = t[0]; var cosDen = t[2]; var leg = t[0] * k; var ans = t[2] * k;
-              return {cosNum: cosNum, cosDen: cosDen, leg: leg, ans: ans};
-            }, 
-            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC = ' + p.leg + ', cos A = ' + p.cosNum + '/' + p.cosDen + '. Найдите AB.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? cos A = AC/AB ⇒ AB = AC/cosA = ' + p.leg + '/(' + p.cosNum + '/' + p.cosDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }
-          },
-          { gen: function(){ 
-              var triples = [[3,4,5], [5,12,13], [8,15,17]];
-              var t = triples[Math.floor(Math.random() * triples.length)];
-              var k = Math.floor(Math.random() * 4) + 1; 
-              var tanNum = t[1]; var tanDen = t[0]; var adj = t[0] * k; var ans = t[1] * k;
-              return {tanNum: tanNum, tanDen: tanDen, adj: adj, ans: ans};
-            }, 
-            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC = ' + p.adj + ', tg A = ' + p.tanNum + '/' + p.tanDen + '. Найдите BC.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? tg A = BC/AC ⇒ BC = AC·tgA = ' + p.adj + '·' + p.tanNum + '/' + p.tanDen + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }
-          },
-          { gen: function(){ 
-              var triples = [[3,4,5], [5,12,13], [8,15,17]];
-              var t = triples[Math.floor(Math.random() * triples.length)];
-              var k = Math.floor(Math.random() * 4) + 1; 
-              var sinNum = t[0]; var sinDen = t[2]; var opp = t[0] * k; var ans = t[2] * k;
-              return {sinNum: sinNum, sinDen: sinDen, opp: opp, ans: ans};
-            }, 
-            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) BC = ' + p.opp + ', sin A = ' + p.sinNum + '/' + p.sinDen + '. Найдите AB.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? sin A = BC/AB ⇒ AB = BC/sinA = ' + p.opp + '/(' + p.sinNum + '/' + p.sinDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_SINE_SVG; }
-          },
-          { gen: function(){ 
-              var triples = [[3,4,5], [5,12,13], [8,15,17]];
-              var t = triples[Math.floor(Math.random() * triples.length)];
-              var k = Math.floor(Math.random() * 4) + 1; 
-              var sinNum = t[0]; var sinDen = t[2]; var cosNum = t[1]; var cosDen = t[2];
-              var hyp = t[2] * k; var ans = t[1] * k;
-              return {sinNum: sinNum, sinDen: sinDen, hyp: hyp, cosNum: cosNum, cosDen: cosDen, ans: ans};
-            }, 
-            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AB = ' + p.hyp + ', sin A = ' + p.sinNum + '/' + p.sinDen + '. Найдите AC.'; }, 
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? sinA=' + p.sinNum + '/' + p.sinDen + ' ⇒ cosA=' + p.cosNum + '/' + p.cosDen + '. AC = AB·cosA = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_SINE_SVG; }
-          }
+          { gen: function(){ var triples=[[3,4,5],[5,12,13],[8,15,17]]; var t=triples[Math.floor(Math.random()*triples.length)]; var k=Math.floor(Math.random()*4)+1; return {leg: t[0]*k, cosNum: t[0], cosDen: t[2], ans: t[2]*k}; }, txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC=' + p.leg + ', cos A=' + p.cosNum + '/' + p.cosDen + '. Найдите AB.'; }, solRight: function(p){ return '✅ AB = AC/cosA = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AB = AC / cosA = ' + p.leg + ' / (' + p.cosNum + '/' + p.cosDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }},
+          { gen: function(){ var triples=[[3,4,5],[5,12,13],[8,15,17]]; var t=triples[Math.floor(Math.random()*triples.length)]; var k=Math.floor(Math.random()*4)+1; return {adj: t[0]*k, tanNum: t[1], tanDen: t[0], ans: t[1]*k}; }, txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AC=' + p.adj + ', tg A=' + p.tanNum + '/' + p.tanDen + '. Найдите BC.'; }, solRight: function(p){ return '✅ BC = AC·tgA = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? BC = AC·tgA = ' + p.adj + '·(' + p.tanNum + '/' + p.tanDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_RIGHT_TRIANGLE_SVG; }},
+          { gen: function(){ var triples=[[3,4,5],[5,12,13],[8,15,17]]; var t=triples[Math.floor(Math.random()*triples.length)]; var k=Math.floor(Math.random()*4)+1; return {opp: t[0]*k, sinNum: t[0], sinDen: t[2], ans: t[2]*k}; }, txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) BC=' + p.opp + ', sin A=' + p.sinNum + '/' + p.sinDen + '. Найдите AB.'; }, solRight: function(p){ return '✅ AB = BC/sinA = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AB = BC/sinA = ' + p.opp + '/(' + p.sinNum + '/' + p.sinDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_SINE_SVG; }},
+          { gen: function(){ var triples=[[3,4,5],[5,12,13],[8,15,17]]; var t=triples[Math.floor(Math.random()*triples.length)]; var k=Math.floor(Math.random()*4)+1; return {hyp: t[2]*k, sinNum: t[0], sinDen: t[2], cosNum: t[1], cosDen: t[2], ans: t[1]*k}; }, txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) AB=' + p.hyp + ', sin A=' + p.sinNum + '/' + p.sinDen + '. Найдите AC.'; }, solRight: function(p){ return '✅ AC = AB·cosA = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? cosA=' + p.cosNum + '/' + p.cosDen + '. AC = ' + p.hyp + '·(' + p.cosNum + '/' + p.cosDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRIG_SINE_SVG; }}
         ]
       }
     }
@@ -402,141 +384,27 @@ const TASKS_DB = {
     title: '🔘 Окружность',
     subTopics: {
       0: { name: 'Углы', tasks: [
-          { 
-            gen: function(){ 
-                var alpha = 2 * (Math.floor(Math.random() * 71) + 10); var beta = 180 - alpha; var base = (180 - alpha) / 2;
-                var pool = [
-                  {given: '∠AOB', gv: alpha, find: '∠COD', av: alpha, sol: '∠AOB и ∠COD — вертикальные, значит равны.'},
-                  {given: '∠COD', gv: alpha, find: '∠AOB', av: alpha, sol: '∠COD и ∠AOB — вертикальные, значит равны.'},
-                  {given: '∠AOB', gv: alpha, find: '∠AOC', av: beta, sol: '∠AOB и ∠AOC — смежные. ∠AOC = 180° - ' + alpha + '° = ' + beta + '°.'},
-                  {given: '∠AOC', gv: beta, find: '∠AOB', av: alpha, sol: '∠AOC и ∠AOB — смежные. ∠AOB = 180° - ' + beta + '° = ' + alpha + '°.'},
-                  {given: '∠AOB', gv: alpha, find: '∠OAB', av: base, sol: '△OAB равнобедренный. ∠OAB = (180° - ' + alpha + '°)/2 = ' + base + '°.'},
-                  {given: '∠OAB', gv: base, find: '∠AOB', av: alpha, sol: '△OAB равнобедренный. ∠AOB = 180° - 2·' + base + '° = ' + alpha + '°.'},
-                  {given: '∠OAB', gv: base, find: '∠OCD', av: base, sol: '△OAB ≅ △COD. Значит ∠OAB = ∠OCD = ' + base + '°.'},
-                  {given: '∠OCD', gv: base, find: '∠OAB', av: base, sol: '△COD ≅ △OAB. Значит ∠OCD = ∠OAB = ' + base + '°.'}
-                ];
-                return pool[Math.floor(Math.random() * pool.length)];
-            },
-            txt: function(p){ return 'В окружности с центром O проведены диаметры AD и BC. Дано: ' + p.given + ' = ' + p.gv + '°. Найдите ' + p.find + '.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.av + '°.\n\n' + p.sol + '\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? ' + p.sol + '\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.av; }, svg: function(p){ return DIAMETERS_SVG; }
-          },
-          {
-            gen: function(){ var angleC = Math.floor(Math.random() * 60) + 20; var angleOAB = (180 - 2*angleC) / 2; return {angleC: angleC, ans: angleOAB}; },
-            txt: function(p){ return 'Треугольник ABC вписан в окружность с центром O. Найдите ∠OAB, если ∠ACB = ' + p.angleC + '°.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nЦентральный ∠AOB = 2·∠ACB. △AOB равнобедренный. ∠OAB = (180°-2·' + p.angleC + '°)/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? ∠AOB = 2·' + p.angleC + '°. △AOB равнобедренный. ∠OAB = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return CIRCLE_ANGLES_SVG; }
-          }
+          { gen: function(){ var alpha=2*(Math.floor(Math.random()*71)+10); var beta=180-alpha; var base=(180-alpha)/2; var pool=[{given:'∠AOB',gv:alpha,find:'∠COD',av:alpha,sol:'Вертикальные ⇒ равны.'},{given:'∠AOB',gv:alpha,find:'∠AOC',av:beta,sol:'Смежные ⇒ сумма 180°.'},{given:'∠AOB',gv:alpha,find:'∠OAB',av:base,sol:'△OAB равнобедр. ⇒ (180-α)/2.'}]; return pool[Math.floor(Math.random()*pool.length)]; }, txt: function(p){ return 'В окружности с центром O проведены диаметры AD и BC. Дано: ' + p.given + '=' + p.gv + '°. Найдите ' + p.find + '.'; }, solRight: function(p){ return '✅ Ответ: ' + p.av + '°.' + p.sol; }, solWrong: function(p){ return 'Ну Ты Чё!?!? ' + p.sol + '\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.av; }, svg: function(p){ return DIAMETERS_SVG; }},
+          { gen: function(){ var angleC=Math.floor(Math.random()*60)+20; return {angleC:angleC, ans:(180-2*angleC)/2}; }, txt: function(p){ return 'Треугольник ABC вписан в окружность с центром O. Найдите ∠OAB, если ∠ACB=' + p.angleC + '°.'; }, solRight: function(p){ return '✅ ∠AOB=2·∠ACB, △AOB равнобедр. Ответ: ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? ∠AOB = 2·' + p.angleC + '°. ∠OAB = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCLE_ANGLES_SVG; }}
         ]
       },
       1: { name: 'Впис. окруж.', tasks: [
-          {
-            gen: function(){ 
-              var k = Math.floor(Math.random() * 9) + 2; var d = 4 * k; var rText = k + '√2';
-              var type = Math.floor(Math.random() * 2);
-              return type === 0 ? { rText: rText, d: d, mode: 0, ans: d } : { rText: rText, d: d, mode: 1, ans: k };
-            },
-            txt: function(p){ return p.mode === 0 ? 'Радиус вписанной в квадрат окружности = ' + p.rText + '. Найдите диагональ квадрата.' : 'Диагональ квадрата = ' + p.d + '. Найдите коэффициент k в радиусе r=k√2.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\n' + (p.mode===0 ? 'd=2r√2' : 'r=d/(2√2)') + '\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? ' + (p.mode===0 ? 'd=2r√2' : 'r=d/(2√2)') + '. Ответ: ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return INSCRIBED_CIRCLE_SVG; }
-          }
+          { gen: function(){ var k=Math.floor(Math.random()*9)+2; var d=4*k; return {rText:k+'√2', d:d, mode:Math.random()>0.5?0:1, ans:Math.random()>0.5?d:k}; }, txt: function(p){ return p.mode===0 ? 'Радиус вписанной в квадрат окружности = '+p.rText+'. Найдите диагональ.' : 'Диагональ квадрата = '+p.d+'. Найдите k в r=k√2.'; }, solRight: function(p){ return '✅ Ответ: ' + p.ans + '.' + (p.mode===0?' d=2r√2':' r=d/(2√2)'); }, solWrong: function(p){ return 'Ну Ты Чё!?!? Ответ: ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return INSCRIBED_CIRCLE_SVG; }}
         ]
       },
       2: { name: 'Описан. окруж.', tasks: [
-          {
-            gen: function(){ 
-              var angleA = Math.floor(Math.random() * 70) + 10; var angleC = 90 - angleA;
-              var type = Math.floor(Math.random() * 2);
-              return type === 0 ? { given: angleA, findName: '∠C', ans: angleC, mode: 0 } : { given: angleC, findName: '∠A', ans: angleA, mode: 1 };
-            },
-            txt: function(p){ return 'Сторона AC треугольника ABC проходит через центр описанной окружности. Найдите ' + p.findName + ', если ∠A/C = ' + p.given + '°.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nAC — диаметр ⇒ ∠B=90°. Острые углы в сумме 90°.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Треугольник прямоугольный. 90° - ' + p.given + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_RIGHT_TRIANGLE_SVG; }
-          },
-          {
-            gen: function(){ var side = Math.floor(Math.random() * 10) + 5; return { side: side, ans: side }; },
-            txt: function(p){ return 'Треугольник ABC вписан в окружность. BC = ' + p.side + ', ∠A = 30°. Найдите радиус.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\na/sinA = 2R ⇒ ' + p.side + '/0.5 = 2R ⇒ R = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? 2R = ' + p.side + '/0.5 = ' + (p.side*2) + ' ⇒ R = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }
-          },
-          {
-            gen: function(){ return { angleC: 45, sideAB: '6√2', ans: 6 }; },
-            txt: function(p){ return 'В треугольнике ABC ∠C=45°, AB=6√2. Найдите R описанной окружности.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nAB/sin45° = 2R ⇒ 6√2/(√2/2) = 12 = 2R ⇒ R=6.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? 2R = 12 ⇒ R = 6.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }
-          },
-          {
-            gen: function(){ var n = Math.floor(Math.random() * 10) + 1; return { sideCoeff: 2 * n, ans: n * 2 }; },
-            txt: function(p){ return 'Сторона равностороннего треугольника = ' + p.sideCoeff + '√3. Найдите R.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nR = a/√3 = ' + p.sideCoeff + '√3/√3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? R = a/√3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return EQUILATERAL_CIRCUMCIRCLE_SVG; }
-          }
+          { gen: function(){ var a=Math.floor(Math.random()*70)+10; return {given:a, findName:'∠C', ans:90-a, mode:0}; }, txt: function(p){ return 'Сторона AC проходит через центр. ∠A = ' + p.given + '°. Найдите ' + p.findName + '.'; }, solRight: function(p){ return '✅ AC — диаметр ⇒ ∠B=90°. ' + p.findName + ' = ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Треугольник прямоугольный. 90-' + p.given + ' = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_RIGHT_TRIANGLE_SVG; }},
+          { gen: function(){ var side=Math.floor(Math.random()*10)+5; return {side:side, ans:side}; }, txt: function(p){ return 'Треугольник вписан в окружность. BC=' + p.side + ', ∠A=30°. Найдите R.'; }, solRight: function(p){ return '✅ a/sinA=2R ⇒ R=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 2R=' + p.side + '/0.5=' + (p.side*2) + ' ⇒ R=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }},
+          { gen: function(){ return {angleC:45, sideAB:'6√2', ans:6}; }, txt: function(p){ return '∠C=45°, AB=6√2. Найдите R описанной окружности.'; }, solRight: function(p){ return '✅ AB/sin45° = 2R ⇒ R=6.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 2R=12 ⇒ R=6.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }},
+          { gen: function(){ var n=Math.floor(Math.random()*10)+1; return {sideCoeff:2*n, ans:2*n}; }, txt: function(p){ return 'Сторона равностороннего тр-ка = ' + p.sideCoeff + '√3. Найдите R.'; }, solRight: function(p){ return '✅ R = a/√3 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? R=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return EQUILATERAL_CIRCUMCIRCLE_SVG; }}
         ]
       },
       3: { name: 'Хорды/касат.', tasks: [
-          {
-            gen: function(){ 
-              for(let i=0; i<500; i++){
-                var a=Math.floor(Math.random()*29)+2, b=Math.floor(Math.random()*29)+2, c=Math.floor(Math.random()*29)+2;
-                var prod=a*b; if(prod%c===0){ var d=prod/c; if(d>=2&&d<=30&&d!==a&&d!==b&&d!==c){
-                  var type=Math.floor(Math.random()*4); var p={a,b,c,d};
-                  if(type===0) return {text:'AO='+a+', BO='+b+', CO='+c, ans:d, find:'OD'};
-                  if(type===1) return {text:'AO='+a+', BO='+b+', DO='+d, ans:c, find:'CO'};
-                  if(type===2) return {text:'AO='+a+', CO='+c+', DO='+d, ans:b, find:'BO'};
-                  return {text:'BO='+b+', CO='+c+', DO='+d, ans:a, find:'AO'};
-                }}
-              }
-              return {text:'AO=12, BO=10, CO=6', ans:20, find:'OD'};
-            },
-            txt: function(p){ return 'Хорды AB и CD пересекаются в O. ' + p.text + '. Найдите ' + p.find + '.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nAO·OB = CO·OD\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? AO·OB = CO·OD ⇒ ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return INTERSECTING_CHORDS_SVG; }
-          },
-          {
-            gen: function(){ var ang=(Math.floor(Math.random()*50)+20)*2; return {angleTangents:ang, ans:ang/2}; },
-            txt: function(p){ return 'Касательные в A и B пересекаются под углом ' + p.angleTangents + '°. Найдите ∠ABO.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\n∠ABO = ½ угла между касательными.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? ∠ABO = ' + p.angleTangents + '°/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return TANGENTS_SVG; }
-          },
-          {
-            gen: function(){ 
-              for(let i=0;i<200;i++){ var AC=Math.floor(Math.random()*29)+2, BC=Math.floor(Math.random()*29)+2, AB=AC+BC; var BT=Math.sqrt(AB*AB-AC*AC); if(Number.isInteger(BT)&&BT>=2&&BT<=30) return {AC,BC,AB,ans:BT}; }
-              return {AC:3,BC:2,AB:5,ans:4};
-            },
-            txt: function(p){ return 'AC='+p.AC+', BC='+p.BC+'. Окружность с центром A проходит через C. Найдите касательную из B.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nR=AC. BT²=AB²-R²=' + p.ans*p.ans + ' ⇒ BT=' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? BT = √(AB²-R²) = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ 
-              var Ax=140,Ay=150,R=70,distAB=R*(1+p.BC/p.AC),Bx=Ax+distAB,By=Ay,cosA=R/distAB,sinA=Math.sqrt(1-cosA*cosA),Tx=Ax+R*cosA,Ty=Ay+R*sinA;
-              return '<svg viewBox="0 0 400 300"><circle cx="'+Ax+'" cy="'+Ay+'" r="'+R+'" fill="#FFFACD" stroke="#000"/><line x1="'+Ax+'" y1="'+Ay+'" x2="'+Bx+'" y2="'+By+'" stroke="#c00"/><line x1="'+Bx+'" y1="'+By+'" x2="'+(Tx+0.5*(Tx-Bx))+'" y2="'+(Ty+0.5*(Ty-By))+'" stroke="#00f" stroke-width="2.5"/><text x="'+(Ax-25)+'" y="'+(Ay+5)+'" font-size="18">A</text><text x="'+(Bx+10)+'" y="'+(By+5)+'" font-size="18">B</text></svg>'; 
-            }
-          },
-          {
-            gen: function(){ 
-              for(let i=0;i<100;i++){ var AB=Math.floor(Math.random()*28)+2, AK=Math.floor(Math.random()*29)+2, AC=(AK*AK)/AB; if(Number.isInteger(AC)&&AC>AB&&AC<=30) return {AB,AC,ans:AK}; }
-              return {AB:2,AC:8,ans:4};
-            },
-            txt: function(p){ return 'Из точки A: секущая AB='+p.AB+', AC='+p.AC+'. Касательная AK?'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nAK² = AB·AC = ' + (p.AB*p.AC) + ' ⇒ AK=' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? AK² = AB·AC ⇒ AK=' + p.ans + '.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return SECANT_TANGENT_SVG; }
-          },
-          {
-            gen: function(){ var arc=(Math.floor(Math.random()*43)+2)*2; return {arc:arc, ans:arc/2}; },
-            txt: function(p){ return 'Дуга AB = ' + p.arc + '°. BC — касательная. Найдите ∠ABC.'; },
-            solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nУгол = ½ дуги.\n\nПопробуй ещё! 💪'; },
-            solWrong: function(p){ return 'Ну Ты Чё!?!? ∠ABC = ' + p.arc + '°/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
-            ans: function(p){ return p.ans; }, svg: function(p){ return CHORD_TANGENT_ANGLE_SVG; }
-          }
+          { gen: function(){ for(let i=0;i<500;i++){var a=Math.floor(Math.random()*29)+2,b=Math.floor(Math.random()*29)+2,c=Math.floor(Math.random()*29)+2;var prod=a*b;if(prod%c===0){var d=prod/c;if(d>=2&&d<=30&&d!==a&&d!==b&&d!==c)return {text:'AO='+a+', BO='+b+', CO='+c, ans:d, find:'OD'};}} return {text:'AO=12, BO=10, CO=6', ans:20, find:'OD'}; }, txt: function(p){ return 'Хорды пересекаются в O. ' + p.text + '. Найдите ' + p.find + '.'; }, solRight: function(p){ return '✅ AO·BO=CO·OD ⇒ ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AO·BO=CO·OD ⇒ ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return INTERSECTING_CHORDS_SVG; }},
+          { gen: function(){ var ang=(Math.floor(Math.random()*50)+20)*2; return {angleTangents:ang, ans:ang/2}; }, txt: function(p){ return 'Касательные пересекаются под углом ' + p.angleTangents + '°. Найдите ∠ABO.'; }, solRight: function(p){ return '✅ ∠ABO = ½ угла касат. ⇒ ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? ∠ABO = ' + p.angleTangents + '°/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TANGENTS_SVG; }},
+          { gen: function(){ for(let i=0;i<200;i++){var AC=Math.floor(Math.random()*29)+2, BC=Math.floor(Math.random()*29)+2, AB=AC+BC; var BT=Math.sqrt(AB*AB-AC*AC); if(Number.isInteger(BT)&&BT>=2&&BT<=30) return {AC,BC,AB,ans:BT};} return {AC:3,BC:2,AB:5,ans:4}; }, txt: function(p){ return 'AC=' + p.AC + ', BC=' + p.BC + '. Центр A, проходит через C. Найдите касательную из B.'; }, solRight: function(p){ return '✅ BT=√(AB²-R²) = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? BT = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return '<svg viewBox="0 0 400 300"><circle cx="140" cy="150" r="70" fill="#FFFACD" stroke="#000"/><line x1="140" y1="150" x2="350" y2="150" stroke="#c00"/><line x1="350" y1="150" x2="350" y2="50" stroke="#00f" stroke-width="2.5"/><text x="120" y="150" font-size="18">A</text><text x="360" y="150" font-size="18">B</text></svg>'; }},
+          { gen: function(){ for(let i=0;i<100;i++){var AB=Math.floor(Math.random()*28)+2, AK=Math.floor(Math.random()*29)+2, AC=(AK*AK)/AB; if(Number.isInteger(AC)&&AC>AB&&AC<=30) return {AB,AC,ans:AK};} return {AB:2,AC:8,ans:4}; }, txt: function(p){ return 'Из A: секущая AB=' + p.AB + ', AC=' + p.AC + '. Найдите AK.'; }, solRight: function(p){ return '✅ AK² = AB·AC ⇒ AK=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AK² = AB·AC ⇒ AK=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return SECANT_TANGENT_SVG; }},
+          { gen: function(){ var arc=(Math.floor(Math.random()*43)+2)*2; return {arc:arc, ans:arc/2}; }, txt: function(p){ return 'Дуга AB=' + p.arc + '°. BC — касательная. Найдите ∠ABC.'; }, solRight: function(p){ return '✅ Угол = ½ дуги ⇒ ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? ∠ABC = ' + p.arc + '°/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CHORD_TANGENT_ANGLE_SVG; }}
         ]
       }
     }
@@ -545,29 +413,29 @@ const TASKS_DB = {
     title: '📏 Четырёхугольники',
     subTopics: {
       0: { name: 'Прямоуг-ки', tasks: [
-          { gen: function(){ var angle; do{angle=Math.floor(Math.random()*89)+1}while(angle===45); return {angle, ans:(angle<45)?(2*angle):(180-2*angle)}; }, txt: function(p){ return 'Диагональ прямоугольника образует угол ' + p.angle + '° со стороной. Острый угол между диагоналями?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Ответ: ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }},
-          { gen: function(){ var acute=Math.floor(Math.random()*71)+10; return {acuteAngle:acute, ans:(180-acute)/2}; }, txt: function(p){ return 'Острый угол между диагоналями = ' + p.acuteAngle + '°. Угол между диагональю и меньшей стороной?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? (180-' + p.acuteAngle + ')/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }},
-          { gen: function(){ var BO=Math.floor(Math.random()*46)+5; return {BO, ans:2*BO}; }, txt: function(p){ return 'Диагонали прямоугольника ABCD пересекаются в O. BO=' + p.BO + '. Найдите AC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nAC=BD=2·BO.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC=2·BO=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECT_BO_AC_SVG; }},
-          { gen: function(){ var k=Math.floor(Math.random()*40)+1; return {side:k+'√2', ans:2*k}; }, txt: function(p){ return 'Сторона квадрата = ' + p.side + '. Найдите диагональ.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nd=a√2.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? d=' + p.side + '·√2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return SQUARE_SVG; }},
-          { gen: function(){ var k=Math.floor(Math.random()*40)+1; return {diagonal:k+'√2', ans:k}; }, txt: function(p){ return 'Диагональ квадрата = ' + p.diagonal + '. Найдите сторону.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\na=d/√2.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? a=' + p.diagonal + '/√2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return SQUARE_SVG; }}
+          { gen: function(){ var angle; do{angle=Math.floor(Math.random()*89)+1}while(angle===45); return {angle, ans:(angle<45)?(2*angle):(180-2*angle)}; }, txt: function(p){ return 'Диагональ прямоугольника образует угол ' + p.angle + '° со стороной. Острый угол между диагоналями?'; }, solRight: function(p){ return '✅ Ответ: ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Ответ: ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }},
+          { gen: function(){ var acute=Math.floor(Math.random()*71)+10; return {acuteAngle:acute, ans:(180-acute)/2}; }, txt: function(p){ return 'Острый угол между диагоналями = ' + p.acuteAngle + '°. Угол между диагональю и меньшей стороной?'; }, solRight: function(p){ return '✅ Ответ: ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? (180-' + p.acuteAngle + ')/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }},
+          { gen: function(){ var BO=Math.floor(Math.random()*46)+5; return {BO, ans:2*BO}; }, txt: function(p){ return 'Диагонали пересекаются в O. BO=' + p.BO + '. Найдите AC.'; }, solRight: function(p){ return '✅ AC = 2·BO = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? AC=2·BO=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RECT_BO_AC_SVG; }},
+          { gen: function(){ var k=Math.floor(Math.random()*40)+1; return {side:k+'√2', ans:2*k}; }, txt: function(p){ return 'Сторона квадрата = ' + p.side + '. Найдите диагональ.'; }, solRight: function(p){ return '✅ d=a√2 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? d=' + p.side + '·√2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return SQUARE_SVG; }},
+          { gen: function(){ var k=Math.floor(Math.random()*40)+1; return {diagonal:k+'√2', ans:k}; }, txt: function(p){ return 'Диагональ квадрата = ' + p.diagonal + '. Найдите сторону.'; }, solRight: function(p){ return '✅ a=d/√2 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? a=' + p.diagonal + '/√2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return SQUARE_SVG; }}
         ]
       },
       1: { name: 'Параллел-мы', tasks: [
-          { gen: function(){ var angle=Math.floor(Math.random()*60)+30; return {angle, ans:180-angle}; }, txt: function(p){ return 'Угол параллелограмма = ' + p.angle + '°. Найдите смежный.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nСумма смежных = 180°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 180-' + p.angle + ' = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }},
-          { gen: function(){ var s1=Math.floor(Math.random()*10)+5, s2=Math.floor(Math.random()*10)+5; return {side1:s1, side2:s2, ans:2*(s1+s2)}; }, txt: function(p){ return 'Стороны параллелограмма = ' + p.side1 + ' и ' + p.side2 + '. Периметр?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nP=2(a+b).\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? P=2(' + p.side1 + '+' + p.side2 + ')=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }},
-          { gen: function(){ var a1=Math.floor(Math.random()*50)+20, a2=Math.floor(Math.random()*50)+20; return {angle1:a1, angle2:a2, ans:360-2*(a1+a2)}; }, txt: function(p){ return 'Два угла параллелограмма = ' + p.angle1 + '° и ' + p.angle2 + '°. Сумма двух других?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nСумма всех = 360°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 360-2(' + p.angle1 + '+' + p.angle2 + ') = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }}
+          { gen: function(){ var angle=Math.floor(Math.random()*60)+30; return {angle, ans:180-angle}; }, txt: function(p){ return 'Угол параллелограмма = ' + p.angle + '°. Найдите смежный.'; }, solRight: function(p){ return '✅ 180-' + p.angle + ' = ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 180-' + p.angle + ' = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }},
+          { gen: function(){ var s1=Math.floor(Math.random()*10)+5, s2=Math.floor(Math.random()*10)+5; return {side1:s1, side2:s2, ans:2*(s1+s2)}; }, txt: function(p){ return 'Стороны = ' + p.side1 + ' и ' + p.side2 + '. Периметр?'; }, solRight: function(p){ return '✅ P=2(a+b)=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? P=2(' + p.side1 + '+' + p.side2 + ')=' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }},
+          { gen: function(){ var a1=Math.floor(Math.random()*50)+20, a2=Math.floor(Math.random()*50)+20; return {angle1:a1, angle2:a2, ans:360-2*(a1+a2)}; }, txt: function(p){ return 'Два угла = ' + p.angle1 + '° и ' + p.angle2 + '°. Сумма двух других?'; }, solRight: function(p){ return '✅ 360-2(сумма)=' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 360-2(' + p.angle1 + '+' + p.angle2 + ') = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return PARALLELOGRAM_SVG; }}
         ]
       },
       2: { name: 'Ромбы', tasks: [
-          { gen: function(){ var d1=(Math.floor(Math.random()*10)+4)*2, d2=(Math.floor(Math.random()*10)+4)*2; return {d1,d2,ans:(d1*d2)/2}; }, txt: function(p){ return 'Диагонали ромба = ' + p.d1 + ' и ' + p.d2 + '. Площадь?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nS=(d1·d2)/2.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=(' + p.d1 + '·' + p.d2 + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RHOMBUS_SVG; }},
-          { gen: function(){ var side=Math.floor(Math.random()*10)+5; return {side, ans:4*side}; }, txt: function(p){ return 'Сторона ромба = ' + p.side + '. Периметр?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nP=4a.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? P=4·' + p.side + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RHOMBUS_SVG; }},
-          { gen: function(){ var angle=Math.floor(Math.random()*60)+30; return {angle, ans:90}; }, txt: function(p){ return 'Острый угол ромба = ' + p.angle + '°. Угол между диагоналями?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ 90°.\n\nДиагонали ромба перпендикулярны.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Диагонали ромба всегда под 90°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 90; }, svg: function(p){ return RHOMBUS_SVG; }}
+          { gen: function(){ var d1=(Math.floor(Math.random()*10)+4)*2, d2=(Math.floor(Math.random()*10)+4)*2; return {d1,d2,ans:(d1*d2)/2}; }, txt: function(p){ return 'Диагонали = ' + p.d1 + ' и ' + p.d2 + '. Площадь?'; }, solRight: function(p){ return '✅ S=(d1·d2)/2=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=(' + p.d1 + '·' + p.d2 + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RHOMBUS_SVG; }},
+          { gen: function(){ var side=Math.floor(Math.random()*10)+5; return {side, ans:4*side}; }, txt: function(p){ return 'Сторона = ' + p.side + '. Периметр?'; }, solRight: function(p){ return '✅ P=4a=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? P=4·' + p.side + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return RHOMBUS_SVG; }},
+          { gen: function(){ var angle=Math.floor(Math.random()*60)+30; return {angle, ans:90}; }, txt: function(p){ return 'Острый угол = ' + p.angle + '°. Угол между диагоналями?'; }, solRight: function(p){ return '✅ 90° (перпендикулярны).'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Диагонали ромба всегда под 90°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 90; }, svg: function(p){ return RHOMBUS_SVG; }}
         ]
       },
       3: { name: 'Трапеции', tasks: [
-          { gen: function(){ var b1=Math.floor(Math.random()*10)+6, b2=Math.floor(Math.random()*10)+6, h=Math.floor(Math.random()*8)+4; return {base1:b1, base2:b2, height:h, ans:((b1+b2)*h)/2}; }, txt: function(p){ return 'Основания трапеции = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Площадь?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nS=((a+b)·h)/2.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=((' + p.base1 + '+' + p.base2 + ')·' + p.height + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }},
-          { gen: function(){ var angle1=Math.floor(Math.random()*50)+40; return {angle1, ans:180-angle1}; }, txt: function(p){ return 'Угол при основании трапеции = ' + p.angle1 + '°. Найдите угол при той же боковой стороне с другой стороны.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '°.\n\nСумма углов при боковой стороне = 180°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 180-' + p.angle1 + ' = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }},
-          { gen: function(){ var m=Math.floor(Math.random()*15)+5, h=Math.floor(Math.random()*10)+4; return {midline:m, height:h, ans:m*h}; }, txt: function(p){ return 'Средняя линия трапеции = ' + p.midline + ', высота = ' + p.height + '. Площадь?'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ ' + p.ans + '.\n\nS=m·h.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=' + p.midline + '·' + p.height + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }}
+          { gen: function(){ var b1=Math.floor(Math.random()*10)+6, b2=Math.floor(Math.random()*10)+6, h=Math.floor(Math.random()*8)+4; return {base1:b1, base2:b2, height:h, ans:((b1+b2)*h)/2}; }, txt: function(p){ return 'Основания = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Площадь?'; }, solRight: function(p){ return '✅ S=((a+b)h)/2=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=((' + p.base1 + '+' + p.base2 + ')·' + p.height + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }},
+          { gen: function(){ var angle1=Math.floor(Math.random()*50)+40; return {angle1, ans:180-angle1}; }, txt: function(p){ return 'Угол при основании = ' + p.angle1 + '°. Найдите угол при той же боковой стороне с другой стороны.'; }, solRight: function(p){ return '✅ 180-' + p.angle1 + ' = ' + p.ans + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? 180-' + p.angle1 + ' = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }},
+          { gen: function(){ var m=Math.floor(Math.random()*15)+5, h=Math.floor(Math.random()*10)+4; return {midline:m, height:h, ans:m*h}; }, txt: function(p){ return 'Средняя линия = ' + p.midline + ', высота = ' + p.height + '. Площадь?'; }, solRight: function(p){ return '✅ S=m·h=' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? S=' + p.midline + '·' + p.height + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return TRAPEZOID_BASE_SVG; }}
         ]
       }
     }
@@ -698,9 +566,13 @@ function checkAnswerHandler() {
     msgFb.className = 'feedback fb-ok';
     msgFb.innerText = '✅ Верно! Отлично!';
     msgFb.style.display = 'block';
+    
+    // ЗЕЛЁНЫЙ ЖИРНЫЙ ШРИФТ ДЛЯ РЕШЕНИЯ
     solDiv.className = 'solution correct-style';
     solDiv.innerText = target.solRight;
     solDiv.style.display = 'block';
+    
+    // БОЛЬШОЙ ЗЕЛЁНЫЙ ЖИРНЫЙ ТЕКСТ В РЕАКЦИИ
     drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🏆</div><div class="reaction-text">${randomSuccess}</div></div>`;
     
     if(appState.mode === 'exam' && !appState.solvedExam.includes(target.num)) {
@@ -719,7 +591,7 @@ function checkAnswerHandler() {
     solDiv.className = 'solution';
     solDiv.innerText = target.solWrong;
     solDiv.style.display = 'block';
-    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🤔</div><div class="reaction-text">${FAIL_MSGS[Math.floor(Math.random()*FAIL_MSGS.length)]}</div></div>`;
+    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🤔</div><div class="reaction-text" style="color:#c52828">${FAIL_MSGS[Math.floor(Math.random()*FAIL_MSGS.length)]}</div></div>`;
   }
   inpAns.disabled = true;
   btnCheck.disabled = true;
@@ -761,7 +633,6 @@ function switchMode(mode) {
   document.getElementById('tab-exam').classList.toggle('active', mode==='exam');
   examDash.style.display = mode === 'exam' ? 'flex' : 'none';
   
-  // Кнопка "Завершить экзамен" видна ТОЛЬКО в режиме экзамена
   finishBtn.style.display = mode === 'exam' ? 'block' : 'none';
   
   if(mode === 'exam') resetExam();
