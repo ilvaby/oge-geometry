@@ -25,7 +25,6 @@
     height: calc(100vh - 32px);
     display: flex; flex-direction: column;
   }
-  
   .app-header {
     background: linear-gradient(135deg, #0f2b3d, #1a4a6f);
     padding: 20px 16px; text-align: center; color: white;
@@ -34,7 +33,6 @@
   .app-header.hidden { display: none; }
   h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.3px; font-weight: 700; }
   .subhead { font-size: 0.75rem; opacity: 0.85; margin-top: 6px; }
-  
   .app-tabs {
     display: flex; background: var(--card-white);
     border-bottom: 1px solid var(--border-dim);
@@ -54,7 +52,6 @@
     color: var(--gold); border-bottom-color: var(--gold);
     background: #fffbeb;
   }
-  
   .screens-container {
     flex: 1; overflow: hidden; position: relative;
   }
@@ -64,7 +61,6 @@
     padding: 20px 18px; scroll-behavior: smooth;
   }
   .screen.active { display: flex; flex-direction: column; position: relative; }
-  
   .exam-dash {
     background: #fef6e6; border-left: 5px solid var(--gold);
     border-radius: 20px; padding: 14px 18px; margin-bottom: 24px;
@@ -102,7 +98,6 @@
   .num-btn.solved::after {
     content: "✓"; font-size: 1.1rem; font-weight: bold; margin-left: 4px;
   }
-  
   .sub-nav {
     display: none; gap: 10px; margin-bottom: 20px; flex-shrink: 0;
   }
@@ -118,7 +113,6 @@
   .sub-btn.active {
     background: var(--primary); color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
-  
   .task-card {
     background: white; border-radius: 28px;
     padding: 8px 6px 20px; flex: 1; display: flex; flex-direction: column;
@@ -254,7 +248,6 @@
           <button class="btn-action btn-success" id="btn-check">✅ Проверить</button>
           <button class="btn-action btn-primary" id="btn-continue" style="display: none;">➡ След. задача (та же тема)</button>
         </div>
-        <!-- Кнопка скрыта по умолчанию, появляется только в режиме экзамена -->
         <button class="btn-action btn-finish" id="btn-finish" style="display: none;">🏁 Завершить экзамен</button>
       </div>
     </div>
@@ -612,6 +605,10 @@ const lblType = document.getElementById('lbl-type');
 const lblNum = document.getElementById('lbl-num');
 const lblSub = document.getElementById('lbl-sub');
 
+// Сообщения
+const SUCCESS_MSGS = ["МОЛОДЕЦ! 🎉", "МОЛОДЦОМ!!!"];
+const FAIL_MSGS = ["ОЙ-ЁЙ... 🤦", "НЕ ТО! ", "ПОДУМАЙ ЕЩЁ! 🤨"];
+
 function getTaskList(num, subIdx) {
   let topic = TASKS_DB[num];
   if(num === 15 || num === 16 || num === 17) return topic.subTopics[subIdx]?.tasks || [];
@@ -664,13 +661,11 @@ function generateTask() {
   msgFb.style.display = 'none';
   solDiv.style.display = 'none';
   
-  // Сброс кнопок для новой задачи
   btnCheck.style.display = 'flex';
   btnContinue.style.display = 'none';
   inpAns.disabled = false;
   btnCheck.disabled = false;
   
-  // Скрываем меню при генерации
   appHeader.classList.add('hidden');
   appTabs.classList.add('hidden');
   subMenu15.classList.remove('active');
@@ -692,9 +687,12 @@ function checkAnswerHandler() {
   let diff = Math.abs(val - target.ans);
   let isCorrect = diff < 0.2;
   
-  // ИСПРАВЛЕНО: переключение кнопок происходит ВСЕГДА после проверки
+  // Переключаем кнопки ВСЕГДА после проверки
   btnCheck.style.display = 'none';
   btnContinue.style.display = 'flex';
+  
+  // 50/50: МОЛОДЕЦ или МОЛОДЦОМ
+  const randomSuccess = SUCCESS_MSGS[Math.floor(Math.random() * SUCCESS_MSGS.length)];
   
   if(isCorrect) {
     msgFb.className = 'feedback fb-ok';
@@ -703,7 +701,7 @@ function checkAnswerHandler() {
     solDiv.className = 'solution correct-style';
     solDiv.innerText = target.solRight;
     solDiv.style.display = 'block';
-    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🏆</div><div class="reaction-text">МОЛОДЕЦ!</div></div>`;
+    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🏆</div><div class="reaction-text">${randomSuccess}</div></div>`;
     
     if(appState.mode === 'exam' && !appState.solvedExam.includes(target.num)) {
       appState.solvedExam.push(target.num);
@@ -721,7 +719,7 @@ function checkAnswerHandler() {
     solDiv.className = 'solution';
     solDiv.innerText = target.solWrong;
     solDiv.style.display = 'block';
-    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🤔</div><div class="reaction-text">Попробуй ещё!</div></div>`;
+    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🤔</div><div class="reaction-text">${FAIL_MSGS[Math.floor(Math.random()*FAIL_MSGS.length)]}</div></div>`;
   }
   inpAns.disabled = true;
   btnCheck.disabled = true;
@@ -746,11 +744,9 @@ function closeTask() {
   menuScreen.classList.add('active');
   appState.currentParams = null;
   
-  // Возвращаем шапку и вкладки
   appHeader.classList.remove('hidden');
   appTabs.classList.remove('hidden');
   
-  // Возвращаем подменю
   let show15 = (appState.currentNum === 15);
   let show16 = (appState.currentNum === 16);
   let show17 = (appState.currentNum === 17);
@@ -765,7 +761,7 @@ function switchMode(mode) {
   document.getElementById('tab-exam').classList.toggle('active', mode==='exam');
   examDash.style.display = mode === 'exam' ? 'flex' : 'none';
   
-  // ИСПРАВЛЕНО: кнопка "Завершить экзамен" видна ТОЛЬКО в режиме экзамена
+  // Кнопка "Завершить экзамен" видна ТОЛЬКО в режиме экзамена
   finishBtn.style.display = mode === 'exam' ? 'block' : 'none';
   
   if(mode === 'exam') resetExam();
