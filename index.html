@@ -2,134 +2,289 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ОГЭ Геометрия</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ОГЭ Геометрия: Тренажёр + Экзамен</title>
 <style>
-  :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f1f5f9; }
-  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-  body { 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-    background: var(--bg); 
-    margin: 0; 
-    padding: 0; 
-    display: flex; 
-    justify-content: center; 
-    min-height: 100vh; 
-    min-height: -webkit-fill-available;
-    overscroll-behavior: none;
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --primary: #1e4b8f; --primary-light: #2b6cb0; --success: #0f7b3a;
+    --danger: #c52828; --gold: #d97706; --bg-light: #f8fafc;
+    --card-white: #ffffff; --border-dim: #e2e8f0;
   }
-  .app { 
-    width: 100%; max-width: 500px; background: white; height: 100vh; height: -webkit-fill-available;
-    display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow: hidden; 
+  body {
+    margin: 0; background: #eef2f7;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh;
   }
-  header { background: var(--primary); color: white; padding: 12px 15px; text-align: center; flex-shrink: 0; }
-  h1 { margin: 0; font-size: 18px; font-weight: bold; }
-  .tabs { display: flex; border-bottom: 2px solid #e2e8f0; flex-shrink: 0; }
-  .tab { flex: 1; padding: 15px 10px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; color: #94a3b8; transition: 0.2s; background: white; -webkit-appearance: none; }
-  .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #eff6ff; }
-  .tab.exam-tab.active { color: #ea580c; border-color: #ea580c; background: #fff7ed; }
-  .screen { display: none; flex: 1; overflow-y: auto; overflow-x: hidden; padding: 15px; -webkit-overflow-scrolling: touch; }
-  .screen.active { display: flex; flex-direction: column; align-items: center; }
-  .exam-dash { display: none; background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 10px; width: 100%; text-align: center; margin-bottom: 15px; font-size: 14px; }
-  .exam-dash.show { display: block; }
-  .score-text { font-size: 18px; font-weight: bold; color: #ea580c; }
-  .win-msg { color: var(--success); font-weight: bold; display: none; margin-top: 5px; animation: popIn 0.3s; }
-  .grid-numbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; margin-bottom: 15px; }
-  .num-btn { aspect-ratio: 1; border: 2px solid #cbd5e1; border-radius: 12px; background: white; font-size: 16px; font-weight: bold; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; position: relative; user-select: none; min-height: 60px; -webkit-appearance: none; touch-action: manipulation; }
-  .num-btn:hover { background: #eff6ff; border-color: var(--primary); }
-  .num-btn:active { transform: scale(0.95); }
-  .num-btn.selected { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
-  .num-btn.solved { background: #dcfce7; border-color: var(--success); color: #166534; }
-  .num-btn.solved::after { content: '✓'; position: absolute; top: 2px; right: 4px; font-size: 14px; font-weight: 900; }
-  .sub-nav { display: none; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; margin-bottom: 12px; }
-  .sub-nav.active { display: grid; }
-  .sub-btn { padding: 12px 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; -webkit-appearance: none; touch-action: manipulation; min-height: 44px; }
-  .sub-btn:hover { background: #eff6ff; border-color: var(--primary); }
-  .sub-btn:active { transform: scale(0.95); }
-  .sub-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .task-card { width: 100%; animation: slideUp 0.3s; }
-  .meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; }
-  .canvas-box { width: 100%; height: 200px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; position: relative; overflow: hidden; cursor: zoom-in; }
-  .canvas-box:active { transform: scale(0.98); }
-  .zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s; cursor: zoom-out; }
-  .zoom-overlay.show { display: flex; }
-  .zoom-content { background: white; width: 90%; max-width: 600px; aspect-ratio: 1/1; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .zoom-content svg { width: 100%; height: 100%; }
-  svg, img { width: 100%; height: 100%; max-width: 280px; max-height: 180px; object-fit: contain; }
-  .reaction-box { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 10px; }
-  .reaction-emoji { font-size: 50px; margin-bottom: 8px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
-  .reaction-text { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-  .reaction-text.ok { color: var(--success); }
-  .reaction-text.fail { color: var(--danger); }
-  .question { font-size: 16px; line-height: 1.5; text-align: left; margin-bottom: 15px; font-weight: 500; color: #1e293b; padding: 0 5px; }
-  input[type="number"] { width: 100%; padding: 15px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 16px; text-align: center; margin-bottom: 14px; outline: none; box-sizing: border-box; -webkit-appearance: none; }
+  .app {
+    max-width: 600px; width: 100%; background: var(--card-white);
+    border-radius: 32px 32px 28px 28px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    overflow: hidden; margin: 16px;
+    height: calc(100vh - 32px);
+    display: flex; flex-direction: column;
+  }
+  
+  .app-header {
+    background: linear-gradient(135deg, #0f2b3d, #1a4a6f);
+    padding: 20px 16px; text-align: center; color: white;
+    flex-shrink: 0;
+  }
+  .app-header.hidden { display: none; }
+  h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.3px; font-weight: 700; }
+  .subhead { font-size: 0.75rem; opacity: 0.85; margin-top: 6px; }
+  
+  .app-tabs {
+    display: flex; background: var(--card-white);
+    border-bottom: 1px solid var(--border-dim);
+    gap: 8px; padding: 0 16px; flex-shrink: 0;
+  }
+  .app-tabs.hidden { display: none; }
+  .tab {
+    flex: 1; padding: 14px 0; font-weight: 700; font-size: 1rem;
+    border: none; background: transparent; cursor: pointer;
+    color: #5b6e8c; transition: 0.2s; border-bottom: 3px solid transparent;
+  }
+  .tab.active {
+    color: var(--primary); border-bottom-color: var(--primary);
+    background: rgba(30, 75, 143, 0.05);
+  }
+  .exam-tab.active {
+    color: var(--gold); border-bottom-color: var(--gold);
+    background: #fffbeb;
+  }
+  
+  .screens-container {
+    flex: 1; overflow: hidden; position: relative;
+  }
+  .screen {
+    display: none; position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; overflow-y: auto;
+    padding: 20px 18px; scroll-behavior: smooth;
+  }
+  .screen.active { display: flex; flex-direction: column; position: relative; }
+  
+  .exam-dash {
+    background: #fef6e6; border-left: 5px solid var(--gold);
+    border-radius: 20px; padding: 14px 18px; margin-bottom: 24px;
+    font-weight: 600; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; flex-shrink: 0;
+  }
+  .score-badge {
+    background: var(--gold); color: white; border-radius: 60px;
+    padding: 6px 18px; font-size: 1.2rem;
+  }
+  .win-msg {
+    background: #d1fae5; color: #0b5e42; padding: 8px 12px;
+    border-radius: 40px; font-weight: bold; font-size: 0.8rem;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .grid-numbers {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin: 16px 0 22px;
+  }
+  .num-btn {
+    background: white; border: 2px solid #cbd5e1; border-radius: 28px;
+    aspect-ratio: 1 / 1; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 1.5rem;
+    color: #1e293b; cursor: pointer; transition: 0.15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .num-btn.selected {
+    background: var(--primary); border-color: var(--primary); color: white;
+    transform: scale(0.97); box-shadow: 0 4px 10px rgba(30,75,143,0.3);
+  }
+  .num-btn.solved {
+    background: #dcfce7; border-color: var(--success); color: #14532d;
+    position: relative;
+  }
+  .num-btn.solved::after {
+    content: "✓"; font-size: 1.1rem; font-weight: bold; margin-left: 4px;
+  }
+  
+  /* Подменю — 2×2 сетка */
+  .sub-nav {
+    display: none; gap: 10px; margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .sub-nav.active {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+  .sub-btn {
+    background: #f1f5f9; border: none; border-radius: 40px;
+    padding: 12px 8px; font-weight: 600; font-size: 0.8rem;
+    cursor: pointer; transition: 0.1s; color: #334155;
+    text-align: center; min-height: 44px;
+  }
+  .sub-btn.active {
+    background: var(--primary); color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .task-card {
+    background: white; border-radius: 28px;
+    padding: 8px 6px 20px; flex: 1;
+    display: flex; flex-direction: column;
+  }
+  .canvas-box {
+    background: #ffffff; border-radius: 28px;
+    border: 1px solid #e2edf7; aspect-ratio: 4 / 3;
+    display: flex; align-items: center; justify-content: center;
+    margin: 12px 0 16px; cursor: zoom-in;
+    box-shadow: 0 6px 12px -8px rgba(0,0,0,0.1); flex-shrink: 0;
+  }
+  .canvas-box svg, .canvas-box img {
+    max-width: 100%; max-height: 100%; border-radius: 20px;
+  }
+  .meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: 600; color: #5c6f87;
+    padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1;
+  }
+  .question {
+    font-size: 1.05rem; font-weight: 500; background: #f1f5f9;
+    padding: 14px 16px; border-radius: 24px; margin: 12px 0;
+    line-height: 1.4;
+  }
+  input {
+    width: 100%; padding: 15px 18px; font-size: 1.2rem;
+    text-align: center; border: 2px solid #cbd5e1;
+    border-radius: 60px; outline: none; font-weight: 600;
+    margin-bottom: 18px;
+  }
   input:focus { border-color: var(--primary); }
-  .actions { display: flex; gap: 8px; width: 100%; }
-  .btn-action { flex: 1; padding: 15px 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 15px; color: white; transition: 0.2s; user-select: none; display: flex; align-items: center; justify-content: center; min-height: 48px; -webkit-appearance: none; touch-action: manipulation; }
-  .btn-action:active { transform: scale(0.95); opacity: 0.9; }
-  .btn-primary { background: var(--primary); }
-  .btn-success { background: var(--success); }
-  .btn-back { background: #cbd5e1; color: #334155; }
-  .btn-finish { background: #ea580c; width: 100%; display: none; margin-top: 10px; min-height: 48px; }
-  .btn-action:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .feedback { padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; display: none; margin-bottom: 10px; font-size: 15px; }
-  .fb-ok { background: #dcfce7; color: #166534; display: block; }
-  .fb-no { background: #fee2e2; color: #991b1b; display: block; }
-  .solution { background: #f1f5f9; padding: 15px; border-left: 4px solid var(--primary); color: #334155; font-size: 14px; display: none; white-space: pre-wrap; line-height: 1.5; border-radius: 0 8px 8px 0; margin-bottom: 10px; word-wrap: break-word; }
-  .solution.correct-style { border-color: var(--success); color: var(--success); font-weight: bold; font-size: 16px; text-align: center; }
-  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @media (max-height: 650px) { .canvas-box { height: 160px; } .reaction-emoji { font-size: 40px; } .reaction-text { font-size: 16px; } header { padding: 10px 15px; } h1 { font-size: 16px; } }
+  .actions {
+    display: flex; gap: 12px; margin: 8px 0; flex-shrink: 0;
+  }
+  .btn-action {
+    flex: 1; border: none; border-radius: 50px; padding: 14px 0;
+    font-weight: bold; font-size: 1rem; cursor: pointer;
+    transition: 0.1s; font-weight: 600;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-back { background: #e2e8f0; color: #1e293b; }
+  .btn-finish {
+    background: var(--gold); color: white; width: 100%;
+    margin-top: 16px;
+  }
+  .feedback {
+    padding: 12px; border-radius: 60px; text-align: center;
+    font-weight: bold; display: none; margin-bottom: 10px;
+  }
+  .fb-ok { background: #def5e5; color: #0a5c36; display: block; }
+  .fb-no { background: #ffe2e2; color: #b91c1c; display: block; }
+  .solution {
+    background: #f0f4f9; padding: 14px; border-radius: 20px;
+    font-size: 0.9rem; line-height: 1.4; margin: 12px 0;
+    display: none; white-space: pre-wrap;
+  }
+  .solution.correct-style {
+    background: #e0f2e9; border-left: 4px solid var(--success);
+  }
+  .zoom-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); display: none;
+    align-items: center; justify-content: center; z-index: 1000;
+    backdrop-filter: blur(4px);
+  }
+  .zoom-overlay.show { display: flex; }
+  .zoom-content {
+    background: white; padding: 20px; border-radius: 36px;
+    max-width: 90vw; max-height: 85vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .zoom-content svg { width: 100%; height: auto; max-height: 70vh; }
+  .reaction-box { text-align: center; padding: 10px; }
+  .reaction-emoji { font-size: 4rem; }
+  button:active { transform: scale(0.96); }
+  footer {
+    font-size: 0.65rem; text-align: center; padding: 8px;
+    color: #8ba0bc; flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
 <div class="app">
-  <header><h1>ОГЭ ГЕОМЕТРИЯ</h1></header>
-  <div class="tabs">
-    <button class="tab active" id="tab-train">Тренировка</button>
-    <button class="tab exam-tab" id="tab-exam">ЭКЗАМЕН</button>
+  <div class="app-header" id="app-header">
+    <h1>📐 ОГЭ • ГЕОМЕТРИЯ</h1>
+    <div class="subhead">Тренировка + Экзамен (2 любые задачи → сдача)</div>
   </div>
-  <div id="menu-screen" class="screen active">
-    <div id="exam-info" class="exam-dash">Для сдачи нужно решить любые <strong>2 задачи</strong>.<br>Готово: <span class="score-text" id="score-val">0 / 2</span><div id="win-msg" class="win-msg">🎉 ЭКЗАМЕН СДАН! 🎉</div></div>
-    <div style="font-size:14px; color:#64748b; margin-bottom:8px;">Выбери номер задания:</div>
-    <div class="grid-numbers">
-      <div class="num-btn" data-num="15">15</div><div class="num-btn" data-num="16">16</div><div class="num-btn" data-num="17">17</div><div class="num-btn" data-num="18">18</div>
-      <div class="num-btn" data-num="19">19</div><div class="num-btn" data-num="23">23</div><div class="num-btn" data-num="24">24</div><div class="num-btn" data-num="25">25</div>
-    </div>
-    <button class="btn-action btn-primary" id="btn-generate">🚀 Генерировать задачу</button>
+  <div class="app-tabs" id="app-tabs">
+    <button class="tab active" id="tab-train">📘 Тренировка</button>
+    <button class="tab exam-tab" id="tab-exam">🎯 ЭКЗАМЕН</button>
   </div>
-  <div id="task-screen" class="screen">
-    <div class="task-card">
-      <div class="meta"><span id="lbl-type">Тип</span><span id="lbl-num">№?</span></div>
+
+  <div class="screens-container">
+    <div id="menu-screen" class="screen active">
+      <div id="exam-info" class="exam-dash" style="display: flex;">
+        <span>🏆 Экзамен: реши любые <strong>2 задачи</strong></span>
+        <span class="score-badge" id="score-val">0 / 2</span>
+        <div id="win-msg" class="win-msg" style="display: none;">✨ СДАНО! ✨</div>
+      </div>
+      <div style="font-weight: 600; margin-bottom: 6px;">🔢 Выбери номер:</div>
+      <div class="grid-numbers" id="numbers-grid">
+        <div class="num-btn" data-num="15">15</div><div class="num-btn" data-num="16">16</div><div class="num-btn" data-num="17">17</div><div class="num-btn" data-num="18">18</div>
+        <div class="num-btn" data-num="19">19</div><div class="num-btn" data-num="23">23</div><div class="num-btn" data-num="24">24</div><div class="num-btn" data-num="25">25</div>
+      </div>
+      
+      <!-- Подменю 15 (2×2) -->
       <div id="sub-menu-15" class="sub-nav">
-        <button class="sub-btn" data-sub="0">Углы</button><button class="sub-btn" data-sub="1">Общие треугольники</button>
-        <button class="sub-btn" data-sub="2">Равнобедренные</button><button class="sub-btn" data-sub="3">Прямоугольные</button>
+        <button class="sub-btn" data-sub="0">🔺 Углы</button>
+        <button class="sub-btn" data-sub="1">📐 Общие тр-ки</button>
+        <button class="sub-btn" data-sub="2">⚖️ Равнобедр.</button>
+        <button class="sub-btn" data-sub="3">📏 Прямоуг-ные</button>
       </div>
+      
+      <!-- Подменю 16 (2×2) -->
       <div id="sub-menu-16" class="sub-nav">
-        <button class="sub-btn" data-sub="0">Углы, касательные</button>
-        <button class="sub-btn" data-sub="1">Вписанные окружности</button>
-        <button class="sub-btn" data-sub="2">Описанные окружности</button>
-        <button class="sub-btn" data-sub="3">Хорды, секущие</button>
+        <button class="sub-btn" data-sub="0">🌀 Центр. углы</button>
+        <button class="sub-btn" data-sub="1">🟢 Впис. окруж.</button>
+        <button class="sub-btn" data-sub="2">🌟 Описан. окруж.</button>
+        <button class="sub-btn" data-sub="3">✂️ Хорды/касат.</button>
       </div>
-      <div class="canvas-box" id="drawing-area"></div>
-      <div id="q-text" class="question">...</div>
-      <input type="number" id="inp-ans" placeholder="Введите ответ" step="any">
-      <div id="msg-fb" class="feedback"></div><div id="sol-txt" class="solution"></div>
-      <div class="actions">
-        <button class="btn-action btn-back" id="btn-back">❌ Меню</button>
-        <button class="btn-action btn-success" id="btn-check">Проверить</button>
-        <button class="btn-action btn-primary" id="btn-continue" style="display: none;">➡ Продолжить</button>
+      
+      <!-- Подменю 17 (2×2) -->
+      <div id="sub-menu-17" class="sub-nav">
+        <button class="sub-btn" data-sub="0">📐 Прямоуг-ки</button>
+        <button class="sub-btn" data-sub="1">⬛ Параллел-мы</button>
+        <button class="sub-btn" data-sub="2">💎 Ромбы</button>
+        <button class="sub-btn" data-sub="3">📏 Трапеции</button>
       </div>
-      <button class="btn-action btn-finish" id="btn-finish">🏁 Завершить экзамен</button>
+      
+      <button class="btn-action btn-primary" id="btn-generate">✨ Генерировать задачу</button>
+      <footer>⚡ Для заданий 15–17 есть подтемы (2×2). Нажми номер, выбери тему, затем «Генерировать»</footer>
+    </div>
+
+    <div id="task-screen" class="screen">
+      <div class="task-card">
+        <div class="meta"><span id="lbl-type">Тема</span><span id="lbl-num">№0</span></div>
+        
+        <div class="canvas-box" id="drawing-area"></div>
+        <div id="q-text" class="question">Условие загружается...</div>
+        <input type="number" id="inp-ans" placeholder="Введите числовой ответ" step="any" autocomplete="off">
+        <div id="msg-fb" class="feedback"></div>
+        <div id="sol-txt" class="solution"></div>
+        <div class="actions">
+          <button class="btn-action btn-back" id="btn-back">◀ В меню</button>
+          <button class="btn-action btn-success" id="btn-check">✅ Проверить</button>
+          <button class="btn-action btn-primary" id="btn-continue" style="display: none;">➡ След. задача</button>
+        </div>
+        <button class="btn-action btn-finish" id="btn-finish">🏁 Завершить экзамен</button>
+      </div>
     </div>
   </div>
+  
+  <div class="zoom-overlay" id="zoom-overlay"><div class="zoom-content" id="zoom-content"></div></div>
 </div>
-<div class="zoom-overlay" id="zoom-overlay"><div class="zoom-content" id="zoom-content"></div></div>
 
 <script>
-var appState = { mode: 'train', num: null, params: null, solved: [], subIndex: 0, currentSvg: null, taskQueue: {}, lastParams: null };
-
+// ==========================================
+// SVG-ШАБЛОНЫ
+// ==========================================
 var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;"><line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="700" x2="600" y2="100" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="400" y1="100" x2="1000" y2="700" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><path d="M 500 200 L 410 200 A 90 90 0 0 0 436 263 Z" fill="#92d050" opacity="0.9"/><path d="M 500 200 L 564 264 A 90 90 0 0 0 590 200 Z" fill="#ff0000" opacity="0.9"/><path d="M 900 600 L 964 664 A 90 90 0 0 0 990 600 Z" fill="#ff0000" opacity="0.9"/><path d="M 100 600 L 36 664 A 90 90 0 0 0 190 600 Z" fill="#0070c0" opacity="0.9"/><text x="380" y="290" font-size="48" font-style="italic" fill="black" font-weight="bold">1</text><text x="590" y="260" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="990" y="660" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text></svg>';
 
 var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><path d="M 50 350 L 350 350 L 275 200 L 125 200 Z" fill="#ffcccc" stroke="#c00000" stroke-width="3"/><path d="M 125 200 L 275 200 L 200 50 Z" fill="#e2f0d9" stroke="#c00000" stroke-width="3"/><line x1="125" y1="200" x2="275" y2="200" stroke="#00b0f0" stroke-width="3"/><text x="15" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">A</text><text x="190" y="40" font-family="serif" font-size="35" font-style="italic" fill="black">B</text><text x="360" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">C</text><text x="85" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">D</text><text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text></svg>';
@@ -144,55 +299,49 @@ var EQUILATERAL_SVG = '<svg viewBox="0 0 500 350" width="100%" height="100%" sty
 
 var BISECTOR_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><polygon points="200,50 50,310 350,310" fill="turquoise" fill-opacity="0.5" stroke="black" stroke-width="2"/><path d="M 200,50 L 172.5,97.6 A 55,55 0 0 0 200,105 Z" fill="lightcoral" fill-opacity="0.7"/><path d="M 200,50 L 200,100 A 50,50 0 0 0 225,93.3 Z" fill="lightcoral" fill-opacity="0.7"/><path d="M 172.5,97.6 A 55,55 0 0 0 200,105" fill="none" stroke="black" stroke-width="1.5"/><path d="M 200,100 A 50,50 0 0 0 225,93.3" fill="none" stroke="black" stroke-width="1.5"/><line x1="200" y1="50" x2="200" y2="310" stroke="orange" stroke-width="2.5"/><polyline points="200,295 215,295 215,310" fill="none" stroke="black" stroke-width="1"/><text x="195" y="40" font-family="serif" font-size="22" font-weight="bold">B</text><text x="35" y="330" font-family="serif" font-size="22" font-weight="bold">A</text><text x="355" y="330" font-family="serif" font-size="22" font-weight="bold">C</text><text x="193" y="335" font-family="serif" font-size="22" font-weight="bold">H</text></svg>';
 
-var CIRCUMCIRCLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="150" fill="lightblue" fill-opacity="0.3" stroke="black" stroke-width="2"/><polygon points="200,50 70,275 330,275" fill="lightgreen" fill-opacity="0.5" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="50" stroke="#e67e22" stroke-width="2"/><line x1="200" y1="200" x2="70" y2="275" stroke="#e67e22" stroke-width="2"/><line x1="200" y1="200" x2="330" y2="275" stroke="#e67e22" stroke-width="2"/><text x="55" y="295" font-family="serif" font-size="22" font-weight="bold">A</text><text x="335" y="295" font-family="serif" font-size="22" font-weight="bold">B</text><text x="190" y="45" font-family="serif" font-size="22" font-weight="bold">C</text><text x="210" y="200" font-family="serif" font-size="22" font-weight="bold">O</text></svg>';
+var CIRCUMCIRCLE_RIGHT_TRIANGLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="140" fill="none" stroke="black" stroke-width="2"/><polygon points="60,200 200,60 340,200" fill="#98FB98" stroke="black" stroke-width="2"/><line x1="60" y1="200" x2="340" y2="200" stroke="#d35400" stroke-width="3"/><circle cx="200" cy="200" r="3" fill="#d35400"/><text x="45" y="210" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">A</text><text x="195" y="50" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">B</text><text x="355" y="210" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">C</text><text x="210" y="230" font-family="sans-serif" font-size="18" font-weight="bold" fill="#000">O</text></svg>';
 
-var TRIG_RIGHT_TRIANGLE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190">' +
-   '<polygon points="50,170 250,170 50,0" fill="#FFFACD" stroke="black" stroke-width="2"/>' +
-   '<polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text>' +
-   '<text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text>' +
-   '<text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text>' +
-   '</svg>';
+var CIRCUMCIRCLE_GENERIC_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="140" fill="none" stroke="black" stroke-width="2"/><polygon points="129,321 271,321 200,60" fill="#F5F5DC" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="129" y2="321" stroke="#d35400" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="60" stroke="#d35400" stroke-width="2"/><circle cx="200" cy="200" r="3" fill="#d35400"/><text x="109" y="341" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">A</text><text x="281" y="341" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">B</text><text x="190" y="50" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">C</text><text x="210" y="190" font-family="sans-serif" font-size="18" font-weight="bold" fill="#000">O</text></svg>';
 
-var TRIG_SINE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190">' +
-   '<polygon points="50,170 250,170 50,0" fill="#90EE90" stroke="black" stroke-width="2"/>' +
-   '<polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/>' +
-   '<text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text>' +
-   '<text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text>' +
-   '<text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text>' +
-   '</svg>';
+var EQUILATERAL_CIRCUMCIRCLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="140" fill="none" stroke="black" stroke-width="2"/><polygon points="200,60 321,270 79,270" fill="#E0FFFF" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="60" stroke="#d35400" stroke-width="2"/><line x1="200" y1="200" x2="321" y2="270" stroke="#d35400" stroke-width="2"/><line x1="200" y1="200" x2="79" y2="270" stroke="#d35400" stroke-width="2"/><circle cx="200" cy="200" r="3" fill="#d35400"/><text x="185" y="50" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="330" y="280" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="60" y="280" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="210" y="220" font-family="sans-serif" font-size="18" font-weight="bold">O</text></svg>';
 
-// 👇 SVG ДЛЯ №16 (Светло-желтая окружность, голубой треугольник) - ПРАВИЛЬНЫЙ!
-var CIRCLE_ANGLES_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
-   '<circle cx="200" cy="200" r="150" fill="#FFFACD" stroke="black" stroke-width="2"/>' +
-   '<polygon points="200,50 85,300 315,300" fill="#ADD8E6" stroke="black" stroke-width="2"/>' +
-   '<line x1="200" y1="200" x2="85" y2="300" stroke="#e67e22" stroke-width="2"/>' +
-   '<line x1="200" y1="200" x2="315" y2="300" stroke="#e67e22" stroke-width="2"/>' +
-   '<text x="195" y="190" font-family="serif" font-size="22" font-weight="bold">O</text>' +
-   '<text x="70" y="320" font-family="serif" font-size="22" font-weight="bold">A</text>' +
-   '<text x="315" y="320" font-family="serif" font-size="22" font-weight="bold">B</text>' +
-   '<text x="190" y="40" font-family="serif" font-size="22" font-weight="bold">C</text>' +
-   '</svg>';
+var TRIG_RIGHT_TRIANGLE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190"><polygon points="50,170 250,170 50,0" fill="#FFFACD" stroke="black" stroke-width="2"/><polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/><path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/><text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text><text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text><text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text></svg>';
 
-// 👇 SVG 1: Диаметры (для задачи про пересекающиеся диаметры)
-var DIAMETERS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;">' +
-   '<circle cx="200" cy="200" r="150" fill="#D4EDD4" stroke="black" stroke-width="2"/>' +
-   '<polygon points="200,200 94,94 350,200" fill="#FFCCCC" stroke="black" stroke-width="2"/>' +
-   '<polygon points="200,200 50,200 306,306" fill="#FFCCCC" stroke="black" stroke-width="2"/>' +
-   '<line x1="94" y1="94" x2="306" y2="306" stroke="black" stroke-width="2"/>' +
-   '<line x1="50" y1="200" x2="350" y2="200" stroke="black" stroke-width="2"/>' +
-   '<text x="195" y="180" font-family="serif" font-size="40" font-weight="bold">O</text>' +
-   '<text x="375" y="220" font-family="serif" font-size="40" font-weight="bold">B</text>' +
-   '<text x="5" y="220" font-family="serif" font-size="40" font-weight="bold">C</text>' +
-   '<text x="65" y="60" font-family="serif" font-size="40" font-weight="bold">A</text>' +
-   '<text x="325" y="350" font-family="serif" font-size="40" font-weight="bold">D</text>' +
-   '</svg>';
+var TRIG_SINE_SVG = '<svg viewBox="0 0 300 240" width="280" height="190"><polygon points="50,170 250,170 50,0" fill="#90EE90" stroke="black" stroke-width="2"/><polyline points="50,150 70,150 70,170" fill="none" stroke="black" stroke-width="1.5"/><path d="M 220,170 A 30,30 0 0 1 230,147" fill="none" stroke="black" stroke-width="1.5"/><text x="30" y="195" font-family="serif" font-size="24" font-weight="bold">C</text><text x="250" y="195" font-family="serif" font-size="24" font-weight="bold">A</text><text x="30" y="20" font-family="serif" font-size="24" font-weight="bold">B</text></svg>';
 
-var TASKS_DB = {
+var CIRCLE_ANGLES_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="150" fill="#FFFACD" stroke="black" stroke-width="2"/><polygon points="200,50 85,300 315,300" fill="#ADD8E6" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="85" y2="300" stroke="#e67e22" stroke-width="2"/><line x1="200" y1="200" x2="315" y2="300" stroke="#e67e22" stroke-width="2"/><text x="195" y="190" font-family="serif" font-size="22" font-weight="bold">O</text><text x="70" y="320" font-family="serif" font-size="22" font-weight="bold">A</text><text x="315" y="320" font-family="serif" font-size="22" font-weight="bold">B</text><text x="190" y="40" font-family="serif" font-size="22" font-weight="bold">C</text></svg>';
+
+var DIAMETERS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="150" fill="#D4EDD4" stroke="black" stroke-width="2"/><polygon points="200,200 94,94 350,200" fill="#FFCCCC" stroke="black" stroke-width="2"/><polygon points="200,200 50,200 306,306" fill="#FFCCCC" stroke="black" stroke-width="2"/><line x1="94" y1="94" x2="306" y2="306" stroke="black" stroke-width="2"/><line x1="50" y1="200" x2="350" y2="200" stroke="black" stroke-width="2"/><text x="195" y="180" font-family="serif" font-size="40" font-weight="bold">O</text><text x="375" y="220" font-family="serif" font-size="40" font-weight="bold">B</text><text x="5" y="220" font-family="serif" font-size="40" font-weight="bold">C</text><text x="65" y="60" font-family="serif" font-size="40" font-weight="bold">A</text><text x="325" y="350" font-family="serif" font-size="40" font-weight="bold">D</text></svg>';
+
+var INTERSECTING_CHORDS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><defs><clipPath id="cClip"><circle cx="200" cy="200" r="130"/></clipPath></defs><circle cx="200" cy="200" r="130" fill="#FFFACD" stroke="black" stroke-width="2"/><g clip-path="url(#cClip)"><line x1="60" y1="170" x2="300" y2="290" stroke="#c00" stroke-width="3"/><line x1="110" y1="300" x2="240" y2="70" stroke="#00b0f0" stroke-width="3"/></g><text x="65" y="160" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">A</text><text x="290" y="310" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">B</text><text x="250" y="60" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">C</text><text x="90" y="320" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">D</text><text x="165" y="215" font-family="sans-serif" font-size="18" font-weight="bold" fill="#000">O</text></svg>';
+
+var TANGENTS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="150" cy="200" r="120" fill="#FFFACD" stroke="black" stroke-width="2"/><line x1="150" y1="200" x2="150" y2="80" stroke="black" stroke-width="1.5"/><line x1="150" y1="200" x2="254" y2="260" stroke="black" stroke-width="1.5"/><line x1="150" y1="80" x2="254" y2="260" stroke="black" stroke-width="2"/><line x1="150" y1="80" x2="360" y2="80" stroke="#d35400" stroke-width="2.5"/><line x1="254" y1="260" x2="360" y2="80" stroke="#d35400" stroke-width="2.5"/><text x="155" y="65" font-family="sans-serif" font-size="22" font-weight="bold" fill="#000">A</text><text x="265" y="270" font-family="sans-serif" font-size="22" font-weight="bold" fill="#000">B</text><text x="125" y="200" font-family="sans-serif" font-size="22" font-weight="bold" fill="#000">O</text></svg>';
+
+var SECANT_TANGENT_SVG = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;"><circle cx="220" cy="150" r="100" fill="#FFFACD" stroke="black" stroke-width="2"/><line x1="50" y1="250" x2="280" y2="250" stroke="#d35400" stroke-width="2.5"/><line x1="50" y1="250" x2="280" y2="20" stroke="#d35400" stroke-width="2.5"/><text x="30" y="270" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">A</text><text x="120" y="170" font-family="sans-serif" font-size="18" fill="#000">B</text><text x="260" y="35" font-family="sans-serif" font-size="18" fill="#000">C</text><text x="260" y="270" font-family="sans-serif" font-size="18" fill="#000">K</text></svg>';
+
+var CHORD_TANGENT_ANGLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="130" fill="#FFFACD" stroke="black" stroke-width="2"/><line x1="70" y1="330" x2="330" y2="330" stroke="#d35400" stroke-width="3"/><line x1="200" y1="330" x2="310" y2="270" stroke="black" stroke-width="3"/><text x="340" y="340" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">C</text><text x="190" y="355" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">B</text><text x="315" y="265" font-family="sans-serif" font-size="20" font-weight="bold" fill="#000">A</text></svg>';
+
+var INSCRIBED_CIRCLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><rect x="70" y="70" width="260" height="260" fill="#FFFACD" stroke="black" stroke-width="3"/><circle cx="200" cy="200" r="130" fill="none" stroke="black" stroke-width="2"/><line x1="70" y1="330" x2="330" y2="70" stroke="#d35400" stroke-width="3"/></svg>';
+
+// SVG ДЛЯ №17
+var RECTANGLE_DIAGONALS_SVG = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;"><rect x="50" y="80" width="300" height="150" fill="#E6E0F8" stroke="black" stroke-width="3"/><line x1="50" y1="80" x2="350" y2="230" stroke="#d35400" stroke-width="2"/><line x1="350" y1="80" x2="50" y2="230" stroke="#d35400" stroke-width="2"/><text x="35" y="70" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="355" y="70" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="355" y="250" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="35" y="250" font-family="sans-serif" font-size="20" font-weight="bold">D</text></svg>';
+
+var RECT_BO_AC_SVG = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;"><rect x="50" y="60" width="300" height="180" fill="#B2DFDB" stroke="black" stroke-width="3"/><line x1="50" y1="240" x2="350" y2="60" stroke="#d35400" stroke-width="2"/><line x1="350" y1="240" x2="50" y2="60" stroke="#d35400" stroke-width="2"/><text x="30" y="260" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="30" y="50" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="360" y="50" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="360" y="260" font-family="sans-serif" font-size="20" font-weight="bold">D</text><text x="190" y="140" font-family="sans-serif" font-size="20" font-weight="bold">O</text></svg>';
+
+var SQUARE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><rect x="80" y="80" width="240" height="240" fill="#E6E0F8" stroke="black" stroke-width="3"/><line x1="80" y1="320" x2="320" y2="80" stroke="#d35400" stroke-width="2"/><text x="60" y="340" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="330" y="340" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="330" y="70" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="60" y="70" font-family="sans-serif" font-size="20" font-weight="bold">D</text></svg>';
+
+var PARALLELOGRAM_SVG = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;"><polygon points="80,220 180,80 320,80 220,220" fill="#FFE4B5" stroke="black" stroke-width="3"/><line x1="80" y1="220" x2="320" y2="80" stroke="#d35400" stroke-width="2"/><line x1="180" y1="80" x2="220" y2="220" stroke="#d35400" stroke-width="2"/><text x="60" y="240" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="170" y="70" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="330" y="70" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="220" y="240" font-family="sans-serif" font-size="20" font-weight="bold">D</text></svg>';
+
+var RHOMBUS_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><polygon points="200,60 340,200 200,340 60,200" fill="#DDA0DD" stroke="black" stroke-width="3"/><line x1="60" y1="200" x2="340" y2="200" stroke="#d35400" stroke-width="2"/><line x1="200" y1="60" x2="200" y2="340" stroke="#d35400" stroke-width="2"/><text x="190" y="50" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="350" y="210" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="190" y="360" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="30" y="210" font-family="sans-serif" font-size="20" font-weight="bold">D</text></svg>';
+
+var TRAPEZOID_BASE_SVG = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;"><polygon points="60,240 340,240 280,80 120,80" fill="#F0E68C" stroke="black" stroke-width="3"/><text x="40" y="260" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="350" y="260" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="290" y="70" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="100" y="70" font-family="sans-serif" font-size="20" font-weight="bold">D</text></svg>';
+
+// ==========================================
+// БАЗА ЗАДАНИЙ
+// ==========================================
+const TASKS_DB = {
   15: {
-    title: 'Треугольники',
+    title: '📐 Треугольники',
     subTopics: {
       0: { name: 'Углы', tasks: [
           { gen: function(){ return {angle: (Math.floor(Math.random() * 30) + 10) * 2}; }, txt: function(p){ return 'В △ABC известно, что ∠ACB = ' + p.angle + '°. CD — биссектриса. Найдите угол ACD.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + (p.angle/2) + '°.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса режет угол пополам. ' + p.angle + '° / 2 = ' + (p.angle/2) + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.angle / 2; }, svg: function(p){ return '<svg viewBox="0 0 300 220" width="280" height="190"><polygon points="30,190 90,110 270,190" fill="#b3e0ff" stroke="none"/><polygon points="150,30 90,110 270,190" fill="#ffb3c1" stroke="none"/><line x1="30" y1="190" x2="150" y2="30" stroke="#bf360c" stroke-width="2"/><line x1="150" y1="30" x2="270" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="30" y2="190" stroke="#bf360c" stroke-width="2"/><line x1="270" y1="190" x2="90" y2="110" stroke="#bf360c" stroke-width="2"/><path d="M 235,190 A 35,35 0 0,1 237,177" fill="none" stroke="#000" stroke-width="1.5"/><path d="M 237,177 A 35,35 0 0,1 249,162" fill="none" stroke="#000" stroke-width="1.5"/><text x="20" y="205" font-size="18" fill="#000000" font-weight="bold">A</text><text x="145" y="25" font-size="18" fill="#000000" font-weight="bold">B</text><text x="275" y="205" font-size="18" fill="#000000" font-weight="bold">C</text><text x="75" y="105" font-size="14" fill="#000000" font-weight="bold">D</text></svg>'; }},
@@ -200,7 +349,7 @@ var TASKS_DB = {
           { gen: function(){ return {angle1: Math.floor(Math.random() * 40) + 40}; }, txt: function(p){ return 'Найдите угол 3, если угол 1 равен ' + p.angle1 + '°.'; }, solRight: function(p){ var angle3 = 180 - p.angle1; return 'МОЛОДЕЦ! ✅ Правильно, ' + angle3 + '°.'; }, solWrong: function(p){ var angle3 = 180 - p.angle1; return 'Ну Ты Чё!?!? Угол 1 и угол 3 — односторонние. 180° - ' + p.angle1 + '° = ' + angle3 + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return 180 - p.angle1; }, svg: function(p){ return PARALLEL_SVG; }}
         ]
       },
-      1: { name: 'Общие треугольники', tasks: [
+      1: { name: 'Общие тр-ки', tasks: [
           { gen: function(){ var ac = (Math.floor(Math.random() * 20) + 10) * 2; return {ac: ac, de: ac / 2}; }, txt: function(p){ return 'DE — средняя линия △ABC. Найдите DE, если AC = ' + p.ac + '.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.de + '.'; }, solWrong: function(p){ var de = p.ac / 2; return 'Ну Ты Чё!?!? Средняя линия = половина основания. ' + p.ac + ' / 2 = ' + de + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.de; }, svg: function(p){ return TRAPEZOID_SVG; }},
           { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 9; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь DBE = ' + p.dbe + '. Найдите площадь ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.abc + '.'; }, solWrong: function(p){ var abc = p.dbe * 4; return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.dbe + ' × 4 = ' + abc + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.abc; }, svg: function(p){ return TRAPEZOID_SVG; }},
           { gen: function(){ var dbe = Math.floor(Math.random() * 191) + 10; return {dbe: dbe, abc: dbe * 4}; }, txt: function(p){ return 'В треугольнике ABC DE — средняя линия. Площадь ABC = ' + p.abc + '. Найдите площадь DBE.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.dbe + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Площади относятся как 1:4. ' + p.abc + ' / 4 = ' + p.dbe + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.dbe; }, svg: function(p){ return TRAPEZOID_SVG; }},
@@ -212,7 +361,7 @@ var TASKS_DB = {
           { gen: function(){ var angleC = Math.floor(Math.random() * 51) + 100; var extAngle = 180 - angleC; return {angleC: angleC, extAngle: extAngle}; }, txt: function(p){ return 'В △ABC угол C = ' + p.angleC + '°. Найдите внешний угол при вершине C.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Внешний угол смежен с внутренним, их сумма 180°. 180° − ' + p.angleC + '° = ' + p.extAngle + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.extAngle; }, svg: function(p){ return '<svg viewBox="0 0 600 370" width="100%" height="100%" style="background:white;"><polygon points="60,300 250,60 440,300" fill="#87CEEB" stroke="#c00" stroke-width="3"/><line x1="60" y1="300" x2="520" y2="300" stroke="#c00" stroke-width="3"/><text x="30" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">A</text><text x="235" y="50" font-family="serif" font-size="45" font-style="italic" fill="black">B</text><text x="445" y="344" font-family="serif" font-size="45" font-style="italic" fill="black">C</text></svg>'; }}
         ]
       },
-      2: { name: 'Равнобедренные', tasks: [
+      2: { name: 'Равнобедр.', tasks: [
           { gen: function(){ var extAngle = Math.floor(Math.random() * 51) + 100; var baseAngle = 180 - extAngle; var vertexAngle = 180 - 2 * baseAngle; return {extAngle: extAngle, ans: vertexAngle}; }, txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ var base = 180 - p.extAngle; var vertex = 180 - 2*base; return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = 180° − ' + p.extAngle + '° = ' + base + '°. При основании углы равны, значит ∠A тоже ' + base + '°. А вершинный ∠B = 180° − (' + base + '° + ' + base + '°) = ' + vertex + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return ISOSCELES_SVG; }},
           { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.median + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике медиана = высоте. h = (a√3)/2 = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
           { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var bisector = n * Math.sqrt(3); var side = 2 * n; return {bisCoeff: n, ans: side}; }, txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону этого треугольника.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем треугольнике биссектриса = высоте. h = (a√3)/2. Значит a = 2h/√3. Подставляем: 2 · ' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return BISECTOR_SVG; }},
@@ -220,7 +369,7 @@ var TASKS_DB = {
           { gen: function(){ var n = Math.floor(Math.random() * 9) + 2; var sideCoeff = 2 * n; var diameter = sideCoeff * 2; return {sideCoeff: sideCoeff, ans: diameter}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите диаметр описанной окружности.'; }, solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? Диаметр = 2 × Радиус. R = a/√3 = ' + (p.ans/2) + '. Диаметр = 2 × ' + (p.ans/2) + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }}
         ]
       },
-      3: { name: 'Прямоугольные', tasks: [
+      3: { name: 'Прямоуг-ные', tasks: [
           { gen: function(){ 
               var triples = [[3,4,5], [5,12,13], [8,15,17]];
               var t = triples[Math.floor(Math.random() * triples.length)];
@@ -300,16 +449,14 @@ var TASKS_DB = {
     }
   },
   16: {
-    title: 'Окружности/круги',
+    title: '🔘 Окружность',
     subTopics: {
-      0: { name: 'Углы, касательные', tasks: [
-          // 👇 ЗАДАЧА 1: Диаметры
+      0: { name: 'Углы', tasks: [
           { 
             gen: function(){ 
                 var alpha = 2 * (Math.floor(Math.random() * 71) + 10); 
                 var beta = 180 - alpha;
                 var base = (180 - alpha) / 2;
-
                 var pool = [
                   {given: '∠AOB', gv: alpha, find: '∠COD', av: alpha, sol: '∠AOB и ∠COD — вертикальные, значит равны.', svg: 'diameters'},
                   {given: '∠COD', gv: alpha, find: '∠AOB', av: alpha, sol: '∠COD и ∠AOB — вертикальные, значит равны.', svg: 'diameters'},
@@ -326,9 +473,8 @@ var TASKS_DB = {
             solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.av + '°.\n\n' + p.sol + '\n\nПопробуй ещё! 💪'; },
             solWrong: function(p){ return 'Ну Ты Чё!?!? ' + p.sol + '\n\nПопробуй ещё! 💪'; },
             ans: function(p){ return p.av; },
-            svg: function(p){ return (p.svg === 'diameters') ? DIAMETERS_SVG : DIAMETERS_SVG; }
+            svg: function(p){ return DIAMETERS_SVG; }
           },
-          // 👇 ЗАДАЧА 2: Вписанный треугольник (ПРАВИЛЬНЫЙ SVG!)
           {
             gen: function(){
                 var angleC = Math.floor(Math.random() * 60) + 20;
@@ -344,184 +490,676 @@ var TASKS_DB = {
           }
         ]
       },
-      1: { name: 'Вписанные окружности', tasks: [] },
-      2: { name: 'Описанные окружности', tasks: [] },
-      3: { name: 'Хорды, секущие', tasks: [] }
+      1: { name: 'Впис. окруж.', tasks: [
+          {
+            gen: function(){ 
+              var k = Math.floor(Math.random() * 9) + 2;
+              var d = 4 * k;
+              var rText = k + '√2';
+              var type = Math.floor(Math.random() * 2);
+              if (type === 0) {
+                return { rText: rText, d: d, mode: 0, ans: d };
+              } else {
+                return { rText: rText, d: d, mode: 1, ans: k };
+              }
+            },
+            txt: function(p){ 
+              if (p.mode === 0) {
+                return 'Радиус вписанной в квадрат окружности равен ' + p.rText + '. Найдите диагональ этого квадрата.';
+              } else {
+                return 'Диагональ квадрата равна ' + p.d + '. Найдите радиус вписанной в этот квадрат окружности (в ответе укажите число перед корнем, если r = k√2).';
+              }
+            },
+            solRight: function(p){ 
+              if (p.mode === 0) {
+                return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\n1) Сторона квадрата = 2r.\n2) Диагональ = 2r√2 = 2 · ' + p.rText + ' · √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+              } else {
+                return 'МОЛОДЕЦ! ✅ Правильно, коэффициент ' + p.ans + '.\n\nРешение:\n1) Диагональ d = 2r√2.\n2) r = d / (2√2) = ' + p.d + ' / (2√2) = ' + (p.d/2) + ' / √2 = ' + p.ans + '√2.\n\nПопробуй ещё! 💪';
+              }
+            },
+            solWrong: function(p){ 
+              if (p.mode === 0) {
+                return 'Ну Ты Чё!?!? Диагональ = 2r√2.\nd = 2 · ' + p.rText + ' · √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+              } else {
+                return 'Ну Ты Чё!?!? r = d / (2√2) = ' + p.d + ' / (2√2) = ' + p.ans + '√2.\n\nПопробуй ещё! 💪';
+              }
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return INSCRIBED_CIRCLE_SVG; }
+          }
+        ]
+      },
+      2: { name: 'Описан. окруж.', tasks: [
+          {
+            gen: function(){ 
+              var angleA = Math.floor(Math.random() * 70) + 10;
+              var angleC = 90 - angleA;
+              var type = Math.floor(Math.random() * 2);
+              if (type === 0) {
+                return { given: angleA, findName: '∠C', ans: angleC, mode: 0 };
+              } else {
+                return { given: angleC, findName: '∠A', ans: angleA, mode: 1 };
+              }
+            },
+            txt: function(p){ 
+              if (p.mode === 0) {
+                return 'Сторона AC треугольника ABC проходит через центр описанной около него окружности. Найдите ' + p.findName + ', если ∠A = ' + p.given + '°.';
+              } else {
+                return 'Сторона AC треугольника ABC проходит через центр описанной около него окружности. Найдите ' + p.findName + ', если ∠C = ' + p.given + '°.';
+              }
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nРешение:\n1) AC проходит через центр ⇒ AC — диаметр.\n2) Угол B, опирающийся на диаметр, = 90°.\n3) ' + p.findName + ' = 90° - ' + p.given + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Треугольник прямоугольный, сумма острых углов = 90°.\n' + p.findName + ' = 90° - ' + p.given + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return CIRCUMCIRCLE_RIGHT_TRIANGLE_SVG; }
+          },
+          {
+            gen: function(){ 
+              var side = Math.floor(Math.random() * 10) + 5;
+              return { side: side, ans: side };
+            },
+            txt: function(p){ 
+              return 'Треугольник ABC вписан в окружность. Найдите радиус окружности, если сторона BC равна ' + p.side + ', а угол A равен 30°.';
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\nПо теореме синусов: a/sinA = 2R.\n' + p.side + '/sin30° = 2R\n' + p.side + '/0.5 = 2R\n' + (p.side*2) + ' = 2R\nR = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? a/sinA = 2R.\n' + p.side + '/0.5 = 2R => 2R = ' + (p.side*2) + ' => R = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }
+          },
+          {
+            gen: function(){
+              return {
+                angleC: 45,
+                sideAB: '6√2',
+                ans: 6
+              };
+            },
+            txt: function(p){
+              return 'В треугольнике ABC угол C равен ' + p.angleC + '°, AB = ' + p.sideAB + '. Найдите радиус окружности, описанной около этого треугольника.';
+            },
+            solRight: function(p){
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\nПо теореме синусов: AB/sin(C) = 2R\n' + p.sideAB + '/sin(' + p.angleC + '°) = 2R\n' + p.sideAB + '/(√2/2) = 2R\n' + p.sideAB + ' · 2/√2 = 2R\n12 = 2R\nR = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){
+              return 'Ну Ты Чё!?!? По теореме синусов: AB/sin(C) = 2R\n' + p.sideAB + '/(√2/2) = 2R\n12 = 2R\nR = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return CIRCUMCIRCLE_GENERIC_SVG; }
+          },
+          {
+            gen: function(){ 
+              var n = Math.floor(Math.random() * 10) + 1;
+              var sideCoeff = 2 * n;
+              var radius = n * 2;
+              return { sideCoeff: sideCoeff, ans: radius };
+            },
+            txt: function(p){ 
+              return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите радиус окружности, описанной около этого треугольника.';
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\nДля равностороннего треугольника: R = a/√3.\nПодставляем: R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Для равностороннего треугольника: R = a/√3.\nПодставляем: R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return EQUILATERAL_CIRCUMCIRCLE_SVG; }
+          }
+        ]
+      },
+      3: { name: 'Хорды/касат.', tasks: [
+          {
+            gen: function(){ 
+              for(let i=0; i<500; i++){
+                var a = Math.floor(Math.random()*29) + 2;
+                var b = Math.floor(Math.random()*29) + 2;
+                var c = Math.floor(Math.random()*29) + 2;
+                var prod = a * b;
+                if(prod % c === 0){
+                  var d = prod / c;
+                  if(d >= 2 && d <= 30 && d !== a && d !== b && d !== c && a !== b && a !== c && b !== c){
+                    var type = Math.floor(Math.random()*4);
+                    var p = {a:a, b:b, c:c, d:d};
+                    if(type===0) return {text: 'AO='+a+', BO='+b+', CO='+c, ans: d, find: 'OD'};
+                    if(type===1) return {text: 'AO='+a+', BO='+b+', DO='+d, ans: c, find: 'CO'};
+                    if(type===2) return {text: 'AO='+a+', CO='+c+', DO='+d, ans: b, find: 'BO'};
+                    return {text: 'BO='+b+', CO='+c+', DO='+d, ans: a, find: 'AO'};
+                  }
+                }
+              }
+              return {text: 'AO=12, BO=10, CO=6', ans: 20, find: 'OD'};
+            },
+            txt: function(p){ return 'Хорды AB и CD пересекаются в точке O. ' + p.text + '. Найдите ' + p.find + '.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПо свойству пересекающихся хорд: AO·OB = CO·OD.\n\nПопробуй ещё! 💪'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? AO · OB = CO · OD.\nОтвет: ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return INTERSECTING_CHORDS_SVG; }
+          },
+          {
+            gen: function(){ 
+              var angleTangents = (Math.floor(Math.random() * 50) + 20) * 2; 
+              var ans = angleTangents / 2; 
+              return {angleTangents: angleTangents, ans: ans};
+            },
+            txt: function(p){ 
+              return 'Касательные в точках A и B к окружности с центром O пересекаются под углом ' + p.angleTangents + '°. Найдите угол ABO.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nРешение:\n1) Треугольник, образованный касательными и хордой AB, равнобедренный.\n2) Угол при вершине ' + p.angleTangents + '°.\n3) Углы при основании = (180 - ' + p.angleTangents + ')/2 = ' + (90 - p.ans) + '°.\n4) Угол между радиусом и касательной = 90°.\n5) ∠ABO = 90° - ' + (90 - p.ans) + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Ответ ровно в два раза меньше угла между касательными!\n' + p.angleTangents + '° / 2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return TANGENTS_SVG; }
+          },
+          {
+            gen: function(){ 
+              for(let i=0; i<200; i++){
+                var AC = Math.floor(Math.random()*29) + 2;
+                var BC = Math.floor(Math.random()*29) + 2;
+                var AB = AC + BC;
+                var BT_sq = AB*AB - AC*AC;
+                var BT = Math.sqrt(BT_sq);
+                if(Number.isInteger(BT) && BT >= 2 && BT <= 30){
+                  return {AC: AC, BC: BC, AB: AB, ans: BT};
+                }
+              }
+              return {AC: 3, BC: 2, AB: 5, ans: 4};
+            },
+            txt: function(p){ 
+              return 'На отрезке AB выбрана точка C так, что AC = ' + p.AC + ' и BC = ' + p.BC + 
+                     '. Построена окружность с центром A, проходящая через C. Найдите длину отрезка касательной, ' +
+                     'проведенной из точки B к этой окружности.';
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\n' +
+                     '1) Радиус R = AC = ' + p.AC + '\n' +
+                     '2) AB = AC + BC = ' + p.AB + '\n' +
+                     '3) AT = R, BT — касательная ⇒ AT ⟂ BT\n' +
+                     '4) △ABT — прямоугольный. По Пифагору:\n' +
+                     '   BT² = AB² - AT² = ' + p.AB + '² - ' + p.AC + '² = ' + (p.ans*p.ans) + '\n' +
+                     '   BT = ' + p.ans + '\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Радиус ⟂ касательной ⇒ △ABT прямоугольный.\n' +
+                     'BT = √(AB² - R²) = √(' + p.AB + '² - ' + p.AC + '²) = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){
+              var Ax = 140, Ay = 150, R = 70;
+              var distAB = R * (1 + p.BC / p.AC);
+              var Bx = Ax + distAB, By = Ay;
+              var cosA = R / distAB, sinA = Math.sqrt(1 - cosA*cosA);
+              var Tx = Ax + R * cosA, Ty = Ay + R * sinA;
+              var Ex = Tx + 0.5 * (Tx - Bx), Ey = Ty + 0.5 * (Ty - By);
+              var ts = 'font-family="sans-serif" font-size="18" font-weight="bold" fill="#000" pointer-events="none"';
+              return '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;">' +
+                '<circle cx="'+Ax+'" cy="'+Ay+'" r="'+R+'" fill="#FFFACD" stroke="#000" stroke-width="2"/>' +
+                '<line x1="'+Ax+'" y1="'+Ay+'" x2="'+Bx+'" y2="'+By+'" stroke="#c00" stroke-width="2"/>' +
+                '<line x1="'+Bx+'" y1="'+By+'" x2="'+Ex+'" y2="'+Ey+'" stroke="#00f" stroke-width="2.5"/>' +
+                '<line x1="'+Ax+'" y1="'+Ay+'" x2="'+Tx+'" y2="'+Ty+'" stroke="#00f" stroke-width="1.5" stroke-dasharray="3,3"/>' +
+                '<circle cx="'+Ax+'" cy="'+Ay+'" r="3" fill="#c00"/>' +
+                '<circle cx="'+(Ax+R)+'" cy="'+Ay+'" r="2" fill="#000"/>' +
+                '<circle cx="'+Bx+'" cy="'+By+'" r="2" fill="#000"/>' +
+                '<circle cx="'+Tx+'" cy="'+Ty+'" r="2" fill="#00f"/>' +
+                '<text x="'+(Ax-25)+'" y="'+(Ay+5)+'" '+ts+'>A</text>' +
+                '<text x="'+(Ax+R)+'" y="'+(Ay-12)+'" '+ts+'>C</text>' +
+                '<text x="'+(Bx+10)+'" y="'+(By+5)+'" '+ts+'>B</text>' +
+                '<text x="'+(Tx+10)+'" y="'+(Ty+15)+'" '+ts+'>T</text></svg>';
+            }
+          },
+          {
+            gen: function(){ 
+              for(let i=0; i<100; i++){
+                var AB = Math.floor(Math.random() * 28) + 2; 
+                var AK = Math.floor(Math.random() * 29) + 2; 
+                var AC = (AK * AK) / AB;
+                if(Number.isInteger(AC) && AC > AB && AC <= 30){
+                  return { AB: AB, AC: AC, ans: AK };
+                }
+              }
+              return { AB: 2, AC: 8, ans: 4 };
+            },
+            txt: function(p){ 
+              return 'Через точку A, лежащую вне окружности, проведены две прямые. Одна касается окружности в точке K. Другая пересекает окружность в точках B и C, причем AB = ' + p.AB + ', AC = ' + p.AC + '. Найдите AK.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nПо свойству секущей и касательной: AK² = AB · AC.\nAK² = ' + p.AB + ' · ' + p.AC + ' = ' + (p.AB * p.AC) + '.\nAK = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Квадрат касательной равен произведению секущей на её внешнюю часть.\nAK² = AB · AC = ' + p.AB + ' · ' + p.AC + ' = ' + (p.AB * p.AC) + '.\nAK = ' + p.ans + '.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return SECANT_TANGENT_SVG; }
+          },
+          {
+            gen: function(){ 
+              var arc = (Math.floor(Math.random() * 43) + 2) * 2;
+              var ans = arc / 2; 
+              return { arc: arc, ans: ans };
+            },
+            txt: function(p){ 
+              return 'На окружности отмечены точки A и B так, что меньшая дуга AB равна ' + p.arc + '°. Прямая BC касается окружности в точке B так, что угол ABC острый. Найдите угол ABC.'; 
+            },
+            solRight: function(p){ 
+              return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nУгол между хордой и касательной равен половине дуги, заключенной между ними.\n∠ABC = ' + p.arc + '° / 2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            solWrong: function(p){ 
+              return 'Ну Ты Чё!?!? Угол между хордой и касательной равен половине дуги.\n∠ABC = ' + p.arc + '° / 2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪';
+            },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return CHORD_TANGENT_ANGLE_SVG; }
+          }
+        ]
+      }
     }
   },
-  17: { title: 'Окружность', tasks: [] },
-  18: { title: 'Подобие', tasks: [] },
-  19: { title: 'Координаты', tasks: [] },
-  23: { title: 'Вектор', tasks: [] },
-  24: { title: 'Равнобедренный', tasks: [] },
-  25: { title: 'Кольцо', tasks: [] }
-};
-
-var SUCCESS_MSGS = ["МОЛОДЕЦ! 🎉", "МОЛОДЦОМ!!!", "В ОТЛИЧНОМ СТИЛЕ! 👍", "МОЛОДЦОМ!!!", "Молодцом!!!"];
-var FAIL_MSGS = ["ОЙ-ЁЙ... 🤦️", "НЕ ТО! ", "ПОДУМАЙ ЕЩЁ! 🤨", "МИМО! ❌", "НУ КАК ТАК? 😤"];
-
-var overlay = document.getElementById('zoom-overlay');
-var zoomContent = document.getElementById('zoom-content');
-var drawingArea = document.getElementById('drawing-area');
-
-drawingArea.onclick = function() {
-    var svg = drawingArea.innerHTML;
-    if(svg && svg.indexOf('<svg') !== -1) {
-        zoomContent.innerHTML = svg;
-        overlay.classList.add('show');
+  17: { 
+    title: '📏 Четырёхугольники',
+    subTopics: {
+      0: { 
+        name: 'Прямоуг-ки', 
+        tasks: [
+          { 
+            gen: function(){ 
+                var angle; 
+                do { angle = Math.floor(Math.random() * 89) + 1; } while (angle === 45); 
+                var acuteAngle = (angle < 45) ? (2 * angle) : (180 - 2 * angle); 
+                return { angle: angle, ans: acuteAngle }; 
+            }, 
+            txt: function(p){ return 'Диагональ прямоугольника образует угол ' + p.angle + '° с одной из его сторон. Найдите острый угол между диагоналями этого прямоугольника.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Острый угол между диагоналями: ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }
+          },
+          { 
+            gen: function(){ 
+                var acuteAngle = Math.floor(Math.random() * 71) + 10; 
+                var ans = (180 - acuteAngle) / 2; 
+                return { acuteAngle: acuteAngle, ans: ans }; 
+            }, 
+            txt: function(p){ return 'Острый угол между диагоналями прямоугольника равен ' + p.acuteAngle + '°. Найдите угол между диагональю и меньшей стороной.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Угол при основании = (180° - ' + p.acuteAngle + '°) / 2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return RECTANGLE_DIAGONALS_SVG; }
+          },
+          { 
+            gen: function(){ 
+                var BO = Math.floor(Math.random() * 46) + 5; 
+                return { BO: BO, ans: 2 * BO }; 
+            }, 
+            txt: function(p){ return 'Диагонали прямоугольника ABCD пересекаются в точке O. BO = ' + p.BO + '. Найдите AC.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\n1) Диагонали прямоугольника равны и делятся пополам.\n2) BD = 2 · BO = ' + (2 * p.BO) + '.\n3) AC = BD = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? AC = BD = 2 · BO = ' + (2 * p.BO) + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return RECT_BO_AC_SVG; }
+          },
+          { 
+            gen: function(){ 
+                var k = Math.floor(Math.random() * 40) + 1; 
+                return { side: k + '√2', ans: 2 * k }; 
+            }, 
+            txt: function(p){ return 'Сторона квадрата равна ' + p.side + '. Найдите диагональ этого квадрата.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\n1) d = a√2.\n2) d = ' + p.side + ' · √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? d = a√2 = ' + p.side + ' · √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return SQUARE_SVG; }
+          },
+          { 
+            gen: function(){ 
+                var k = Math.floor(Math.random() * 40) + 1; 
+                return { diagonal: k + '√2', ans: k }; 
+            }, 
+            txt: function(p){ return 'Диагональ квадрата равна ' + p.diagonal + '. Найдите сторону этого квадрата.'; }, 
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nРешение:\n1) a = d/√2.\n2) a = ' + p.diagonal + ' / √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? a = d/√2 = ' + p.diagonal + ' / √2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return SQUARE_SVG; }
+          }
+        ]
+      },
+      1: {
+        name: 'Параллел-мы',
+        tasks: [
+          {
+            gen: function(){
+              var angle = Math.floor(Math.random() * 60) + 30;
+              return { angle: angle, ans: 180 - angle };
+            },
+            txt: function(p){ return 'Один из углов параллелограмма равен ' + p.angle + '°. Найдите смежный угол.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nСмежные углы параллелограмма в сумме дают 180°.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Смежные углы параллелограмма: 180° - ' + p.angle + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return PARALLELOGRAM_SVG; }
+          },
+          {
+            gen: function(){
+              var side1 = Math.floor(Math.random() * 10) + 5;
+              var side2 = Math.floor(Math.random() * 10) + 5;
+              return { side1: side1, side2: side2, ans: 2 * (side1 + side2) };
+            },
+            txt: function(p){ return 'Стороны параллелограмма равны ' + p.side1 + ' и ' + p.side2 + '. Найдите периметр.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nP = 2(a+b) = 2(' + p.side1 + '+' + p.side2 + ') = ' + p.ans; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? P = 2(a+b) = 2(' + p.side1 + '+' + p.side2 + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return PARALLELOGRAM_SVG; }
+          },
+          {
+            gen: function(){
+              var angle1 = Math.floor(Math.random() * 50) + 20;
+              var angle2 = Math.floor(Math.random() * 50) + 20;
+              return { angle1: angle1, angle2: angle2, ans: 360 - 2*(angle1 + angle2) };
+            },
+            txt: function(p){ return 'Два угла параллелограмма равны ' + p.angle1 + '° и ' + p.angle2 + '°. Найдите сумму двух других углов.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nСумма всех углов = 360°'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Сумма всех углов = 360°. Осталось: 360° - 2(' + p.angle1 + '°+' + p.angle2 + '°) = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return PARALLELOGRAM_SVG; }
+          }
+        ]
+      },
+      2: {
+        name: 'Ромбы',
+        tasks: [
+          {
+            gen: function(){
+              var d1 = (Math.floor(Math.random() * 10) + 4) * 2;
+              var d2 = (Math.floor(Math.random() * 10) + 4) * 2;
+              return { d1: d1, d2: d2, ans: (d1 * d2) / 2 };
+            },
+            txt: function(p){ return 'Диагонали ромба равны ' + p.d1 + ' и ' + p.d2 + '. Найдите площадь ромба.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nS = (d1·d2)/2 = (' + p.d1 + '·' + p.d2 + ')/2 = ' + p.ans; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = (d1·d2)/2 = (' + p.d1 + '·' + p.d2 + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return RHOMBUS_SVG; }
+          },
+          {
+            gen: function(){
+              var side = Math.floor(Math.random() * 10) + 5;
+              return { side: side, ans: 4 * side };
+            },
+            txt: function(p){ return 'Сторона ромба равна ' + p.side + '. Найдите периметр.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nP = 4a = 4·' + p.side + ' = ' + p.ans; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? P = 4a = 4·' + p.side + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return RHOMBUS_SVG; }
+          },
+          {
+            gen: function(){
+              var angle = Math.floor(Math.random() * 60) + 30;
+              return { angle: angle, ans: angle };
+            },
+            txt: function(p){ return 'Острый угол ромба равен ' + p.angle + '°. Найдите угол между диагоналями.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, 90°.\n\nДиагонали ромба перпендикулярны.'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Диагонали ромба всегда перпендикулярны (90°).\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return 90; },
+            svg: function(p){ return RHOMBUS_SVG; }
+          }
+        ]
+      },
+      3: {
+        name: 'Трапеции',
+        tasks: [
+          {
+            gen: function(){
+              var base1 = Math.floor(Math.random() * 10) + 6;
+              var base2 = Math.floor(Math.random() * 10) + 6;
+              var height = Math.floor(Math.random() * 8) + 4;
+              return { base1: base1, base2: base2, height: height, ans: ((base1 + base2) * height) / 2 };
+            },
+            txt: function(p){ return 'Основания трапеции равны ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Найдите площадь.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nS = ((a+b)·h)/2 = ((' + p.base1 + '+' + p.base2 + ')·' + p.height + ')/2 = ' + p.ans; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = ((a+b)·h)/2 = ((' + p.base1 + '+' + p.base2 + ')·' + p.height + ')/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return TRAPEZOID_BASE_SVG; }
+          },
+          {
+            gen: function(){
+              var angle1 = Math.floor(Math.random() * 50) + 40;
+              return { angle1: angle1, ans: 180 - angle1 };
+            },
+            txt: function(p){ return 'Угол при одном основании трапеции равен ' + p.angle1 + '°. Найдите угол при том же основании с другой стороны.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '°.\n\nСумма углов при боковой стороне = 180°'; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Сумма углов при боковой стороне = 180°. 180° - ' + p.angle1 + '° = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return TRAPEZOID_BASE_SVG; }
+          },
+          {
+            gen: function(){
+              var midline = Math.floor(Math.random() * 15) + 5;
+              var height = Math.floor(Math.random() * 10) + 4;
+              return { midline: midline, height: height, ans: midline * height };
+            },
+            txt: function(p){ return 'Средняя линия трапеции = ' + p.midline + ', высота = ' + p.height + '. Найдите площадь.'; },
+            solRight: function(p){ return 'МОЛОДЕЦ! ✅ Правильно, ' + p.ans + '.\n\nS = m·h = ' + p.midline + '·' + p.height + ' = ' + p.ans; },
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = m·h = ' + p.midline + '·' + p.height + ' = ' + p.ans + '.\n\nПопробуй ещё! 💪'; },
+            ans: function(p){ return p.ans; },
+            svg: function(p){ return TRAPEZOID_BASE_SVG; }
+          }
+        ]
+      }
     }
+  },
+  18: { title: "🔍 Подобие", tasks: [] },
+  19: { title: "📌 Координаты", tasks: [] },
+  23: { title: "🧭 Векторы", tasks: [] },
+  24: { title: "🎯 Равнобедр. трапеция", tasks: [] },
+  25: { title: "🔘 Кольцо", tasks: [] }
 };
 
-overlay.onclick = function() {
-    overlay.classList.remove('show');
-};
+// STATE
+let appState = { mode: 'train', currentNum: 15, currentSub: 0, currentParams: null, solvedExam: [], lastParamsKey: null, taskQueues: {} };
 
-function initTaskQueue(num, subIdx) {
-  var key = num + '_' + subIdx;
-  var len = TASKS_DB[num].subTopics[subIdx].tasks.length;
-  var queue = [];
-  for(var i=0; i<len; i++) queue.push(i);
-  for(var i = queue.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = queue[i]; queue[i] = queue[j]; queue[j] = temp;
+// DOM
+const menuScreen = document.getElementById('menu-screen');
+const taskScreen = document.getElementById('task-screen');
+const appHeader = document.getElementById('app-header');
+const appTabs = document.getElementById('app-tabs');
+const examDash = document.getElementById('exam-info');
+const scoreSpan = document.getElementById('score-val');
+const winMsgDiv = document.getElementById('win-msg');
+const finishBtn = document.getElementById('btn-finish');
+const subMenu15 = document.getElementById('sub-menu-15');
+const subMenu16 = document.getElementById('sub-menu-16');
+const subMenu17 = document.getElementById('sub-menu-17');
+const drawingArea = document.getElementById('drawing-area');
+const qText = document.getElementById('q-text');
+const inpAns = document.getElementById('inp-ans');
+const msgFb = document.getElementById('msg-fb');
+const solDiv = document.getElementById('sol-txt');
+const btnCheck = document.getElementById('btn-check');
+const btnContinue = document.getElementById('btn-continue');
+const lblType = document.getElementById('lbl-type');
+const lblNum = document.getElementById('lbl-num');
+
+function getTaskList(num, subIdx) {
+  let topic = TASKS_DB[num];
+  if(num === 15 || num === 16 || num === 17) return topic.subTopics[subIdx]?.tasks || [];
+  else return topic.tasks || [];
+}
+
+function getTaskIndex(num, subIdx) {
+  let key = `${num}_${subIdx}`;
+  let tasks = getTaskList(num, subIdx);
+  if(!tasks.length) return 0;
+  if(!appState.taskQueues[key] || appState.taskQueues[key].length === 0) {
+    let indices = tasks.map((_,i)=>i);
+    for(let i=indices.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [indices[i],indices[j]]=[indices[j],indices[i]]; }
+    appState.taskQueues[key] = indices;
   }
-  appState.taskQueue[key] = queue;
-}
-function getNextTaskIndex(num, subIdx) {
-  var key = num + '_' + subIdx;
-  if(!appState.taskQueue[key] || appState.taskQueue[key].length === 0) initTaskQueue(num, subIdx);
-  return appState.taskQueue[key].shift();
+  return appState.taskQueues[key].shift();
 }
 
-function switchTab(modeName) {
-  appState.mode = modeName;
-  document.getElementById('tab-train').className = modeName === 'train' ? 'tab active' : 'tab';
-  document.getElementById('tab-exam').className = modeName === 'exam' ? 'tab exam-tab active' : 'tab exam-tab';
-  var dash = document.getElementById('exam-info');
-  dash.className = modeName === 'exam' ? 'exam-dash show' : 'exam-dash';
-  if(modeName === 'exam') resetExam();
+function generateTask() {
+  let num = appState.currentNum;
+  if(!num) { alert('Выберите номер задачи (нажмите на кнопку 15-25)'); return; }
+  let tasksArr = getTaskList(num, appState.currentSub);
+  if(!tasksArr.length) { alert('Задания в разработке 🛠️'); return; }
+  let idx = getTaskIndex(num, appState.currentSub);
+  let variant = tasksArr[idx];
+  let params = variant.gen();
+  appState.currentParams = { ans: variant.ans(params), solRight: variant.solRight(params), solWrong: variant.solWrong(params), num, variant, paramsRaw: params };
+  let svgContent = variant.svg ? variant.svg(params) : `<svg viewBox="0 0 200 150"><rect width="200" height="150" fill="#f3f4f6"/><text x="40" y="80" font-size="14">📐 геометрия</text></svg>`;
+  drawingArea.innerHTML = svgContent;
+  lblType.textContent = TASKS_DB[num].title;
+  lblNum.textContent = `№${num}`;
+  qText.textContent = variant.txt(params);
+  inpAns.value = '';
+  msgFb.style.display = 'none';
+  solDiv.style.display = 'none';
+  btnCheck.style.display = 'flex';
+  btnContinue.style.display = 'none';
+  inpAns.disabled = false;
+  btnCheck.disabled = false;
+  
+  // Скрываем шапку, вкладки и подменю при переходе к задаче
+  appHeader.classList.add('hidden');
+  appTabs.classList.add('hidden');
+  subMenu15.classList.remove('active');
+  subMenu16.classList.remove('active');
+  subMenu17.classList.remove('active');
+  
+  menuScreen.classList.remove('active');
+  taskScreen.classList.add('active');
+}
+
+function checkAnswerHandler() {
+  let raw = inpAns.value.trim().replace(',','.');
+  if(!raw) { alert('Введите ответ'); return; }
+  let val = parseFloat(raw);
+  if(isNaN(val)) { alert('Число!'); return; }
+  let target = appState.currentParams;
+  if(!target) return;
+  let diff = Math.abs(val - target.ans);
+  let isCorrect = diff < 0.2;
+  if(isCorrect) {
+    msgFb.className = 'feedback fb-ok';
+    msgFb.innerText = '✅ Верно! Отлично!';
+    msgFb.style.display = 'block';
+    solDiv.className = 'solution correct-style';
+    solDiv.innerText = target.solRight;
+    solDiv.style.display = 'block';
+    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🏆</div><div class="reaction-text">МОЛОДЕЦ!</div></div>`;
+    btnCheck.style.display = 'none';
+    btnContinue.style.display = 'flex';
+    if(appState.mode === 'exam' && !appState.solvedExam.includes(target.num)) {
+      appState.solvedExam.push(target.num);
+      updateExamUI();
+      if(appState.solvedExam.length >= 2) {
+        winMsgDiv.style.display = 'inline-flex';
+        finishBtn.style.display = 'block';
+        msgFb.innerText += ' 🎓 ЭКЗАМЕН СДАН!';
+      }
+    }
+  } else {
+    msgFb.className = 'feedback fb-no';
+    msgFb.innerText = '❌ Неверно. Посмотри решение.';
+    msgFb.style.display = 'block';
+    solDiv.className = 'solution';
+    solDiv.innerText = target.solWrong;
+    solDiv.style.display = 'block';
+    drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji">🤔</div><div class="reaction-text">Попробуй ещё!</div></div>`;
+  }
+  inpAns.disabled = true;
+  btnCheck.disabled = true;
+}
+
+function updateExamUI() {
+  scoreSpan.innerText = `${appState.solvedExam.length} / 2`;
+  document.querySelectorAll('.num-btn').forEach(btn => {
+    let n = parseInt(btn.dataset.num);
+    if(appState.solvedExam.includes(n)) btn.classList.add('solved');
+    else btn.classList.remove('solved');
+  });
+  if(appState.solvedExam.length >= 2) winMsgDiv.style.display = 'inline-flex';
+  else winMsgDiv.style.display = 'none';
+}
+
+function resetExam() { appState.solvedExam = []; updateExamUI(); finishBtn.style.display = 'none'; winMsgDiv.style.display = 'none'; }
+function finishExam() { alert('🎉 ПОЗДРАВЛЯЮ! Экзамен сдан! 🎉'); resetExam(); closeTask(); switchMode('train'); }
+
+function closeTask() {
+  taskScreen.classList.remove('active');
+  menuScreen.classList.add('active');
+  appState.currentParams = null;
+  
+  // Показываем шапку и вкладки при возврате в меню
+  appHeader.classList.remove('hidden');
+  appTabs.classList.remove('hidden');
+  
+  // Восстанавливаем подменю для текущего номера
+  let show15 = (appState.currentNum === 15);
+  let show16 = (appState.currentNum === 16);
+  let show17 = (appState.currentNum === 17);
+  subMenu15.classList.toggle('active', show15);
+  subMenu16.classList.toggle('active', show16);
+  subMenu17.classList.toggle('active', show17);
+}
+
+function switchMode(mode) {
+  appState.mode = mode;
+  document.getElementById('tab-train').classList.toggle('active', mode==='train');
+  document.getElementById('tab-exam').classList.toggle('active', mode==='exam');
+  examDash.style.display = mode === 'exam' ? 'flex' : 'none';
+  if(mode === 'exam') resetExam();
   closeTask();
 }
-function selectNum(n) {
-  appState.num = n;
-  appState.subIndex = 0;
-  document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.toggle('selected', parseInt(b.dataset.num) === n); });
-  var subMenu15 = document.getElementById('sub-menu-15');
-  var subMenu16 = document.getElementById('sub-menu-16');
-  if(n === 15) {
-    subMenu15.classList.add('active');
-    subMenu16.classList.remove('active');
-  } else if(n === 16) {
-    subMenu15.classList.remove('active');
-    subMenu16.classList.add('active');
-  } else {
-    subMenu15.classList.remove('active');
-    subMenu16.classList.remove('active');
-  }
-}
-function switchSub(idx) {
-  appState.subIndex = idx;
-  var currentMenu = (appState.num === 15) ? document.getElementById('sub-menu-15') : document.getElementById('sub-menu-16');
-  currentMenu.querySelectorAll('.sub-btn').forEach(function(b, i){ b.classList.toggle('active', i === idx); });
-  if(appState.num === 15 || appState.num === 16) generateTask();
-}
-function generateTask() {
-  var n = appState.num;
-  if(!n) { alert('Выбери номер задания!'); return; }
-  var taskData = TASKS_DB[n];
-  if(!taskData) { alert('Эта задача пока в разработке! 🚧'); return; }
-  var topic = taskData.subTopics ? taskData.subTopics[appState.subIndex] : null;
-  if(!topic || !topic.tasks || topic.tasks.length === 0) { alert('Подпункт пока в разработке! 🚧'); return; }
-  
-  var taskIdx = getNextTaskIndex(n, appState.subIndex);
-  var variant = topic.tasks[taskIdx];
-  var params = variant.gen();
-  
-  var maxAttempts = 10;
-  var attempts = 0;
-  while(appState.lastParams && JSON.stringify(appState.lastParams) === JSON.stringify(params) && attempts < maxAttempts) {
-    params = variant.gen();
-    attempts++;
-  }
-  appState.lastParams = params;
-  
-  var svgHtml = variant.svg(params);
-  var qTxt = variant.txt(params);
-  var solR = variant.solRight(params);
-  var solW = variant.solWrong(params);
-  var corrAns = variant.ans(params);
-  appState.currentSvg = svgHtml;
-  drawingArea.innerHTML = svgHtml;
-  appState.params = { ans: corrAns, solRight: solR, solWrong: solW, num: n };
-  document.getElementById('menu-screen').classList.remove('active');
-  document.getElementById('task-screen').classList.add('active');
-  document.getElementById('lbl-type').textContent = taskData.title;
-  document.getElementById('lbl-num').textContent = 'Задание №' + n;
-  document.getElementById('q-text').textContent = qTxt;
-  document.getElementById('btn-check').style.display = 'flex';
-  document.getElementById('btn-continue').style.display = 'none';
-  resetUI();
-}
-function checkAnswer() {
-  var raw = document.getElementById('inp-ans').value.replace(',', '.').trim();
-  if(!raw) { alert('Введи ответ!'); return; }
-  var val = parseFloat(raw);
-  if(isNaN(val)) { alert('Введи число!'); return; }
-  if(!appState.params) { alert('Ошибка!'); return; }
-  var target = appState.params;
-  var diff = Math.abs(val - target.ans);
-  var solBox = document.getElementById('sol-txt');
-  var drawingArea = document.getElementById('drawing-area');
-  if(diff < 0.2) {
-    showFB('Верно! ✅', true);
-    solBox.className = 'solution correct-style';
-    solBox.innerHTML = target.solRight;
-    solBox.style.display = 'block'; 
-    var msg = SUCCESS_MSGS[Math.floor(Math.random() * SUCCESS_MSGS.length)];
-    drawingArea.innerHTML = '<div class="reaction-box"><div class="reaction-emoji">👍😎</div><div class="reaction-text ok">' + msg + '</div></div>';
-    document.getElementById('btn-check').style.display = 'none';
-    document.getElementById('btn-continue').style.display = 'flex';
-    handleExamWin();
-  } else {
-    showFB('Неверно ❌', false);
-    solBox.className = 'solution';
-    solBox.innerHTML = target.solWrong;
-    solBox.style.display = 'block'; 
-    var failMsg = FAIL_MSGS[Math.floor(Math.random() * FAIL_MSGS.length)];
-    drawingArea.innerHTML = '<div class="reaction-box"><div class="reaction-emoji">🤦️</div><div class="reaction-text fail">' + failMsg + '</div></div>';
-  }
-  document.getElementById('inp-ans').disabled = true;
-  document.getElementById('btn-check').disabled = true;
-}
-function showFB(msg, ok) { var el = document.getElementById('msg-fb'); el.innerText = msg; el.className = 'feedback ' + (ok ? 'fb-ok' : 'fb-no'); el.style.display = 'block'; }
-function handleExamWin() {
-  if(appState.mode !== 'exam') return;
-  if(!appState.solved.includes(appState.params.num)) {
-    appState.solved.push(appState.params.num);
-    updateExamUI();
-    if(appState.solved.length >= 2) { document.getElementById('btn-finish').style.display = 'block'; document.getElementById('win-msg').style.display = 'block'; showFB('🎉 Экзамен сдан! 🎉', true); }
-  }
-}
-function updateExamUI() {
-  document.getElementById('score-val').innerText = appState.solved.length + ' / 2';
-  document.querySelectorAll('.num-btn').forEach(function(b){ var num = parseInt(b.dataset.num); if(appState.solved.includes(num)) b.classList.add('solved'); else b.classList.remove('solved'); });
-}
-function resetExam() { appState.solved = []; updateExamUI(); document.getElementById('btn-finish').style.display = 'none'; document.getElementById('win-msg').style.display = 'none'; }
-function finishExam() { alert('Отлично! 🎉'); resetExam(); closeTask(); switchTab('train'); }
-function resetUI() { document.getElementById('inp-ans').value = ''; document.getElementById('inp-ans').disabled = false; document.getElementById('btn-check').disabled = false; document.getElementById('msg-fb').style.display = 'none'; document.getElementById('sol-txt').style.display = 'none'; }
-function closeTask() { document.getElementById('task-screen').classList.remove('active'); document.getElementById('menu-screen').classList.add('active'); appState.num = null; appState.params = null; appState.currentSvg = null; appState.lastParams = null; document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.remove('selected'); }); document.getElementById('sub-menu-15').classList.remove('active'); document.getElementById('sub-menu-16').classList.remove('active'); }
 
-document.getElementById('tab-train').onclick = function(){ switchTab('train'); };
-document.getElementById('tab-exam').onclick = function(){ switchTab('exam'); };
+function selectNumber(num) {
+  appState.currentNum = num;
+  document.querySelectorAll('.num-btn').forEach(b=>b.classList.toggle('selected', parseInt(b.dataset.num)===num));
+  let show15 = (num === 15);
+  let show16 = (num === 16);
+  let show17 = (num === 17);
+  subMenu15.classList.toggle('active', show15);
+  subMenu16.classList.toggle('active', show16);
+  subMenu17.classList.toggle('active', show17);
+  if(show15) appState.currentSub = 0;
+  if(show16) appState.currentSub = 0;
+  if(show17) appState.currentSub = 0;
+}
+
+function setSub(idx) {
+  appState.currentSub = idx;
+  let btns;
+  if(appState.currentNum === 15) btns = subMenu15.querySelectorAll('.sub-btn');
+  else if(appState.currentNum === 16) btns = subMenu16.querySelectorAll('.sub-btn');
+  else if(appState.currentNum === 17) btns = subMenu17.querySelectorAll('.sub-btn');
+  else btns = [];
+  btns.forEach((b,i)=>b.classList.toggle('active', i===idx));
+}
+
+// Listeners
+document.getElementById('tab-train').onclick = ()=>switchMode('train');
+document.getElementById('tab-exam').onclick = ()=>switchMode('exam');
 document.getElementById('btn-generate').onclick = generateTask;
-document.getElementById('btn-check').onclick = checkAnswer;
+document.getElementById('btn-check').onclick = checkAnswerHandler;
 document.getElementById('btn-back').onclick = closeTask;
+document.getElementById('btn-continue').onclick = ()=>{ generateTask(); };
 document.getElementById('btn-finish').onclick = finishExam;
-document.getElementById('btn-continue').onclick = function(){ generateTask(); };
-document.querySelectorAll('.num-btn').forEach(function(btn){ btn.onclick = function(){ selectNum(parseInt(btn.dataset.num)); }; });
-document.querySelectorAll('#sub-menu-15 .sub-btn').forEach(function(btn, idx){ btn.onclick = function(){ switchSub(idx); }; });
-document.querySelectorAll('#sub-menu-16 .sub-btn').forEach(function(btn, idx){ btn.onclick = function(){ switchSub(idx); }; });
-selectNum(15);
+document.querySelectorAll('.num-btn').forEach(btn=>btn.onclick = ()=>selectNumber(parseInt(btn.dataset.num)));
+document.querySelectorAll('#sub-menu-15 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
+document.querySelectorAll('#sub-menu-16 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
+document.querySelectorAll('#sub-menu-17 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
+
+// Zoom
+const zoomOverlay = document.getElementById('zoom-overlay');
+const zoomContentDiv = document.getElementById('zoom-content');
+drawingArea.addEventListener('click', (e)=>{ e.stopPropagation(); let svgElem = drawingArea.querySelector('svg'); if(svgElem) { zoomContentDiv.innerHTML = svgElem.outerHTML; zoomOverlay.classList.add('show'); } });
+zoomOverlay.addEventListener('click', ()=>zoomOverlay.classList.remove('show'));
+
+selectNumber(15);
 </script>
 </body>
 </html>
