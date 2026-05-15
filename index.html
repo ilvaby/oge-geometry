@@ -710,14 +710,47 @@ const TASKS_DB = {
             solWrong: function(p){ return 'Ну Ты Чё!?!? Биссектриса + параллельные стороны ⇒ равнобедренный треугольник. Половина угла = ' + p.alpha + '°. Весь угол = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
             svg: function(p){ 
-              var svg = '<svg viewBox="0 0 400 300" width="100%" height="100%" style="background:white;">';
-              svg += '<polygon points="80,220 160,100 360,100 280,220" fill="#FFF8E7" stroke="black" stroke-width="2"/>';
-              svg += '<line x1="80" y1="220" x2="210" y2="100" stroke="#d35400" stroke-width="2"/>';
-              svg += '<text x="60" y="240" font-family="serif" font-size="24" font-weight="bold">A</text>';
-              svg += '<text x="150" y="90" font-family="serif" font-size="24" font-weight="bold">B</text>';
-              svg += '<text x="370" y="90" font-family="serif" font-size="24" font-weight="bold">C</text>';
-              svg += '<text x="290" y="240" font-family="serif" font-size="24" font-weight="bold">D</text>';
-              svg += '<text x="220" y="120" font-family="sans-serif" font-size="18" fill="#c00" font-weight="bold">' + p.alpha + '°</text>';
+              var a_deg = p.alpha;
+              var a_rad = a_deg * Math.PI / 180;
+              var ax = 80, ay = 260;
+              var ad_len = 260;
+              var ab_len = 140;
+              
+              // Coordinates
+              var dx = ax + ad_len;
+              var dy = ay;
+              
+              var bx = ax + ab_len * Math.cos(2 * a_rad);
+              var by = ay - ab_len * Math.sin(2 * a_rad);
+              
+              var cx = bx + ad_len;
+              var cy = by;
+              
+              var ex = bx + ab_len;
+              var ey = by;
+              
+              var r = 35;
+              var p1x = ax + r;
+              var p1y = ay;
+              var p2x = ax + r * Math.cos(a_rad);
+              var p2y = ay - r * Math.sin(a_rad);
+              var p3x = ax + r * Math.cos(2 * a_rad);
+              var p3y = ay - r * Math.sin(2 * a_rad);
+              
+              var svg = '<svg viewBox="0 0 450 350" width="100%" height="100%" style="background:white;">';
+              svg += '<polygon points="'+ax+','+ay+' '+bx+','+by+' '+cx+','+cy+' '+dx+','+dy+'" fill="#FFF8E7" stroke="black" stroke-width="2" stroke-linejoin="round"/>';
+              svg += '<line x1="'+ax+'" y1="'+ay+'" x2="'+ex+'" y2="'+ey+'" stroke="#d35400" stroke-width="2"/>';
+              
+              svg += '<path d="M '+p1x+' '+p1y+' A '+r+' '+r+' 0 0 0 '+p2x+' '+p2y+'" fill="none" stroke="#d35400" stroke-width="1.5"/>';
+              svg += '<path d="M '+p2x+' '+p2y+' A '+r+' '+r+' 0 0 0 '+p3x+' '+p3y+'" fill="none" stroke="#d35400" stroke-width="1.5"/>';
+              
+              svg += '<text x="'+(ax-20)+'" y="'+(ay+20)+'" font-family="serif" font-size="24" font-weight="bold">A</text>';
+              svg += '<text x="'+(bx-10)+'" y="'+(by-15)+'" font-family="serif" font-size="24" font-weight="bold">B</text>';
+              svg += '<text x="'+(cx+10)+'" y="'+(cy-15)+'" font-family="serif" font-size="24" font-weight="bold">C</text>';
+              svg += '<text x="'+(dx+10)+'" y="'+(dy+20)+'" font-family="serif" font-size="24" font-weight="bold">D</text>';
+              
+              svg += '<text x="'+(ex-30)+'" y="'+(ey-10)+'" font-family="sans-serif" font-size="20" fill="#c00" font-weight="bold">' + p.alpha + '°</text>';
+              
               svg += '</svg>';
               return svg;
             }
