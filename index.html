@@ -240,7 +240,7 @@
       </div>
       <div id="sub-menu-18" class="sub-nav">
         <button class="sub-btn" data-sub="0">📐 Средняя линия</button>
-        <button class="sub-btn" data-sub="1"> ТП</button>
+        <button class="sub-btn" data-sub="1">⚡ ТП</button>
         <button class="sub-btn" data-sub="2">📏 Площади</button>
         <button class="sub-btn" data-sub="3">📏 Расстояния</button>
         <button class="sub-btn" data-sub="4">📏 Длины</button>
@@ -363,7 +363,7 @@ const TASKS_DB = {
       },
       2: { name: 'Равнобедр.', tasks: [
           { gen: function(){ var extAngle = Math.floor(Math.random() * 51) + 100; var baseAngle = 180 - extAngle; var vertexAngle = 180 - 2 * baseAngle; return {extAngle: extAngle, ans: vertexAngle}; }, txt: function(p){ return 'В равнобедренном △ABC (AC — основание) внешний угол при вершине C равен ' + p.extAngle + '°. Найдите ∠ABC.'; }, solRight: function(p){ return '✅ Угол при вершине = ' + p.ans + '°.'; }, solWrong: function(p){ var base = 180 - p.extAngle; var vertex = 180 - 2*base; return 'Ну Ты Чё!?!? Внешний угол при основании = 180° − Внутренний. Значит ∠C = ' + base + '°. ∠B = 180° - 2·' + base + '° = ' + vertex + '°.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return ISOSCELES_SVG; }},
-          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану.'; }, solRight: function(p){ return '✅ h = m = (a√3)/2 = ' + p.median + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем m=h. h = (' + p.sideCoeff + '√3 × √3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
+          { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var side = 2 * n; var median = 3 * n; return {sideCoeff: side, median: median}; }, txt: function(p){ return 'Сторона равностороннего треугольника равна ' + p.sideCoeff + '√3. Найдите медиану.'; }, solRight: function(p){ return '✅ h = m = (a√3)/2 = ' + p.median + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? В равностороннем m=h. h = (' + p.sideCoeff + '√3 × 3) / 2 = ' + p.median + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.median; }, svg: function(p){ return EQUILATERAL_SVG; }},
           { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var bisector = n * Math.sqrt(3); var side = 2 * n; return {bisCoeff: n, ans: side}; }, txt: function(p){ return 'Биссектриса равностороннего треугольника равна ' + p.bisCoeff + '√3. Найдите сторону.'; }, solRight: function(p){ return '✅ a = 2h/√3 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? a = 2·' + p.bisCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return BISECTOR_SVG; }},
           { gen: function(){ var n = Math.floor(Math.random() * 10) + 1; var sideCoeff = 2 * n; var radius = n * 2; return {sideCoeff: sideCoeff, ans: radius}; }, txt: function(p){ return 'Сторона равностороннего треугольника = ' + p.sideCoeff + '√3. Найдите R.'; }, solRight: function(p){ return '✅ R = a/√3 = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? R = ' + p.sideCoeff + '√3 / √3 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }},
           { gen: function(){ var n = Math.floor(Math.random() * 9) + 2; var sideCoeff = 2 * n; var diameter = sideCoeff * 2; return {sideCoeff: sideCoeff, ans: diameter}; }, txt: function(p){ return 'Сторона равностороннего треугольника = ' + p.sideCoeff + '√3. Найдите диаметр описанной окружности.'; }, solRight: function(p){ return '✅ D = 2R = ' + p.ans + '.'; }, solWrong: function(p){ return 'Ну Ты Чё!?!? R = ' + (p.ans/2) + '. D = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, ans: function(p){ return p.ans; }, svg: function(p){ return CIRCUMCIRCLE_SVG; }}
@@ -400,7 +400,7 @@ const TASKS_DB = {
               var k=Math.floor(Math.random()*4)+1; 
               return {opp: t[0]*k, sinNum: t[0], sinDen: t[2], ans: t[2]*k}; 
             }, 
-            txt: function(p){ return 'В прямоугольном △ABC (∠C=90°) BC=' + p.opp + ', sin A=' + p.sinNum + '/' + p.sinDen + '. Найдите AB.'; }, 
+            txt: function(p){ return 'В прямоугольном △ABC (C=90°) BC=' + p.opp + ', sin A=' + p.sinNum + '/' + p.sinDen + '. Найдите AB.'; }, 
             solRight: function(p){ return '✅ AB = BC/sinA = ' + p.ans + '.'; }, 
             solWrong: function(p){ return 'Ну Ты Чё!?!? AB = BC/sinA = ' + p.opp + '/(' + p.sinNum + '/' + p.sinDen + ') = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
@@ -533,7 +533,7 @@ const TASKS_DB = {
               var ang=(Math.floor(Math.random()*50)+20)*2; 
               return {angleTangents:ang, ans:ang/2}; 
             }, 
-            txt: function(p){ return 'Касательные пересекаются под углом ' + p.angleTangents + '°. Найдите ∠ABO.'; }, 
+            txt: function(p){ return 'Касательные пересекаются под углом ' + p.angleTangents + '°. Найдите ABO.'; }, 
             solRight: function(p){ return '✅ ∠ABO = ½ угла касат. ⇒ ' + p.ans + '°.'; }, 
             solWrong: function(p){ return 'Ну Ты Чё!?!? ∠ABO = ' + p.angleTangents + '°/2 = ' + p.ans + '°.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
@@ -778,19 +778,25 @@ const TASKS_DB = {
             gen: function(){ 
               var cell = 30;
               var gridW = 10, gridH = 10;
-              var base = (Math.floor(Math.random() * 4) + 2) * 2;
-              var height = Math.floor(Math.random() * 6) + 2;
-              var ox = Math.floor(Math.random() * (10 - base));
-              var oy = 9;
-              var ax = ox, ay = oy;
-              var bx = ox + base, by = oy;
-              var cx = Math.floor(Math.random() * 10);
-              var cy = Math.floor(Math.random() * (9 - height));
-              return { ax, ay, bx, by, cx, cy, ans: base / 2, gridW, gridH, cell, type: 'triangle' }; 
+              var base = Math.floor(Math.random() * 5) + 3;
+              var shift = Math.floor(Math.random() * (8 - base));
+              var height = Math.floor(Math.random() * 5) + 2;
+              var ox = 1 + Math.floor(Math.random() * (9 - base - shift));
+              var oy = 9 - height;
+              var ax = ox, ay = 9;
+              var bx = ox + shift, by = oy;
+              var cx = ox + shift + base, cy = oy;
+              return { 
+                ax, ay, bx, by, cx, cy, 
+                baseLen: base, 
+                height, 
+                ans: base / 2, 
+                gridW, gridH, cell, type: 'triangle' 
+              }; 
             }, 
             txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображён треугольник. Найдите длину его средней линии, параллельной основанию.'; }, 
-            solRight: function(p){ return '✅ Средняя линия = половина основания = ' + (p.base) + ' / 2 = ' + p.ans + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? Средняя линия = основание / 2 = ' + (p.base) + ' / 2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            solRight: function(p){ return '✅ Средняя линия = половина основания. По клеткам основание = ' + p.baseLen + ', значит средняя линия = ' + p.baseLen + ' / 2 = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Посчитай основание по клеткам (горизонталь). Средняя линия = основание / 2.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
             svg: function(p){ 
               var w = p.gridW * p.cell;
@@ -798,16 +804,14 @@ const TASKS_DB = {
               var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="background:white;">';
               svg += '<defs><pattern id="grid" width="' + p.cell + '" height="' + p.cell + '" patternUnits="userSpaceOnUse"><path d="M ' + p.cell + ' 0 L 0 0 0 ' + p.cell + '" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
               svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="url(#grid)"/>';
-              
+              // Координаты узлов сетки (без смещения на cell/2)
               var Ax = p.ax * p.cell;
               var Ay = p.ay * p.cell;
               var Bx = p.bx * p.cell;
               var By = p.by * p.cell;
               var Cx = p.cx * p.cell;
               var Cy = p.cy * p.cell;
-              
-              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + '" fill="green" fill-opacity="0.15" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
-              
+              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + '" fill="#2e7d32" fill-opacity="0.2" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
               svg += '</svg>';
               return svg;
             }
@@ -817,27 +821,31 @@ const TASKS_DB = {
               var cell = 30;
               var gridW = 10, gridH = 10;
               var base2 = Math.floor(Math.random() * 3) + 2;
-              var base1 = base2 + (Math.floor(Math.random() * 3) + 1) * 2;
-              var height = Math.floor(Math.random() * 6) + 2;
-              var ox = Math.floor(Math.random() * (10 - base1));
-              var oy = 9;
+              var base1 = base2 + 2 * (Math.floor(Math.random() * 2) + 1);
+              var shift = (base1 - base2) / 2;
+              var height = Math.floor(Math.random() * 5) + 2;
+              var ox = 1 + Math.floor(Math.random() * (9 - base1));
+              var oy = 9 - height;
               var ax = ox, ay = oy;
               var bx = ox + base2, by = oy;
-              var cx = ox + base1, cy = oy - height;
-              var dx = ox, dy = oy - height;
-              return { ax, ay, bx, by, cx, cy, dx, dy, base1, base2, height, midline: (base1 + base2) / 2, gridW, gridH, cell, type: 'trapezoid' }; 
+              var cx = ox + base1, cy = 9;
+              var dx = ox, dy = 9;
+              return { 
+                ax, ay, bx, by, cx, cy, dx, dy, 
+                base1, base2, height, 
+                ans: (base1 + base2) / 2, 
+                gridW, gridH, cell, type: 'trapezoid' 
+              }; 
             }, 
             txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображена трапеция. Найдите длину её средней линии.'; }, 
-            solRight: function(p){ return '✅ Средняя линия = (a + b) / 2 = (' + p.base1 + ' + ' + p.base2 + ') / 2 = ' + p.midline + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? m = (a + b) / 2 = (' + p.base1 + ' + ' + p.base2 + ') / 2 = ' + p.midline + '.\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return p.midline; }, 
+            solRight: function(p){ return '✅ Средняя линия = (a + b) / 2. По клеткам основания = ' + p.base1 + ' и ' + p.base2 + ', значит m = (' + p.base1 + ' + ' + p.base2 + ') / 2 = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Посчитай оба основания по клеткам. m = (a + b) / 2.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
             svg: function(p){ 
-              var w = p.gridW * p.cell;
-              var h = p.gridH * p.cell;
+              var w = p.gridW * p.cell, h = p.gridH * p.cell;
               var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="background:white;">';
               svg += '<defs><pattern id="grid" width="' + p.cell + '" height="' + p.cell + '" patternUnits="userSpaceOnUse"><path d="M ' + p.cell + ' 0 L 0 0 0 ' + p.cell + '" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
               svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="url(#grid)"/>';
-              
               var Ax = p.ax * p.cell;
               var Ay = p.ay * p.cell;
               var Bx = p.bx * p.cell;
@@ -846,9 +854,7 @@ const TASKS_DB = {
               var Cy = p.cy * p.cell;
               var Dx = p.dx * p.cell;
               var Dy = p.dy * p.cell;
-              
-              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + ' ' + Dx + ',' + Dy + '" fill="green" fill-opacity="0.15" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
-              
+              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + ' ' + Dx + ',' + Dy + '" fill="#2e7d32" fill-opacity="0.2" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
               svg += '</svg>';
               return svg;
             }
@@ -860,16 +866,47 @@ const TASKS_DB = {
         tasks: [
           { 
             gen: function(){ 
-              var base1 = Math.floor(Math.random() * 6) + 4;
-              var base2 = Math.floor(Math.random() * 6) + 4;
-              var height = Math.floor(Math.random() * 6) + 3;
-              return { base1: base1, base2: base2, height: height, ans: Math.sqrt(height*height + Math.pow((base2-base1)/2, 2)) }; 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var base1 = Math.floor(Math.random() * 4) + 3;
+              var base2 = base1 + 2 * (Math.floor(Math.random() * 2) + 1);
+              var height = Math.floor(Math.random() * 5) + 3;
+              var shift = (base2 - base1) / 2;
+              var ox = 1 + Math.floor(Math.random() * (9 - base2));
+              var oy = 9 - height;
+              var ax = ox, ay = oy;
+              var bx = ox + base1, by = oy;
+              var cx = ox + base2, cy = 9;
+              var dx = ox, dy = 9;
+              var leg = Math.sqrt(height*height + shift*shift);
+              return { 
+                ax, ay, bx, by, cx, cy, dx, dy, 
+                base1, base2, height, shift, 
+                ans: Math.round(leg), 
+                gridW, gridH, cell, type: 'isosceles_trapezoid' 
+              }; 
             }, 
-            txt: function(p){ return 'Основания равнобедренной трапеции = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Найдите боковую сторону.'; }, 
-            solRight: function(p){ return '✅ По Пифагору: ' + p.ans.toFixed(1) + ' (≈ ' + Math.round(p.ans) + ').'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? a² = h² + ((b-a)/2)² = ' + p.height + '² + ' + ((p.base2-p.base1)/2) + '².\n\nПопробуй ещё! 💪'; }, 
-            ans: function(p){ return Math.round(p.ans); }, 
-            svg: function(p){ return GRID_SVG; }
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображена равнобедренная трапеция. Найдите длину её боковой стороны.'; }, 
+            solRight: function(p){ return '✅ По теореме Пифагора: боковая сторона = √(h² + ((b-a)/2)²) = √(' + p.height + '² + ' + p.shift + '²) = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Построй прямоугольный треугольник: катеты — высота и полуразность оснований. По Пифагору найди гипотенузу.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.ax*cell;
+              var Ay = p.ay*cell;
+              var Bx = p.bx*cell;
+              var By = p.by*cell;
+              var Cx = p.cx*cell;
+              var Cy = p.cy*cell;
+              var Dx = p.dx*cell;
+              var Dy = p.dy*cell;
+              svg += '<polygon points="'+Ax+','+Ay+' '+Bx+','+By+' '+Cx+','+Cy+' '+Dx+','+Dy+'" fill="#d35400" fill-opacity="0.2" stroke="#d35400" stroke-width="3" stroke-linejoin="round"/>';
+              svg += '</svg>';
+              return svg;
+            }
           }
         ]
       },
@@ -878,27 +915,125 @@ const TASKS_DB = {
         tasks: [
           { 
             gen: function(){ 
-              var base1 = Math.floor(Math.random() * 6) + 4;
-              var base2 = Math.floor(Math.random() * 6) + 4;
-              var height = Math.floor(Math.random() * 6) + 3;
-              return { base1: base1, base2: base2, height: height, ans: ((base1 + base2) * height) / 2 }; 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var base = Math.floor(Math.random() * 6) + 3;
+              var height = Math.floor(Math.random() * 5) + 3;
+              var shift = Math.floor(Math.random() * (9 - base));
+              var ox = 1 + shift;
+              var oy = 9 - height;
+              var ax = ox, ay = 9;
+              var bx = ax + base, by = ay;
+              var cx = ax + Math.floor(base/2), cy = oy;
+              return { 
+                ax, ay, bx, by, cx, cy, 
+                base, height, 
+                ans: (base * height) / 2, 
+                gridW, gridH, cell, type: 'triangle_area' 
+              }; 
             }, 
-            txt: function(p){ return 'Основания трапеции = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Найдите площадь.'; }, 
-            solRight: function(p){ return '✅ S = ((a+b)·h)/2 = ' + p.ans + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? S = ((a+b)·h)/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображён треугольник. Найдите его площадь.'; }, 
+            solRight: function(p){ return '✅ S = ½·a·h = ½·' + p.base + '·' + p.height + ' = ' + p.ans + '.'; }, 
+            solWrong: function(p){ var s = (p.base * p.height) / 2; return 'Ну Ты Чё!?!? S = ½·основание·высота. Посчитай по клеткам.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
-            svg: function(p){ return GRID_SVG; }
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.ax*cell;
+              var Ay = p.ay*cell;
+              var Bx = p.bx*cell;
+              var By = p.by*cell;
+              var Cx = p.cx*cell;
+              var Cy = p.cy*cell;
+              svg += '<polygon points="'+Ax+','+Ay+' '+Bx+','+By+' '+Cx+','+Cy+'" fill="#0288d1" fill-opacity="0.2" stroke="#0288d1" stroke-width="3"/>';
+              svg += '</svg>';
+              return svg;
+            }
           },
           { 
             gen: function(){ 
-              var side = Math.floor(Math.random() * 8) + 4;
-              return { side: side, ans: side * side }; 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var base1 = Math.floor(Math.random() * 4) + 3;
+              var base2 = base1 + 2 * (Math.floor(Math.random() * 2) + 1);
+              var height = Math.floor(Math.random() * 5) + 3;
+              var shift = (base2 - base1) / 2;
+              var ox = 1 + Math.floor(Math.random() * (9 - base2));
+              var oy = 9 - height;
+              var ax = ox, ay = oy;
+              var bx = ox + base1, by = oy;
+              var cx = ox + base2, cy = 9;
+              var dx = ox, dy = 9;
+              return { 
+                ax, ay, bx, by, cx, cy, dx, dy, 
+                base1, base2, height, 
+                ans: ((base1 + base2) * height) / 2, 
+                gridW, gridH, cell, type: 'trapezoid_area' 
+              }; 
             }, 
-            txt: function(p){ return 'Сторона квадрата = ' + p.side + '. Найдите площадь.'; }, 
-            solRight: function(p){ return '✅ S = a² = ' + p.ans + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? S = a² = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображена трапеция. Найдите её площадь.'; }, 
+            solRight: function(p){ return '✅ S = ((a+b)·h)/2 = ((' + p.base1 + '+' + p.base2 + ')·' + p.height + ')/2 = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = ((a+b)·h)/2. Посчитай основания и высоту по клеткам.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
-            svg: function(p){ return GRID_SVG; }
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.ax*cell;
+              var Ay = p.ay*cell;
+              var Bx = p.bx*cell;
+              var By = p.by*cell;
+              var Cx = p.cx*cell;
+              var Cy = p.cy*cell;
+              var Dx = p.dx*cell;
+              var Dy = p.dy*cell;
+              svg += '<polygon points="'+Ax+','+Ay+' '+Bx+','+By+' '+Cx+','+Cy+' '+Dx+','+Dy+'" fill="#d35400" fill-opacity="0.2" stroke="#d35400" stroke-width="3"/>';
+              svg += '</svg>';
+              return svg;
+            }
+          },
+          { 
+            gen: function(){ 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var side = Math.floor(Math.random() * 6) + 3;
+              var ox = 1 + Math.floor(Math.random() * (9 - side));
+              var oy = 9 - side;
+              var ax = ox, ay = 9;
+              var bx = ax + side, by = ay;
+              var cx = bx, cy = oy;
+              var dx = ax, dy = cy;
+              return { 
+                ax, ay, bx, by, cx, cy, dx, dy, 
+                side, 
+                ans: side * side, 
+                gridW, gridH, cell, type: 'square_area' 
+              }; 
+            }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображён квадрат. Найдите его площадь.'; }, 
+            solRight: function(p){ return '✅ S = a² = ' + p.side + '² = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = a². Посчитай сторону по клеткам.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.ax*cell;
+              var Ay = p.ay*cell;
+              var Bx = p.bx*cell;
+              var By = p.by*cell;
+              var Cx = p.cx*cell;
+              var Cy = p.cy*cell;
+              var Dx = p.dx*cell;
+              var Dy = p.dy*cell;
+              svg += '<polygon points="'+Ax+','+Ay+' '+Bx+','+By+' '+Cx+','+Cy+' '+Dx+','+Dy+'" fill="#8e44ad" fill-opacity="0.2" stroke="#8e44ad" stroke-width="3"/>';
+              svg += '</svg>';
+              return svg;
+            }
           }
         ]
       },
@@ -907,17 +1042,36 @@ const TASKS_DB = {
         tasks: [
           { 
             gen: function(){ 
-              var x1 = Math.floor(Math.random() * 8) + 1;
-              var y1 = Math.floor(Math.random() * 8) + 1;
-              var x2 = x1 + Math.floor(Math.random() * 4) + 3;
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var x1 = Math.floor(Math.random() * 7) + 1;
+              var y1 = Math.floor(Math.random() * 7) + 1;
+              var x2 = x1 + Math.floor(Math.random() * 4) + 2;
               var y2 = y1;
-              return { x1: x1, y1: y1, x2: x2, y2: y2, ans: x2 - x1 }; 
+              return { 
+                x1, y1, x2, y2, 
+                ans: x2 - x1, 
+                gridW, gridH, cell, type: 'distance' 
+              }; 
             }, 
-            txt: function(p){ return 'Найдите расстояние между точками (' + p.x1 + ';' + p.y1 + ') и (' + p.x2 + ';' + p.y2 + ').'; }, 
-            solRight: function(p){ return '✅ d = ' + p.ans + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? d = |x2-x1| = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 отмечены две точки. Найдите расстояние между ними.'; }, 
+            solRight: function(p){ return '✅ d = ' + p.ans + ' клеток.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Просто посчитай клетки между точками по горизонтали.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
-            svg: function(p){ return GRID_SVG; }
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.x1*cell;
+              var Ay = p.y1*cell;
+              var Bx = p.x2*cell;
+              var By = p.y2*cell;
+              svg += '<circle cx="'+Ax+'" cy="'+Ay+'" r="6" fill="#e74c3c"/>';
+              svg += '<circle cx="'+Bx+'" cy="'+By+'" r="6" fill="#e74c3c"/>';
+              svg += '</svg>';
+              return svg;
+            }
           }
         ]
       },
@@ -926,26 +1080,56 @@ const TASKS_DB = {
         tasks: [
           { 
             gen: function(){ 
-              var x1 = Math.floor(Math.random() * 5) + 1;
-              var y1 = Math.floor(Math.random() * 5) + 1;
-              var x2 = x1 + Math.floor(Math.random() * 4) + 3;
-              var y2 = y1 + Math.floor(Math.random() * 4) + 3;
-              var dx = x2 - x1;
-              var dy = y2 - y1;
-              var dist = Math.sqrt(dx*dx + dy*dy);
-              return { x1: x1, y1: y1, x2: x2, y2: y2, ans: Math.round(dist) }; 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var pythagoreanTriples = [
+                {dx:3, dy:4, dist:5},
+                {dx:4, dy:3, dist:5},
+                {dx:6, dy:8, dist:10},
+                {dx:8, dy:6, dist:10}
+              ];
+              var triple = pythagoreanTriples[Math.floor(Math.random()*pythagoreanTriples.length)];
+              var dx = triple.dx;
+              var dy = triple.dy;
+              var dist = triple.dist;
+              var ox = 1 + Math.floor(Math.random() * (9 - dx));
+              var oy = 1 + Math.floor(Math.random() * (9 - dy));
+              var x1 = ox;
+              var y1 = oy;
+              var x2 = ox + dx;
+              var y2 = oy + dy;
+              return { 
+                x1, y1, x2, y2, 
+                dx, dy,
+                ans: dist, 
+                gridW, gridH, cell, type: 'length' 
+              }; 
             }, 
-            txt: function(p){ return 'Найдите длину отрезка между (' + p.x1 + ';' + p.y1 + ') и (' + p.x2 + ';' + p.y2 + ').'; }, 
-            solRight: function(p){ return '✅ По теореме Пифагора: ' + p.ans + '.'; }, 
-            solWrong: function(p){ return 'Ну Ты Чё!?!? d = √(Δx² + Δy²).\n\nПопробуй ещё! 💪'; }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображён отрезок. Найдите его длину.'; }, 
+            solRight: function(p){ return '✅ По теореме Пифагора: d = √(' + p.dx + '² + ' + p.dy + '²) = √(' + (p.dx*p.dx) + ' + ' + (p.dy*p.dy) + ') = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Построй прямоугольный треугольник с катетами по клеткам. По Пифагору найди гипотенузу.\n\nПопробуй ещё! 💪'; }, 
             ans: function(p){ return p.ans; }, 
-            svg: function(p){ return GRID_SVG; }
+            svg: function(p){ 
+              var cell = p.cell, w = p.gridW*cell, h = p.gridH*cell;
+              var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
+              var Ax = p.x1*cell;
+              var Ay = p.y1*cell;
+              var Bx = p.x2*cell;
+              var By = p.y2*cell;
+              svg += '<line x1="'+Ax+'" y1="'+Ay+'" x2="'+Bx+'" y2="'+By+'" stroke="#e74c3c" stroke-width="3"/>';
+              svg += '<circle cx="'+Ax+'" cy="'+Ay+'" r="4" fill="#e74c3c"/>';
+              svg += '<circle cx="'+Bx+'" cy="'+By+'" r="4" fill="#e74c3c"/>';
+              svg += '</svg>';
+              return svg;
+            }
           }
         ]
       }
     }
   },
-  19: { title: "📌 Координаты", tasks: [] },
+  19: { title: " Координаты", tasks: [] },
   23: { title: "🧭 Векторы", tasks: [] },
   24: { title: "🎯 Равнобедр. трапеция", tasks: [] },
   25: { title: "🔘 Кольцо", tasks: [] }
@@ -1014,7 +1198,7 @@ function generateTask() {
   appState.lastParams = params;
   
   appState.currentParams = { ans: variant.ans(params), solRight: variant.solRight(params), solWrong: variant.solWrong(params), num, variant, paramsRaw: params };
-  let svgContent = variant.svg ? variant.svg(params) : GRID_SVG;
+  let svgContent = variant.svg ? variant.svg(params) : '';
   
   drawingArea.innerHTML = svgContent;
   lblType.textContent = TASKS_DB[num].title;
