@@ -238,6 +238,13 @@
         <button class="sub-btn" data-sub="2">💎 Ромбы</button>
         <button class="sub-btn" data-sub="3">📏 Трапеции</button>
       </div>
+      <div id="sub-menu-18" class="sub-nav">
+        <button class="sub-btn" data-sub="0">📐 Средняя линия</button>
+        <button class="sub-btn" data-sub="1"> ТП</button>
+        <button class="sub-btn" data-sub="2">📏 Площади</button>
+        <button class="sub-btn" data-sub="3">📏 Расстояния</button>
+        <button class="sub-btn" data-sub="4">📏 Длины</button>
+      </div>
       <button class="btn-action btn-primary" id="btn-generate">✨ Генерировать задачу</button>
       <footer>⚡ Выбери подтему и жми кнопку. Дальше задачи идут без выхода в меню!</footer>
     </div>
@@ -266,6 +273,7 @@
 </div>
 
 <script>
+// --- SVG Templates for standard problems ---
 var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;"><line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="700" x2="600" y2="100" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="400" y1="100" x2="1000" y2="700" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><path d="M 500 200 L 410 200 A 90 90 0 0 0 436 263 Z" fill="#92d050" opacity="0.9"/><path d="M 500 200 L 564 264 A 90 90 0 0 0 590 200 Z" fill="#ff0000" opacity="0.9"/><path d="M 900 600 L 964 664 A 90 90 0 0 0 990 600 Z" fill="#ff0000" opacity="0.9"/><path d="M 100 600 L 36 664 A 90 90 0 0 0 190 600 Z" fill="#0070c0" opacity="0.9"/><text x="380" y="290" font-size="48" font-style="italic" fill="black" font-weight="bold">1</text><text x="590" y="260" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="990" y="660" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text></svg>';
 
 var TRAPEZOID_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><path d="M 50 350 L 350 350 L 275 200 L 125 200 Z" fill="#ffcccc" stroke="#c00000" stroke-width="3"/><path d="M 125 200 L 275 200 L 200 50 Z" fill="#e2f0d9" stroke="#c00000" stroke-width="3"/><line x1="125" y1="200" x2="275" y2="200" stroke="#00b0f0" stroke-width="3"/><text x="15" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">A</text><text x="190" y="40" font-family="serif" font-size="35" font-style="italic" fill="black">B</text><text x="360" y="370" font-family="serif" font-size="35" font-style="italic" fill="black">C</text><text x="85" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">D</text><text x="290" y="210" font-family="serif" font-size="35" font-style="italic" fill="black">E</text></svg>';
@@ -702,7 +710,7 @@ const TASKS_DB = {
           },
           { 
             gen: function(){ 
-              var alpha = Math.floor(Math.random() * 36) + 5; // Угол от 5 до 40
+              var alpha = Math.floor(Math.random() * 36) + 5;
               return { alpha: alpha, ans: alpha * 2 }; 
             }, 
             txt: function(p){ return 'Биссектриса острого угла параллелограмма пересекает его сторону под углом ' + p.alpha + '°. Найдите острый угол параллелограмма.'; }, 
@@ -715,20 +723,14 @@ const TASKS_DB = {
               var ax = 80, ay = 260;
               var ad_len = 260;
               var ab_len = 140;
-              
-              // Coordinates
               var dx = ax + ad_len;
               var dy = ay;
-              
               var bx = ax + ab_len * Math.cos(2 * a_rad);
               var by = ay - ab_len * Math.sin(2 * a_rad);
-              
               var cx = bx + ad_len;
               var cy = by;
-              
               var ex = bx + ab_len;
               var ey = by;
-              
               var r = 35;
               var p1x = ax + r;
               var p1y = ay;
@@ -736,21 +738,16 @@ const TASKS_DB = {
               var p2y = ay - r * Math.sin(a_rad);
               var p3x = ax + r * Math.cos(2 * a_rad);
               var p3y = ay - r * Math.sin(2 * a_rad);
-              
               var svg = '<svg viewBox="0 0 450 350" width="100%" height="100%" style="background:white;">';
               svg += '<polygon points="'+ax+','+ay+' '+bx+','+by+' '+cx+','+cy+' '+dx+','+dy+'" fill="#FFF8E7" stroke="black" stroke-width="2" stroke-linejoin="round"/>';
               svg += '<line x1="'+ax+'" y1="'+ay+'" x2="'+ex+'" y2="'+ey+'" stroke="#d35400" stroke-width="2"/>';
-              
               svg += '<path d="M '+p1x+' '+p1y+' A '+r+' '+r+' 0 0 0 '+p2x+' '+p2y+'" fill="none" stroke="#d35400" stroke-width="1.5"/>';
               svg += '<path d="M '+p2x+' '+p2y+' A '+r+' '+r+' 0 0 0 '+p3x+' '+p3y+'" fill="none" stroke="#d35400" stroke-width="1.5"/>';
-              
               svg += '<text x="'+(ax-20)+'" y="'+(ay+20)+'" font-family="serif" font-size="24" font-weight="bold">A</text>';
               svg += '<text x="'+(bx-10)+'" y="'+(by-15)+'" font-family="serif" font-size="24" font-weight="bold">B</text>';
               svg += '<text x="'+(cx+10)+'" y="'+(cy-15)+'" font-family="serif" font-size="24" font-weight="bold">C</text>';
               svg += '<text x="'+(dx+10)+'" y="'+(dy+20)+'" font-family="serif" font-size="24" font-weight="bold">D</text>';
-              
               svg += '<text x="'+(ex-30)+'" y="'+(ey-10)+'" font-family="sans-serif" font-size="20" fill="#c00" font-weight="bold">' + p.alpha + '°</text>';
-              
               svg += '</svg>';
               return svg;
             }
@@ -771,7 +768,183 @@ const TASKS_DB = {
       }
     }
   },
-  18: { title: "🔍 Подобие", tasks: [] },
+  18: { 
+    title: '📐 Клеточки',
+    subTopics: {
+      0: { 
+        name: 'Средняя линия', 
+        tasks: [
+          { 
+            gen: function(){ 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var base = (Math.floor(Math.random() * 4) + 2) * 2;
+              var height = Math.floor(Math.random() * 6) + 2;
+              var ox = Math.floor(Math.random() * (10 - base));
+              var oy = 9;
+              var ax = ox, ay = oy;
+              var bx = ox + base, by = oy;
+              var cx = Math.floor(Math.random() * 10);
+              var cy = Math.floor(Math.random() * (9 - height));
+              return { ax, ay, bx, by, cx, cy, ans: base / 2, gridW, gridH, cell, type: 'triangle' }; 
+            }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображён треугольник. Найдите длину его средней линии, параллельной основанию.'; }, 
+            solRight: function(p){ return '✅ Средняя линия = половина основания = ' + (p.base) + ' / 2 = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? Средняя линия = основание / 2 = ' + (p.base) + ' / 2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ 
+              var w = p.gridW * p.cell;
+              var h = p.gridH * p.cell;
+              var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="' + p.cell + '" height="' + p.cell + '" patternUnits="userSpaceOnUse"><path d="M ' + p.cell + ' 0 L 0 0 0 ' + p.cell + '" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="url(#grid)"/>';
+              
+              var Ax = p.ax * p.cell;
+              var Ay = p.ay * p.cell;
+              var Bx = p.bx * p.cell;
+              var By = p.by * p.cell;
+              var Cx = p.cx * p.cell;
+              var Cy = p.cy * p.cell;
+              
+              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + '" fill="green" fill-opacity="0.15" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
+              
+              svg += '</svg>';
+              return svg;
+            }
+          },
+          { 
+            gen: function(){ 
+              var cell = 30;
+              var gridW = 10, gridH = 10;
+              var base2 = Math.floor(Math.random() * 3) + 2;
+              var base1 = base2 + (Math.floor(Math.random() * 3) + 1) * 2;
+              var height = Math.floor(Math.random() * 6) + 2;
+              var ox = Math.floor(Math.random() * (10 - base1));
+              var oy = 9;
+              var ax = ox, ay = oy;
+              var bx = ox + base2, by = oy;
+              var cx = ox + base1, cy = oy - height;
+              var dx = ox, dy = oy - height;
+              return { ax, ay, bx, by, cx, cy, dx, dy, base1, base2, height, midline: (base1 + base2) / 2, gridW, gridH, cell, type: 'trapezoid' }; 
+            }, 
+            txt: function(p){ return 'На клетчатой бумаге с размером клетки 1×1 изображена трапеция. Найдите длину её средней линии.'; }, 
+            solRight: function(p){ return '✅ Средняя линия = (a + b) / 2 = (' + p.base1 + ' + ' + p.base2 + ') / 2 = ' + p.midline + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? m = (a + b) / 2 = (' + p.base1 + ' + ' + p.base2 + ') / 2 = ' + p.midline + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.midline; }, 
+            svg: function(p){ 
+              var w = p.gridW * p.cell;
+              var h = p.gridH * p.cell;
+              var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="background:white;">';
+              svg += '<defs><pattern id="grid" width="' + p.cell + '" height="' + p.cell + '" patternUnits="userSpaceOnUse"><path d="M ' + p.cell + ' 0 L 0 0 0 ' + p.cell + '" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
+              svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="url(#grid)"/>';
+              
+              var Ax = p.ax * p.cell;
+              var Ay = p.ay * p.cell;
+              var Bx = p.bx * p.cell;
+              var By = p.by * p.cell;
+              var Cx = p.cx * p.cell;
+              var Cy = p.cy * p.cell;
+              var Dx = p.dx * p.cell;
+              var Dy = p.dy * p.cell;
+              
+              svg += '<polygon points="' + Ax + ',' + Ay + ' ' + Bx + ',' + By + ' ' + Cx + ',' + Cy + ' ' + Dx + ',' + Dy + '" fill="green" fill-opacity="0.15" stroke="#2e7d32" stroke-width="3" stroke-linejoin="round"/>';
+              
+              svg += '</svg>';
+              return svg;
+            }
+          }
+        ]
+      },
+      1: { 
+        name: 'ТП', 
+        tasks: [
+          { 
+            gen: function(){ 
+              var base1 = Math.floor(Math.random() * 6) + 4;
+              var base2 = Math.floor(Math.random() * 6) + 4;
+              var height = Math.floor(Math.random() * 6) + 3;
+              return { base1: base1, base2: base2, height: height, ans: Math.sqrt(height*height + Math.pow((base2-base1)/2, 2)) }; 
+            }, 
+            txt: function(p){ return 'Основания равнобедренной трапеции = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Найдите боковую сторону.'; }, 
+            solRight: function(p){ return '✅ По Пифагору: ' + p.ans.toFixed(1) + ' (≈ ' + Math.round(p.ans) + ').'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? a² = h² + ((b-a)/2)² = ' + p.height + '² + ' + ((p.base2-p.base1)/2) + '².\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return Math.round(p.ans); }, 
+            svg: function(p){ return GRID_SVG; }
+          }
+        ]
+      },
+      2: { 
+        name: 'Площади', 
+        tasks: [
+          { 
+            gen: function(){ 
+              var base1 = Math.floor(Math.random() * 6) + 4;
+              var base2 = Math.floor(Math.random() * 6) + 4;
+              var height = Math.floor(Math.random() * 6) + 3;
+              return { base1: base1, base2: base2, height: height, ans: ((base1 + base2) * height) / 2 }; 
+            }, 
+            txt: function(p){ return 'Основания трапеции = ' + p.base1 + ' и ' + p.base2 + ', высота = ' + p.height + '. Найдите площадь.'; }, 
+            solRight: function(p){ return '✅ S = ((a+b)·h)/2 = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = ((a+b)·h)/2 = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return GRID_SVG; }
+          },
+          { 
+            gen: function(){ 
+              var side = Math.floor(Math.random() * 8) + 4;
+              return { side: side, ans: side * side }; 
+            }, 
+            txt: function(p){ return 'Сторона квадрата = ' + p.side + '. Найдите площадь.'; }, 
+            solRight: function(p){ return '✅ S = a² = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? S = a² = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return GRID_SVG; }
+          }
+        ]
+      },
+      3: { 
+        name: 'Расстояния', 
+        tasks: [
+          { 
+            gen: function(){ 
+              var x1 = Math.floor(Math.random() * 8) + 1;
+              var y1 = Math.floor(Math.random() * 8) + 1;
+              var x2 = x1 + Math.floor(Math.random() * 4) + 3;
+              var y2 = y1;
+              return { x1: x1, y1: y1, x2: x2, y2: y2, ans: x2 - x1 }; 
+            }, 
+            txt: function(p){ return 'Найдите расстояние между точками (' + p.x1 + ';' + p.y1 + ') и (' + p.x2 + ';' + p.y2 + ').'; }, 
+            solRight: function(p){ return '✅ d = ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? d = |x2-x1| = ' + p.ans + '.\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return GRID_SVG; }
+          }
+        ]
+      },
+      4: { 
+        name: 'Длины', 
+        tasks: [
+          { 
+            gen: function(){ 
+              var x1 = Math.floor(Math.random() * 5) + 1;
+              var y1 = Math.floor(Math.random() * 5) + 1;
+              var x2 = x1 + Math.floor(Math.random() * 4) + 3;
+              var y2 = y1 + Math.floor(Math.random() * 4) + 3;
+              var dx = x2 - x1;
+              var dy = y2 - y1;
+              var dist = Math.sqrt(dx*dx + dy*dy);
+              return { x1: x1, y1: y1, x2: x2, y2: y2, ans: Math.round(dist) }; 
+            }, 
+            txt: function(p){ return 'Найдите длину отрезка между (' + p.x1 + ';' + p.y1 + ') и (' + p.x2 + ';' + p.y2 + ').'; }, 
+            solRight: function(p){ return '✅ По теореме Пифагора: ' + p.ans + '.'; }, 
+            solWrong: function(p){ return 'Ну Ты Чё!?!? d = √(Δx² + Δy²).\n\nПопробуй ещё! 💪'; }, 
+            ans: function(p){ return p.ans; }, 
+            svg: function(p){ return GRID_SVG; }
+          }
+        ]
+      }
+    }
+  },
   19: { title: "📌 Координаты", tasks: [] },
   23: { title: "🧭 Векторы", tasks: [] },
   24: { title: "🎯 Равнобедр. трапеция", tasks: [] },
@@ -791,6 +964,7 @@ const finishBtn = document.getElementById('btn-finish');
 const subMenu15 = document.getElementById('sub-menu-15');
 const subMenu16 = document.getElementById('sub-menu-16');
 const subMenu17 = document.getElementById('sub-menu-17');
+const subMenu18 = document.getElementById('sub-menu-18');
 const drawingArea = document.getElementById('drawing-area');
 const qText = document.getElementById('q-text');
 const inpAns = document.getElementById('inp-ans');
@@ -807,7 +981,7 @@ const FAIL_MSGS = ["ОЙ-ЁЙ... 🤦", "НЕ ТО! ", "ПОДУМАЙ ЕЩЁ! �
 
 function getTaskList(num, subIdx) {
   let topic = TASKS_DB[num];
-  if(num === 15 || num === 16 || num === 17) return topic.subTopics[subIdx]?.tasks || [];
+  if(num === 15 || num === 16 || num === 17 || num === 18) return topic.subTopics[subIdx]?.tasks || [];
   else return topic.tasks || [];
 }
 
@@ -840,7 +1014,7 @@ function generateTask() {
   appState.lastParams = params;
   
   appState.currentParams = { ans: variant.ans(params), solRight: variant.solRight(params), solWrong: variant.solWrong(params), num, variant, paramsRaw: params };
-  let svgContent = variant.svg ? variant.svg(params) : `<svg viewBox="0 0 200 150"><rect width="200" height="150" fill="#f3f4f6"/><text x="40" y="80" font-size="14">📐 геометрия</text></svg>`;
+  let svgContent = variant.svg ? variant.svg(params) : GRID_SVG;
   
   drawingArea.innerHTML = svgContent;
   lblType.textContent = TASKS_DB[num].title;
@@ -850,6 +1024,7 @@ function generateTask() {
   if(num === 15) subName = TASKS_DB[15].subTopics[appState.currentSub].name;
   else if(num === 16) subName = TASKS_DB[16].subTopics[appState.currentSub].name;
   else if(num === 17) subName = TASKS_DB[17].subTopics[appState.currentSub].name;
+  else if(num === 18) subName = TASKS_DB[18].subTopics[appState.currentSub].name;
   lblSub.textContent = subName;
   
   qText.textContent = variant.txt(params);
@@ -867,6 +1042,7 @@ function generateTask() {
   subMenu15.classList.remove('active');
   subMenu16.classList.remove('active');
   subMenu17.classList.remove('active');
+  subMenu18.classList.remove('active');
   
   menuScreen.classList.remove('active');
   taskScreen.classList.add('active');
@@ -881,7 +1057,7 @@ function checkAnswerHandler() {
   if(!target) return;
   
   let diff = Math.abs(val - target.ans);
-  let isCorrect = diff < 0.2;
+  let isCorrect = diff < 0.5;
   
   btnCheck.style.display = 'none';
   btnContinue.style.display = 'flex';
@@ -942,9 +1118,11 @@ function closeTask() {
   let show15 = (appState.currentNum === 15);
   let show16 = (appState.currentNum === 16);
   let show17 = (appState.currentNum === 17);
+  let show18 = (appState.currentNum === 18);
   subMenu15.classList.toggle('active', show15);
   subMenu16.classList.toggle('active', show16);
   subMenu17.classList.toggle('active', show17);
+  subMenu18.classList.toggle('active', show18);
 }
 
 function switchMode(mode) {
@@ -963,12 +1141,15 @@ function selectNumber(num) {
   let show15 = (num === 15);
   let show16 = (num === 16);
   let show17 = (num === 17);
+  let show18 = (num === 18);
   subMenu15.classList.toggle('active', show15);
   subMenu16.classList.toggle('active', show16);
   subMenu17.classList.toggle('active', show17);
+  subMenu18.classList.toggle('active', show18);
   if(show15) appState.currentSub = 0;
   if(show16) appState.currentSub = 0;
   if(show17) appState.currentSub = 0;
+  if(show18) appState.currentSub = 0;
 }
 
 function setSub(idx) {
@@ -977,6 +1158,7 @@ function setSub(idx) {
   if(appState.currentNum === 15) btns = subMenu15.querySelectorAll('.sub-btn');
   else if(appState.currentNum === 16) btns = subMenu16.querySelectorAll('.sub-btn');
   else if(appState.currentNum === 17) btns = subMenu17.querySelectorAll('.sub-btn');
+  else if(appState.currentNum === 18) btns = subMenu18.querySelectorAll('.sub-btn');
   else btns = [];
   btns.forEach((b,i)=>b.classList.toggle('active', i===idx));
 }
@@ -992,6 +1174,7 @@ document.querySelectorAll('.num-btn').forEach(btn=>btn.onclick = ()=>selectNumbe
 document.querySelectorAll('#sub-menu-15 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
 document.querySelectorAll('#sub-menu-16 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
 document.querySelectorAll('#sub-menu-17 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
+document.querySelectorAll('#sub-menu-18 .sub-btn').forEach((b,i)=>b.onclick = ()=>setSub(i));
 
 const zoomOverlay = document.getElementById('zoom-overlay');
 const zoomContentDiv = document.getElementById('zoom-content');
