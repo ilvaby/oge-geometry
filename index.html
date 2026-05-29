@@ -140,7 +140,6 @@ h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.3px; font-weight: 700; }
   width: 95vw; height: 92vh;
   overflow: hidden; 
 }
-/* Стили для масштабируемого SVG */
 .zoom-content svg { 
   width: 100%; 
   height: 100%; 
@@ -148,7 +147,7 @@ h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.3px; font-weight: 700; }
   object-fit: contain; 
   transform-origin: center center;
   cursor: grab;
-  touch-action: none; /* Блокируем стандартные жесты браузера */
+  touch-action: none;
 }
 .zoom-content svg:active { cursor: grabbing; }
 
@@ -262,6 +261,7 @@ function simplifyRadical(n) {
   let factor = 1;
   for (let i = 2; i * i <= n; i++) { while (n % (i * i) === 0) { factor *= i; n /= (i * i); } }
   if (n === 1) return factor.toString();
+  if (n === 1) return "√" + n;
   if (factor === 1) return "√" + n;
   return factor + "√" + n;
 }
@@ -311,7 +311,6 @@ function drawGridSvg(points, fillColor, strokeColor, showLabels) {
   svg += '</svg>'; return svg;
 }
 
-// ✅ ГЕНЕРАТОР ЗАДАЧИ №23 С РАНДОМАЙЗЕРОМ (А > С)
 function generateTask23() {
   let angleA, angleC;
   do {
@@ -395,10 +394,84 @@ const TASKS_DB = {
       { statements: ["Если в четырёхугольнике диагонали равны, то это прямоугольник.", "Площадь трапеции равна произведению средней линии на высоту.", "Вписанный угол, опирающийся на диаметр, равен 90°."], correct: [1], explanation: "❌ 1 — неверно (это может быть и равнобедренная трапеция). ✅ 2 — верно. ✅ 3 — верно." }
     ]}
   } },
-  23: { title: "📐 Углы", tasks: [
-    { text: "Найдите угол АСО, если его сторона СА касается окружности, О — центр окружности, а дуга АD окружности, заключенная внутри этого угла, равна 100°.", answer: 50, explanation: "Угол между касательной и хордой равен половине дуги, заключенной между ними. ∠ACO = 1/2 · дуга AD = 100°/2 = 50°.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="120" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="80" stroke="#c52828" stroke-width="2"/><line x1="200" y1="200" x2="380" y2="200" stroke="#c52828" stroke-width="2"/><line x1="200" y1="200" x2="60" y2="320" stroke="#d35400" stroke-width="2"/><text x="195" y="65" font-family="serif" font-size="22" fill="#c52828" font-weight="bold">O</text><text x="30" y="340" font-family="serif" font-size="22" fill="#d35400" font-weight="bold">A</text><text x="385" y="210" font-family="serif" font-size="22" fill="#d35400" font-weight="bold">C</text><text x="170" y="330" font-family="serif" font-size="22" fill="#1e4b8f" font-weight="bold">D</text><path d="M 200,80 A 120 120 0 0 1 280,140" fill="none" stroke="#10b981" stroke-width="2.5"/><text x="250" y="100" font-family="sans-serif" font-size="16" fill="#10b981" font-weight="bold">100°</text><text x="140" y="280" font-family="sans-serif" font-size="14" fill="#666">касательная</text></svg>` },
-    { text: "Найдите величину угла АОЕ, если ОЕ — биссектриса угла АОС, ОD — биссектриса угла СОВ.", answer: 90, explanation: "OE — биссектриса ∠AOC, OD — биссектриса ∠COB. Углы AOC и COB — смежные, их сумма 180°. ∠AOE = 1/2 ∠AOC, ∠COD = 1/2 ∠COB. ∠AOE + ∠COD = 1/2 (∠AOC + ∠COB) = 1/2 · 180° = 90°.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><line x1="80" y1="250" x2="420" y2="250" stroke="#c52828" stroke-width="2"/><circle cx="250" cy="250" r="6" fill="#c52828"/><line x1="250" y1="250" x2="130" y2="130" stroke="#1e4b8f" stroke-width="2"/><line x1="250" y1="250" x2="370" y2="130" stroke="#1e4b8f" stroke-width="2"/><line x1="250" y1="250" x2="190" y2="190" stroke="#d35400" stroke-width="2" stroke-dasharray="6,4"/><line x1="250" y1="250" x2="310" y2="190" stroke="#d35400" stroke-width="2" stroke-dasharray="6,4"/><text x="100" y="120" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">A</text><text x="375" y="120" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">C</text><text x="235" y="280" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">O</text><text x="160" y="185" font-family="serif" font-size="20" fill="#d35400" font-weight="bold">E</text><text x="320" y="185" font-family="serif" font-size="20" fill="#d35400" font-weight="bold">D</text><text x="280" y="300" font-family="serif" font-size="18" fill="#666">B</text></svg>` },
-  ] },
+  23: { 
+    title: "📐 Углы", 
+    tasks: [
+      { 
+        text: "Найдите угол АСО, если его сторона СА касается окружности, О — центр окружности, а дуга АD окружности, заключенная внутри этого угла, равна 100°.", 
+        answer: 50, 
+        explanation: "Угол между касательной и хордой равен половине дуги, заключенной между ними. ∠ACO = 1/2 · дуга AD = 100°/2 = 50°.", 
+        svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="120" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="80" stroke="#c52828" stroke-width="2"/><line x1="200" y1="200" x2="380" y2="200" stroke="#c52828" stroke-width="2"/><line x1="200" y1="200" x2="60" y2="320" stroke="#d35400" stroke-width="2"/><text x="195" y="65" font-family="serif" font-size="22" fill="#c52828" font-weight="bold">O</text><text x="30" y="340" font-family="serif" font-size="22" fill="#d35400" font-weight="bold">A</text><text x="385" y="210" font-family="serif" font-size="22" fill="#d35400" font-weight="bold">C</text><text x="170" y="330" font-family="serif" font-size="22" fill="#1e4b8f" font-weight="bold">D</text><path d="M 200,80 A 120 120 0 0 1 280,140" fill="none" stroke="#10b981" stroke-width="2.5"/><text x="250" y="100" font-family="sans-serif" font-size="16" fill="#10b981" font-weight="bold">100°</text><text x="140" y="280" font-family="sans-serif" font-size="14" fill="#666">касательная</text></svg>` 
+      },
+      { 
+        gen: function() {
+          var angleDOB = Math.floor(Math.random() * 31) + 10;
+          var angleAOE = 90 - angleDOB;
+          var angleCOB = angleDOB * 2;
+          var angleAOC = 180 - angleCOB;
+          return {
+            angleDOB: angleDOB,
+            angleAOE: angleAOE,
+            angleCOB: angleCOB,
+            angleAOC: angleAOC
+          };
+        },
+        txt: function(p) {
+          return "Найдите величину угла AOE, если OE — биссектриса угла AOC, OD — биссектриса угла COB и ∠DOB = " + p.angleDOB + "°.";
+        },
+        solRight: function(p) {
+          return "✅ OD — биссектриса ∠COB, значит ∠COB = 2·∠DOB = 2·" + p.angleDOB + "° = " + p.angleCOB + "°.\n∠AOC и ∠COB смежные, их сумма 180°.\n∠AOC = 180° - " + p.angleCOB + "° = " + p.angleAOC + "°.\nOE — биссектриса ∠AOC, значит ∠AOE = " + p.angleAOC + "°/2 = " + p.angleAOE + "°.";
+        },
+        solWrong: function(p) {
+          return "❌ Неправильно!\n💡 OD — биссектриса, значит ∠COB = 2·" + p.angleDOB + "° = " + p.angleCOB + "°.\n💡 ∠AOC = 180° - " + p.angleCOB + "° = " + p.angleAOC + "° (смежные углы).\n💡 ∠AOE = " + p.angleAOC + "°/2 = " + p.angleAOE + "° (OE — биссектриса).\n\nПопробуй ещё! 💪";
+        },
+        ans: function(p) {
+          return p.angleAOE;
+        },
+        svg: function(p) {
+          var angleCOB = p.angleCOB;
+          var angleAOC = p.angleAOC;
+          var radCOB = angleCOB * Math.PI / 180;
+          var radAOC = angleAOC * Math.PI / 180;
+          var radDOB = p.angleDOB * Math.PI / 180;
+          var radAOE = p.angleAOE * Math.PI / 180;
+          
+          var ox = 250, oy = 280;
+          var r = 150;
+          
+          var bx = ox + r, by = oy;
+          var ax = ox - r, ay = oy;
+          var cx = ox + r * Math.cos(Math.PI - radAOC), cy = oy - r * Math.sin(radAOC);
+          var ex = ox + r * Math.cos(Math.PI - radAOE), ey = oy - r * Math.sin(radAOE);
+          var dx = ox + r * Math.cos(radDOB), dy = oy - r * Math.sin(radDOB);
+          
+          var svg = '<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;">';
+          svg += '<line x1="' + ax + '" y1="' + ay + '" x2="' + bx + '" y2="' + by + '" stroke="#1e4b8f" stroke-width="3"/>';
+          svg += '<line x1="' + ox + '" y1="' + oy + '" x2="' + cx + '" y2="' + cy + '" stroke="#c52828" stroke-width="2.5"/>';
+          svg += '<line x1="' + ox + '" y1="' + oy + '" x2="' + ex + '" y2="' + ey + '" stroke="#10b981" stroke-width="2.5"/>';
+          svg += '<line x1="' + ox + '" y1="' + oy + '" x2="' + dx + '" y2="' + dy + '" stroke="#d97706" stroke-width="2"/>';
+          
+          svg += '<text x="' + (ax-20) + '" y="' + (ay+20) + '" font-family="serif" font-size="28" fill="#c52828" font-weight="bold">A</text>';
+          svg += '<text x="' + (bx+10) + '" y="' + (by+20) + '" font-family="serif" font-size="28" fill="#c52828" font-weight="bold">B</text>';
+          svg += '<text x="' + (ox-15) + '" y="' + (oy+35) + '" font-family="serif" font-size="32" fill="#1e4b8f" font-weight="bold">O</text>';
+          svg += '<text x="' + (ex-15) + '" y="' + (ey-15) + '" font-family="serif" font-size="28" fill="#10b981" font-weight="bold">E</text>';
+          svg += '<text x="' + (cx-15) + '" y="' + (cy-15) + '" font-family="serif" font-size="28" fill="#c52828" font-weight="bold">C</text>';
+          svg += '<text x="' + (dx+10) + '" y="' + (dy-15) + '" font-family="serif" font-size="28" fill="#d97706" font-weight="bold">D</text>';
+          
+          var arcR = 50;
+          var arcDOB_x1 = ox + arcR;
+          var arcDOB_y1 = oy;
+          var arcDOB_x2 = ox + arcR * Math.cos(radDOB);
+          var arcDOB_y2 = oy - arcR * Math.sin(radDOB);
+          svg += '<path d="M ' + arcDOB_x1 + ' ' + arcDOB_y1 + ' A ' + arcR + ' ' + arcR + ' 0 0 0 ' + arcDOB_x2 + ' ' + arcDOB_y2 + '" fill="none" stroke="#d97706" stroke-width="2.5"/>';
+          svg += '<text x="' + (ox + 60) + '" y="' + (oy - 10) + '" font-family="sans-serif" font-size="16" fill="#d97706" font-weight="bold">' + p.angleDOB + '°</text>';
+          
+          svg += '</svg>';
+          return svg;
+        }
+      }
+    ] 
+  },
   24: { title: "📝 Доказательства", tasks: [
     { text: "На стороне AC треугольника ABC выбраны точки D и E так, что отрезки AD и CE равны. Оказалось, что отрезки BD и BE тоже равны. Докажите, что треугольник ABC — равнобедренный.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><polygon points="100,350 250,70 400,350" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2.5"/><circle cx="160" cy="270" r="5" fill="#c52828"/><circle cx="340" cy="270" r="5" fill="#c52828"/><text x="75" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">A</text><text x="405" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">C</text><text x="240" y="50" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">B</text><text x="140" y="265" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">D</text><text x="345" y="265" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">E</text><line x1="250" y1="70" x2="160" y2="270" stroke="#d35400" stroke-width="2"/><line x1="250" y1="70" x2="340" y2="270" stroke="#d35400" stroke-width="2"/></svg>`, variant1: { text: "По условию BD = BE, поэтому треугольник BDE является равнобедренным. Пусть угол при основании этого треугольника равен x, тогда ∠BEC = ∠BDA = 180° − x. Треугольники BEC и BDA равны по двум сторонам и углу между ними, поэтому AB = BC и треугольник ABC — равнобедренный.", correct: true }, variant2: { text: "По условию AD = CE и BD = BE. Треугольники ABD и CBE равны по первому признаку (AD = CE, BD = BE, угол между ними общий). Следовательно, AB = BC, что и требовалось доказать.", correct: false } },
     { text: "В остроугольном треугольнике ABC проведены высоты AA1 и BB1, пересекающиеся в точке E. Докажите, что углы AA1B1 и ABB1 равны.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><polygon points="80,350 250,60 420,350" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2.5"/><line x1="250" y1="60" x2="160" y2="350" stroke="#c52828" stroke-width="2"/><line x1="80" y1="350" x2="330" y2="200" stroke="#c52828" stroke-width="2"/><circle cx="220" cy="230" r="5" fill="#d35400"/><text x="55" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">A</text><text x="425" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">C</text><text x="240" y="40" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">B</text><text x="140" y="370" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">A₁</text><text x="335" y="195" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">B₁</text><text x="205" y="225" font-family="serif" font-size="20" fill="#d35400" font-weight="bold">E</text></svg>`, variant1: { text: "Точки A, B, A1, B1 лежат на одной окружности (так как ∠AA1B = ∠AB1B = 90°). Углы AA1B1 и ABB1 опираются на одну дугу AB1, следовательно, они равны.", correct: true }, variant2: { text: "Так как AA1 и BB1 — высоты, то ∠AA1B = 90° и ∠AB1B = 90°. Следовательно, четырёхугольник AB1A1B вписан в окружность. Вписанные углы AA1B1 и ABB1 опираются на одну дугу AB, поэтому они равны.", correct: false } },
@@ -463,12 +536,10 @@ function getTaskIndex(num, subIdx) {
   return appState.taskQueues[key].shift();
 }
 
-// ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ ГЕНЕРАЦИИ
 function generateTask() {
   let num = appState.currentNum;
   selectedChoice = null;
 
-  // 1. Сбрасываем состояние интерфейса для ЛЮБОЙ новой задачи
   inpAns.value = '';
   msgFb.style.display = 'none';
   solDiv.style.display = 'none';
@@ -478,14 +549,25 @@ function generateTask() {
   btnCheck.disabled = false;
   lblNum.textContent = `№${num}`;
 
-  // 2. Обработка специальных задач
   if (num === 23) {
-    // Рандомайзер для задачи про высоту и биссектрису
-    const task = generateTask23();
-    appState.currentParams = { type: "angle", ans: task.answer, solRight: `✅ ${task.explanation}`, solWrong: `❌ Неправильно. ${task.explanation}` };
-    lblType.textContent = TASKS_DB[23].title; lblSub.textContent = '';
-    drawingArea.innerHTML = task.svg;
-    qText.innerHTML = `<p>${task.text}</p>`;
+    let tasks = TASKS_DB[23].tasks;
+    let idx = Math.floor(Math.random() * tasks.length);
+    let task = tasks[idx];
+    
+    if(idx === 1) {
+       const p = task.gen();
+       appState.currentParams = { type: "angle", ans: task.ans(p), solRight: task.solRight(p), solWrong: task.solWrong(p) };
+       lblType.textContent = TASKS_DB[23].title; lblSub.textContent = '';
+       drawingArea.innerHTML = task.svg(p);
+       qText.innerHTML = `<p>${task.txt(p)}</p>`;
+    } else {
+       const t = generateTask23();
+       appState.currentParams = { type: "angle", ans: t.answer, solRight: `✅ ${t.explanation}`, solWrong: `❌ Неправильно. ${t.explanation}` };
+       lblType.textContent = TASKS_DB[23].title; lblSub.textContent = '';
+       drawingArea.innerHTML = t.svg;
+       qText.innerHTML = `<p>${t.text}</p>`;
+    }
+    
     choiceGroup.style.display = 'none';
     document.getElementById('number-group').style.display = 'flex';
     hideMenus();
@@ -546,7 +628,6 @@ function generateTask() {
     return;
   }
 
-  // 3. Стандартные задачи (15-18)
   appState.currentParams = { type: "number", ans: variant.ans(params), solRight: variant.solRight(params), solWrong: variant.solWrong(params) };
   let svgContent = variant.svg ? variant.svg(params) : '<svg viewBox="0 0 200 150" width="100%" height="100%" style="background:#f3f4f6;"><rect width="200" height="150" fill="#f3f4f6"/><text x="40" y="80" font-size="14" fill="#666">📐 геометрия</text></svg>';
   drawingArea.innerHTML = svgContent;
@@ -682,7 +763,6 @@ document.querySelectorAll('#sub-menu-17 .sub-btn').forEach((b,i) => b.onclick = 
 document.querySelectorAll('#sub-menu-18 .sub-btn').forEach((b,i) => b.onclick = () => setSub(i));
 document.querySelectorAll('#sub-menu-19 .sub-btn').forEach((b,i) => b.onclick = () => setSub(i));
 
-// === МАСШТАБИРОВАНИЕ ОКНА ПРОСМОТРА ===
 const zoomOverlay = document.getElementById('zoom-overlay');
 const zoomContent = document.getElementById('zoom-content');
 
@@ -702,7 +782,6 @@ drawingArea.addEventListener('click', (e) => {
   e.stopPropagation(); 
   let svgElem = drawingArea.querySelector('svg'); 
   if(svgElem) { 
-    // Сброс при открытии
     currentScale = 1; currentX = 0; currentY = 0;
     zoomContent.innerHTML = svgElem.outerHTML;
     const svg = zoomContent.querySelector('svg');
@@ -711,14 +790,12 @@ drawingArea.addEventListener('click', (e) => {
   } 
 });
 
-// Скрытие по клику на фон
 zoomOverlay.addEventListener('click', (e) => {
   if (e.target === zoomOverlay) {
     zoomOverlay.classList.remove('show');
   }
 });
 
-// Логика масштабирования
 zoomOverlay.addEventListener('wheel', (e) => {
   if(!zoomOverlay.classList.contains('show')) return;
   e.preventDefault();
@@ -727,14 +804,12 @@ zoomOverlay.addEventListener('wheel', (e) => {
 
   const delta = e.deltaY > 0 ? 0.9 : 1.1;
   currentScale *= delta;
-  currentScale = Math.min(Math.max(0.5, currentScale), 6); // Ограничение
+  currentScale = Math.min(Math.max(0.5, currentScale), 6);
   updateTransform(svg);
 }, { passive: false });
 
-// Тач-события для телефона
 zoomOverlay.addEventListener('touchstart', (e) => {
   if(!zoomOverlay.classList.contains('show')) return;
-  const svg = zoomContent.querySelector('svg');
   if(e.touches.length === 1) {
     isPanning = true;
     startX = e.touches[0].clientX - currentX;
@@ -766,13 +841,10 @@ zoomOverlay.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 zoomOverlay.addEventListener('touchend', (e) => {
-  if(e.touches.length < 2) {
-    initialDist = 0;
-  }
+  if(e.touches.length < 2) initialDist = 0;
   if(e.touches.length === 0) isPanning = false;
 });
 
-// Двойной клик для сброса масштаба
 zoomOverlay.addEventListener('dblclick', () => {
   currentScale = 1; currentX = 0; currentY = 0;
   const svg = zoomContent.querySelector('svg');
@@ -781,7 +853,6 @@ zoomOverlay.addEventListener('dblclick', () => {
 
 selectNumber(15);
 
-// ===== ЗАЩИТА ОТ ПЛАГИАТА =====
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) { e.preventDefault(); return false; }
