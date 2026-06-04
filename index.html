@@ -419,7 +419,7 @@ const TASKS_DB = {
     ]}
   } },
   23: { 
-    title: "📐 Углы", 
+    title: "📐 Сложная геометрия (№23)", 
     tasks: [
       { 
         gen: function() {
@@ -605,6 +605,92 @@ const TASKS_DB = {
         solRight: function(p) { return "✅ " + p.explanation; },
         solWrong: function(p) { return "❌ Неправильно.\n\n" + p.explanation; },
         svg: function(p) { return p.svg; }
+      },
+      { 
+        gen: function() {
+          let small = Math.floor(Math.random() * 10) + 4;
+          let diff = (Math.floor(Math.random() * 6) + 1) * 2;
+          let large = small + diff;
+          return { small, large, ans: diff / 2 };
+        },
+        txt: function(p) { return `В трапеции длины оснований равны ${p.large} и ${p.small}. Вычислите длину отрезка, соединяющего середины её диагоналей.`; },
+        ans: function(p) { return p.ans; },
+        solRight: function(p) { return `✅ Искомый отрезок равен полуразности оснований трапеции: (${p.large} - ${p.small}) / 2 = ${p.ans}.`; },
+        solWrong: function(p) { return `❌ Ошибка. 💡 Формула для такого отрезка: (большее основание - меньшее основание) / 2.\n(${p.large} - ${p.small}) / 2 = ${p.ans}.`; },
+        svg: function(p) { return TRAPEZOID_BASE_SVG; }
+      },
+      { 
+        gen: function() {
+          let k = Math.floor(Math.random() * 5) + 3;
+          return { af: 3 * k, bf: 4 * k, ab: 5 * k };
+        },
+        txt: function(p) { return `В трапеции ABCD биссектрисы углов, прилежащих к боковой стороне AB, пересекаются в точке F. Найдите длину стороны AB, если AF = ${p.af}, а BF = ${p.bf}.`; },
+        ans: function(p) { return p.ab; },
+        solRight: function(p) { return `✅ Сумма односторонних углов при боковой стороне равна 180°, значит их половинки дают 90° (∠AFB = 90°). По теореме Пифагора: AB = √(${p.af}² + ${p.bf}²) = ${p.ab}.`; },
+        solWrong: function(p) { return `❌ Неверно. 💡 Биссектрисы соседних углов трапеции всегда пересекаются под прямым углом. Используй теорему Пифагора: √(${p.af}² + ${p.bf}²) = ${p.ab}.`; },
+        svg: function(p) { return TRAPEZOID_BASE_SVG; }
+      },
+      { 
+        gen: function() {
+          let ab = Math.floor(Math.random() * 8) + 5;
+          return { ab, p: 6 * ab };
+        },
+        txt: function(p) { return `В параллелограмме ABCD биссектрисы углов A и D пересекаются в точке, принадлежащей стороне BC. Определите длину стороны AB, если периметр параллелограмма равен ${p.p}.`; },
+        ans: function(p) { return p.ab; },
+        solRight: function(p) { return `✅ Биссектриса отсекает равнобедренный треугольник. Точка пересечения делит BC пополам, значит BC = 2·AB. Периметр P = 2(AB + 2AB) = 6AB. Отсюда AB = ${p.p} / 6 = ${p.ab}.`; },
+        solWrong: function(p) { return `❌ Ошибка. 💡 Из свойства биссектрис следует, что BC = 2·AB. Периметр = 6·AB. Значит, AB = ${p.p} / 6 = ${p.ab}.`; },
+        svg: function(p) { return PARALLELOGRAM_SVG; }
+      },
+      { 
+        gen: function() {
+          let hd = Math.floor(Math.random() * 8) + 3;
+          let small = Math.floor(Math.random() * 10) + 4;
+          return { hd, small, midline: small + hd };
+        },
+        txt: function(p) { return `В равнобедренной трапеции проведена высота к большему основанию. Найдите длину отрезка, который эта высота отсекает на большем основании, если средняя линия трапеции равна ${p.midline}, а меньшее основание равно ${p.small}.`; },
+        ans: function(p) { return p.hd; },
+        solRight: function(p) { return `✅ В равнобедренной трапеции этот отрезок равен разности средней линии и меньшего основания: ${p.midline} - ${p.small} = ${p.hd}.`; },
+        solWrong: function(p) { return `❌ Неправильно. 💡 Лайфхак: в равнобедренной трапеции этот отрезок равен разности средней линии и меньшего основания: ${p.midline} - ${p.small} = ${p.hd}.`; },
+        svg: function(p) { return TRAPEZOID_BASE_SVG; }
+      },
+      { 
+        gen: function() {
+          let k = Math.floor(Math.random() * 3) + 1;
+          return { ah: 21 * k, hd: 8 * k, h: 20 * k, side: 29 * k };
+        },
+        txt: function(p) { return `Высота ромба, опущенная из вершины тупого угла, делит противоположную сторону на два отрезка. Найдите эту высоту, если она отсекает от стороны отрезок длиной ${p.ah} (прилежащий к острому углу), а длина всей стороны ромба равна ${p.side}.`; },
+        ans: function(p) { return p.h; },
+        solRight: function(p) { return `✅ Высота, сторона и отрезок ${p.ah} образуют прямоугольный треугольник. По теореме Пифагора: h = √(${p.side}² - ${p.ah}²) = √(${p.side*p.side} - ${p.ah*p.ah}) = ${p.h}.`; },
+        solWrong: function(p) { return `❌ Ошибка. 💡 Сторона ромба = ${p.side}. По теореме Пифагора для прямоугольного треугольника: h = √(${p.side}² - ${p.ah}²) = ${p.h}.`; },
+        svg: function(p) { return RHOMBUS_SVG; }
+      },
+      { 
+        gen: function() {
+          let m = Math.floor(Math.random() * 3) + 2;
+          return { 
+            d1: 6 * m, 
+            d2: 8 * m, 
+            midline: 5 * m, 
+            area: 24 * m * m 
+          };
+        },
+        txt: function(p) { return `Найдите площадь трапеции, если её диагонали равны ${p.d1} и ${p.d2}, а средняя линия равна ${p.midline}.`; },
+        ans: function(p) { return p.area; },
+        solRight: function(p) { return `✅ Перенесём одну диагональ параллельно самой себе. Получим треугольник со сторонами ${p.d1}, ${p.d2} и основанием ${2*p.midline}. Заметим, что ${p.d1}² + ${p.d2}² = (${2*p.midline})². Это прямоугольный треугольник! Площадь трапеции равна его площади: (${p.d1} · ${p.d2}) / 2 = ${p.area}.`; },
+        solWrong: function(p) { return `❌ Неверно. 💡 Построй треугольник со сторонами ${p.d1}, ${p.d2} и ${2*p.midline}. Это прямоугольный треугольник (${p.d1}²+${p.d2}²=(${2*p.midline})²). Его площадь = (${p.d1} · ${p.d2}) / 2 = ${p.area}. Это и есть площадь трапеции.`; },
+        svg: function(p) { return TRAPEZOID_BASE_SVG; }
+      },
+      {
+        gen: function() {
+          let a = Math.floor(Math.random() * 4) + 2;
+          let b = Math.floor(Math.random() * 4) + 2;
+          return { s1: a * a, s2: b * b, ans: (a + b) * (a + b) };
+        },
+        txt: function(p) { return `Диагонали трапеции делят её на четыре треугольника. Площади треугольников, прилежащих к основаниям, равны ${p.s1} и ${p.s2}. Найдите площадь всей трапеции.`; },
+        ans: function(p) { return p.ans; },
+        solRight: function(p) { return `✅ Площадь трапеции равна квадрату суммы квадратных корней из площадей треугольников при основаниях: (√${p.s1} + √${p.s2})² = (${Math.sqrt(p.s1)} + ${Math.sqrt(p.s2)})² = ${p.ans}.`; },
+        solWrong: function(p) { return `❌ Ошибка. 💡 Формула: S = (√S₁ + √S₂)². Подставляем: (√${p.s1} + √${p.s2})² = (${Math.sqrt(p.s1)} + ${Math.sqrt(p.s2)})² = ${p.ans}.`; },
+        svg: function(p) { return TRAPEZOID_BASE_SVG; }
       }
     ] 
   },
@@ -623,13 +709,11 @@ const TASKS_DB = {
     tasks: [
       { 
         gen: function() {
-          // Задача про биссектрису и секущие (классика ОГЭ 25)
-          // AB/BC = AE/EC (свойство биссектрисы). Пусть AB=3, BC=6, AE=2 => EC=4, AC=6.
-          // По свойству секущих из C: CD * CB = CE * CA => CD * 6 = 4 * 6 => CD = 4.
-          // BD = BC - CD = 6 - 4 = 2.
+          let ab = 3, bc = 6, ae = 2;
+          let ec = 4, ac = 6, cd = 4, bd = 2;
           return {
             text: "В треугольнике ABC проведена биссектриса BE. Окружность, проходящая через точки A, B и E, пересекает сторону BC в точке D. Найдите BD, если AB = 3, BC = 6, а AE = 2.",
-            answer: 2,
+            answer: bd,
             explanation: "1. По свойству биссектрисы: AB/BC = AE/EC ⇒ 3/6 = 2/EC ⇒ EC = 4.\n2. Тогда AC = AE + EC = 2 + 4 = 6.\n3. По свойству секущих, проведённых из точки C к окружности: CD · CB = CE · CA.\n4. Подставляем: CD · 6 = 4 · 6 ⇒ CD = 4.\n5. BD = BC - CD = 6 - 4 = 2.",
             svg: '<div style="font-size:4rem;text-align:center;margin:20px;">⭕</div>'
           };
@@ -642,10 +726,8 @@ const TASKS_DB = {
       },
       {
         gen: function() {
-          // Задача про внешнее касание окружностей и общую касательную
-          // AB = 2 * sqrt(R1 * R2). Пусть R1 = r1^2, R2 = r2^2.
-          const r1 = Math.floor(Math.random() * 3) + 2; // 2, 3, 4
-          const r2 = Math.floor(Math.random() * 3) + 2; // 2, 3, 4
+          const r1 = Math.floor(Math.random() * 3) + 2;
+          const r2 = Math.floor(Math.random() * 3) + 2;
           const R1 = r1 * r1;
           const R2 = r2 * r2;
           const ans = 2 * r1 * r2;
