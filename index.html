@@ -26,7 +26,6 @@ body {
   overflow: hidden; margin: 16px;
   height: calc(100vh - 32px);
   display: flex; flex-direction: column;
-  -webkit-user-select: none; user-select: none;
 }
 .app-header {
   background: linear-gradient(135deg, #0f2b3d, #1a4a6f);
@@ -253,9 +252,26 @@ footer { font-size: 0.65rem; text-align: center; padding: 8px; color: #8ba0bc; f
 </div>
 
 <script>
-let selectedChoice = null;
+// ЗАЩИТА ОТ КОПИРОВАНИЯ (базовый уровень)
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && ['c','C','v','V','x','X','u','U','s','S','p','P'].includes(e.key)) { e.preventDefault(); return false; }
+  if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','i','J','j'].includes(e.key))) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.key === 'a' && !['INPUT','TEXTAREA'].includes(e.target.tagName)) { e.preventDefault(); return false; }
+});
+window.onbeforeunload = function() { return 'Вы уверены? Прогресс не сохранится.'; };
 
-var CIRCUMCIRCLE_SVG = '<svg viewBox="0 0 400 400" width="100%" height="100%" style="background:white;"><circle cx="200" cy="200" r="140" fill="none" stroke="black" stroke-width="2"/><polygon points="200,60 321,270 79,270" fill="#E0FFFF" stroke="black" stroke-width="2"/><line x1="200" y1="200" x2="200" y2="60" stroke="#d35400" stroke-width="2"/><line x1="200" y1="200" x2="321" y2="270" stroke="#d35400" stroke-width="2"/><line x1="200" y1="200" x2="79" y2="270" stroke="#d35400" stroke-width="2"/><circle cx="200" cy="200" r="3" fill="#d35400"/><text x="185" y="50" font-family="sans-serif" font-size="20" font-weight="bold">A</text><text x="330" y="280" font-family="sans-serif" font-size="20" font-weight="bold">B</text><text x="60" y="280" font-family="sans-serif" font-size="20" font-weight="bold">C</text><text x="210" y="220" font-family="sans-serif" font-size="18" font-weight="bold">O</text></svg>';
+let selectedChoice = null;
+let examActive = false;      // режим экзамена (последовательный)
+let examIndex = 0;           // текущий индекс в EXAM_ORDER
+let examScores = [0,0,0,0,0,0,0,0]; // баллы за 8 задач
+let examTimeout = null;
+
+const EXAM_ORDER = [15,16,17,18,19,23,24,25];
 
 function simplifyRadical(n) {
   if (n === 0) return "0";
@@ -293,36 +309,43 @@ function drawPointSegmentSvg(A, B, C, dist, hint) {
 }
 
 function drawGridSvg(points, fillColor, strokeColor, showLabels) {
-  var cell = 30, w = 10*cell, h = 10*cell;
+  var cell = 25; 
+  var minX = Math.min(...points.map(p => p[0]));
+  var maxX = Math.max(...points.map(p => p[0]));
+  var minY = Math.min(...points.map(p => p[1]));
+  var maxY = Math.max(...points.map(p => p[1]));
+  var pad = 2;
+  var startX = Math.max(0, minX - pad);
+  var endX = maxX + pad;
+  var startY = Math.max(0, minY - pad);
+  var endY = maxY + pad;
+  var w = (endX - startX) * cell;
+  var h = (endY - startY) * cell;
   var svg = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" style="background:white;">';
   svg += '<defs><pattern id="grid" width="'+cell+'" height="'+cell+'" patternUnits="userSpaceOnUse"><path d="M '+cell+' 0 L 0 0 0 '+cell+'" fill="none" stroke="#ddd" stroke-width="1"/></pattern></defs>';
   svg += '<rect x="0" y="0" width="'+w+'" height="'+h+'" fill="url(#grid)"/>';
-  svg += '<rect x="'+cell+'" y="'+cell+'" width="'+8*cell+'" height="'+8*cell+'" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="4,3"/>';
-  var pts = points.map(function(pt){ return (pt[0]*cell)+','+(pt[1]*cell); }).join(' ');
+  var pts = points.map(function(pt){ return ((pt[0]-startX)*cell)+','+((pt[1]-startY)*cell); }).join(' ');
   svg += '<polygon points="'+pts+'" fill="'+fillColor+'" fill-opacity="0.25" stroke="'+strokeColor+'" stroke-width="3" stroke-linejoin="round"/>';
   if(showLabels) {
     var labels = ['A','B','C','D','E','F'];
     for(var i=0; i<points.length && i<labels.length; i++){
-      var px = points[i][0]*cell, py = points[i][1]*cell;
-      var ox = (px < 30) ? -20 : (px > 250) ? 15 : 8;
-      var oy = (py < 30) ? -8 : (py > 250) ? 18 : -8;
+      var px = (points[i][0] - startX) * cell;
+      var py = (points[i][1] - startY) * cell;
+      var isMinX = (points[i][0] === minX);
+      var isMaxX = (points[i][0] === maxX);
+      var isMinY = (points[i][1] === minY);
+      var isMaxY = (points[i][1] === maxY);
+      var ox = 0, oy = 0;
+      if (isMinX) ox = -25;
+      else if (isMaxX) ox = 15;
+      else ox = 10;
+      if (isMaxY) oy = 25;
+      else if (isMinY) oy = -15;
+      else oy = -10;
       svg += '<text x="'+(px+ox)+'" y="'+(py+oy)+'" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">'+labels[i]+'</text>';
     }
   }
   svg += '</svg>'; return svg;
-}
-
-function generateHeightBisectorTask() {
-  let angleA, angleC;
-  do {
-    angleA = Math.floor(Math.random() * 61) + 20; 
-    angleC = Math.floor(Math.random() * 61) + 20; 
-  } while (angleA <= angleC || Math.abs(angleA - angleC) % 2 !== 0 || angleA + angleC >= 160);
-  const angleB = 180 - angleA - angleC;
-  const answer = Math.abs(angleA - angleC) / 2;
-  const explanation = `∠B = 180° - ${angleA}° - ${angleC}° = ${angleB}°. Биссектриса BD делит ∠B пополам: ABD = ${angleB/2}°. Высота BH: ABH = 90° - ∠A = 90° - ${angleA}° = ${90-angleA}°. Угол между BH и BD: DBH = |∠ABD - ∠ABH| = |${angleB/2}° - ${90-angleA}°| = ${answer}°.`;
-  const svg = `<svg viewBox="0 0 260 200" width="100%" height="100%" style="background:white;"><polygon points="30,170 100,30 230,170" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2.5" stroke-linejoin="round"/><line x1="100" y1="30" x2="100" y2="170" stroke="#10b981" stroke-width="2"/><line x1="100" y1="30" x2="121" y2="170" stroke="#d35400" stroke-width="2"/><text x="10" y="188" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">A</text><text x="235" y="188" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">C</text><text x="95" y="22" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">B</text><text x="95" y="188" font-family="serif" font-size="18" fill="#10b981" font-weight="bold">H</text><text x="125" y="188" font-family="serif" font-size="18" fill="#d35400" font-weight="bold">D</text><text x="45" y="145" font-family="sans-serif" font-size="18" fill="#666">${angleA}°</text><text x="195" y="145" font-family="sans-serif" font-size="18" fill="#666">${angleC}°</text><text x="130" y="85" font-family="sans-serif" font-size="14" fill="#d35400">биссектриса</text><text x="75" y="85" font-family="sans-serif" font-size="14" fill="#10b981">высота</text></svg>`;
-  return { text: `В треугольнике АВС углы А и С равны ${angleA}° и ${angleC}° соответственно. Найдите угол между высотой ВН и биссектрисой ВD.`, answer: answer, explanation: explanation, svg: svg };
 }
 
 var PARALLEL_SVG = '<svg viewBox="0 0 1100 800" width="100%" height="100%" style="background:white;"><line x1="0" y1="200" x2="1100" y2="200" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="600" x2="1100" y2="600" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="0" y1="700" x2="600" y2="100" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><line x1="400" y1="100" x2="1000" y2="700" stroke="#c00000" stroke-width="4" stroke-linecap="round"/><path d="M 500 200 L 410 200 A 90 90 0 0 0 436 263 Z" fill="#92d050" opacity="0.9"/><path d="M 500 200 L 564 264 A 90 90 0 0 0 590 200 Z" fill="#ff0000" opacity="0.9"/><path d="M 900 600 L 964 664 A 90 90 0 0 0 990 600 Z" fill="#ff0000" opacity="0.9"/><path d="M 100 600 L 36 664 A 90 90 0 0 0 190 600 Z" fill="#0070c0" opacity="0.9"/><text x="380" y="290" font-size="48" font-style="italic" fill="black" font-weight="bold">1</text><text x="590" y="260" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="990" y="660" font-size="48" font-style="italic" fill="black" font-weight="bold">2</text><text x="150" y="760" font-size="48" font-style="italic" fill="black" font-weight="bold">3</text></svg>';
@@ -395,12 +418,13 @@ const TASKS_DB = {
         svg += `<rect width="${w}" height="${h}" fill="url(#grid)"/>`; 
         svg += `<rect x="${cell}" y="${cell}" width="${8*cell}" height="${8*cell}" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>`; 
         svg += `<polygon points="${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="3"/>`; 
+        svg += `<polyline points="${Cx},${Cy-15} ${Cx+15},${Cy-15} ${Cx+15},${Cy}" fill="none" stroke="#1e4b8f" stroke-width="2"/>`;
         if (p.findLeg) {
           svg += `<line x1="${Ax}" y1="${Ay}" x2="${Bx}" y2="${By}" stroke="#c52828" stroke-width="4" stroke-linecap="round"/>`;
         }
-        svg += `<text x="${Ax+8}" y="${Ay-5}" font-size="16" fill="#c52828" font-weight="bold">A</text>`; 
-        svg += `<text x="${Bx-20}" y="${By+5}" font-size="16" fill="#c52828" font-weight="bold">B</text>`; 
-        svg += `<text x="${Cx+8}" y="${Cy+5}" font-size="16" fill="#1e4b8f" font-weight="bold">C</text>`; 
+        svg += `<text x="${Ax+10}" y="${Ay+20}" font-size="18" fill="#c52828" font-weight="bold">A</text>`; 
+        svg += `<text x="${Bx-20}" y="${By-10}" font-size="18" fill="#c52828" font-weight="bold">B</text>`; 
+        svg += `<text x="${Cx-20}" y="${Cy+20}" font-size="18" fill="#1e4b8f" font-weight="bold">C</text>`; 
         svg += `</svg>`; return svg; 
       } 
     }]},
@@ -704,47 +728,181 @@ const TASKS_DB = {
     { text: "В выпуклом четырехугольнике ABCD углы ABD и ACD равны. Докажите, что углы DAC и DBC также равны.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><polygon points="120,100 380,130 350,320 80,280" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2.5"/><text x="100" y="85" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">A</text><text x="385" y="120" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">B</text><text x="355" y="340" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">C</text><text x="55" y="290" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">D</text><line x1="120" y1="100" x2="350" y2="320" stroke="#d35400" stroke-width="2"/><line x1="380" y1="130" x2="80" y2="280" stroke="#d35400" stroke-width="2"/></svg>`, variant1: { text: "Поскольку ABCD выпуклый и ∠ABD = ∠ACD, получаем, что около четырехугольника ABCD можно описать окружность. А тогда ∠DAC = ∠DBC как вписанные углы, опирающиеся на одну дугу CD.", correct: true }, variant2: { text: "Из равенства углов ABD и ACD следует, что треугольники ABD и ACD подобны. Из подобия получаем пропорциональность сторон, откуда следует равенство углов DAC и DBC.", correct: false } },
     { text: "В равностороннем треугольнике ABC точки M, N, K — середины сторон AB, BC, CA соответственно. Докажите, что треугольник MNK — равносторонний.", svg: `<svg viewBox="0 0 500 400" width="100%" height="100%" style="background:white;"><polygon points="100,350 250,70 400,350" fill="#c8e6ff" stroke="#1e4b8f" stroke-width="2.5"/><circle cx="175" cy="210" r="5" fill="#c52828"/><circle cx="325" cy="210" r="5" fill="#c52828"/><circle cx="250" cy="350" r="5" fill="#c52828"/><line x1="175" y1="210" x2="325" y2="210" stroke="#d35400" stroke-width="2.5"/><line x1="325" y1="210" x2="250" y2="350" stroke="#d35400" stroke-width="2.5"/><line x1="250" y1="350" x2="175" y2="210" stroke="#d35400" stroke-width="2.5"/><text x="75" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">A</text><text x="405" y="375" font-family="serif" font-size="24" fill="#c52828" font-weight="bold">C</text><text x="240" y="50" font-family="serif" font-size="24" fill="#1e4b8f" font-weight="bold">B</text><text x="150" y="205" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">M</text><text x="330" y="205" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">N</text><text x="240" y="380" font-family="serif" font-size="20" fill="#c52828" font-weight="bold">K</text></svg>`, variant1: { text: "Так как точки M, N, K — середины сторон, то MN = AC/2, MK = BC/2, NK = AB/2. По условию AB = AC = BC, следовательно, NK = MN = MK, значит, треугольник MNK равносторонний.", correct: true }, variant2: { text: "Так как треугольник ABC равносторонний, то AM = MB = BN = NC = CK = KA. Треугольники AMK, MBN, NCK равны по двум сторонам и углу между ними, поэтому MK = MN = NK, значит, треугольник MNK равносторонний.", correct: true } }
   ] },
-  25: { 
-    title: "🔘 Кольцо (Сложная геометрия)", 
+  25: {
+    title: "🔘 Сложная геометрия (№25)",
     tasks: [
-      { 
-        gen: function() {
-          let ab = 3, bc = 6, ae = 2;
-          let ec = 4, ac = 6, cd = 4, bd = 2;
-          return {
-            text: "В треугольнике ABC проведена биссектриса BE. Окружность, проходящая через точки A, B и E, пересекает сторону BC в точке D. Найдите BD, если AB = 3, BC = 6, а AE = 2.",
-            answer: bd,
-            explanation: "1. По свойству биссектрисы: AB/BC = AE/EC ⇒ 3/6 = 2/EC ⇒ EC = 4.\n2. Тогда AC = AE + EC = 2 + 4 = 6.\n3. По свойству секущих, проведённых из точки C к окружности: CD · CB = CE · CA.\n4. Подставляем: CD · 6 = 4 · 6 ⇒ CD = 4.\n5. BD = BC - CD = 6 - 4 = 2.",
-            svg: '<div style="font-size:4rem;text-align:center;margin:20px;">⭕</div>'
-          };
+      {
+        gen: () => {
+          let bm = 5 * (Math.floor(Math.random() * 4) + 2);
+          let bk = 4 * (bm / 5);
+          let km = bm - bk;
+          let answer = 4 / (4 + 5 + 5);
+          return { bm, bk, km, answer };
         },
-        txt: function(p) { return p.text; },
-        ans: function(p) { return p.answer; },
-        solRight: function(p) { return "✅ " + p.explanation; },
-        solWrong: function(p) { return "❌ Неправильно.\n\n" + p.explanation; },
-        svg: function(p) { return p.svg; }
+        txt: () => `Через середину K медианы BM треугольника ABC и вершину A проведена прямая, пересекающая сторону BC в точке P. Найдите отношение площади треугольника ABK к площади четырехугольника KPCM.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ S(ABK) = 2/5 S(ABC). S(KPCM) = 13/20 S(ABC). Отношение = ${p.answer}.`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
       },
       {
-        gen: function() {
-          const r1 = Math.floor(Math.random() * 3) + 2;
-          const r2 = Math.floor(Math.random() * 3) + 2;
-          const R1 = r1 * r1;
-          const R2 = r2 * r2;
-          const ans = 2 * r1 * r2;
-          return {
-            text: `Две окружности касаются внешним образом в точке K. Прямая касается первой окружности в точке A, а второй — в точке B. Найдите расстояние между точками касания A и B, если радиусы окружностей равны ${R1} и ${R2}.`,
-            answer: ans,
-            explanation: `Для двух внешне касающихся окружностей и их общей внешней касательной длина отрезка между точками касания вычисляется по формуле: AB = 2·√(R1·R2).\nAB = 2·√(${R1}·${R2}) = 2·√(${R1*R2}) = 2·${r1*r2} = ${ans}.`,
-            svg: '<div style="font-size:4rem;text-align:center;margin:20px;">🔗</div>'
-          };
+        gen: () => {
+          let sABC = 80;
+          let ratio = 1/3;
+          let answer = 30;
+          return { sABC, ratio, answer };
         },
-        txt: function(p) { return p.text; },
-        ans: function(p) { return p.answer; },
-        solRight: function(p) { return "✅ " + p.explanation; },
-        solWrong: function(p) { return "❌ Неправильно.\n\n" + p.explanation; },
-        svg: function(p) { return p.svg; }
+        txt: () => `Площадь треугольника ABC равна 80. Биссектриса AD пересекает медиану BK в точке E, при этом BD : CD = 1 : 3. Найдите площадь четырехугольника EDCK.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ S(EDCK) = 30.`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let bk = 4;
+          let km = 1;
+          let answer = 4 / (4 + 1 + 5);
+          return { bk, km, answer };
+        },
+        txt: () => `В треугольнике ABC на его медиане BM отмечена точка K так, что BK : KM = 4 : 1. Прямая AK пересекает сторону BC в точке P. Найдите отношение площади треугольника ABK к площади четырехугольника KPCM.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Ответ: ${p.answer}.`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let short = 2;
+          let long = 6;
+          let shortUp = 0.5;
+          let answer = (long / short) * shortUp;
+          return { short, long, shortUp, answer };
+        },
+        txt: () => `Короткое плечо колодца с "журавлем" имеет длину 2 м, а длинное плечо — 6 м. На сколько метров опустится конец длинного плеча, когда конец короткого поднимется на 0,5 м?`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Подобие: 6/2 = x/0.5 → x = 1.5 м.`,
+        solWrong: (p) => `❌ Неверно. 1.5 м.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">⚖️</div>'
+      },
+      {
+        gen: () => {
+          let ratio = 3;
+          let answer = 3 / 16;
+          return { ratio, answer };
+        },
+        txt: () => `Медиана BM и биссектриса AP треугольника ABC пересекаются в точке K, длина стороны AC втрое больше длины стороны AB. Найдите отношение площади треугольника ABK к площади четырехугольника KPCM.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Ответ: ${p.answer}.`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let hyp = 12;
+          let area = 18;
+          let ab = 36;
+          let sumSq = hyp * hyp;
+          let a = Math.sqrt((sumSq + 2 * ab) / 2);
+          let b = Math.sqrt((sumSq - 2 * ab) / 2);
+          let angle1 = Math.round(Math.asin(a / hyp) * 180 / Math.PI);
+          let angle2 = 90 - angle1;
+          let answer = `${Math.min(angle1, angle2)}° и ${Math.max(angle1, angle2)}°`;
+          return { hyp, area, answer };
+        },
+        txt: () => `Найдите острые углы прямоугольного треугольника, если его гипотенуза равна 12, а площадь равна 18.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Углы: ${p.answer}.`,
+        solWrong: (p) => `❌ Неверно. Углы: ${p.answer}.`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">🔺</div>'
+      },
+      {
+        gen: () => {
+          let len = 96;
+          let answer = { ab: 96 * Math.sqrt(5) / 2, bc: 96 * Math.sqrt(5), ac: 96 * Math.sqrt(5) };
+          return { len, answer: `${Math.round(answer.ab)} ${Math.round(answer.bc)} ${Math.round(answer.ac)}` };
+        },
+        txt: () => `В треугольнике ABC биссектриса BE и медиана AD перпендикулярны и имеют одинаковую длину, равную 96. Найдите стороны треугольника ABC.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ AB ≈ ${p.answer.split(' ')[0]}, BC ≈ ${p.answer.split(' ')[1]}, AC ≈ ${p.answer.split(' ')[2]}.`,
+        solWrong: (p) => `❌ Неверно. ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let ratio = 9/7;
+          let answer = 0.28;
+          return { ratio, answer };
+        },
+        txt: () => `Медиана BM и биссектриса AP треугольника ABC пересекаются в точке K, длина стороны AC относится к длине стороны AB как 9:7. Найдите отношение площади треугольника ABK к площади четырехугольника KPCM.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Ответ: ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let sides = { ab: 1, ac: 2 * Math.sqrt(5), bc: Math.sqrt(13) };
+          let answer = -0.6;
+          return { sides, answer };
+        },
+        txt: () => `Стороны AC, AB, BC треугольника ABC равны 2√5, √13 и 1 соответственно. Точка K расположена вне треугольника, KC пересекает AB. Треугольник KAC подобен исходному. Найдите cos∠AKC, если ∠KAC > 90°.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ cos = ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let ratio = 40;
+          let side = 30;
+          let answer = 30 + 30/40 + 30/40;
+          return { ratio, side, answer: Math.round(answer) };
+        },
+        txt: () => `Одна из биссектрис треугольника делится точкой пересечения биссектрис в отношении 40:1 от вершины. Найдите периметр, если сторона, к которой проведена биссектриса, равна 30.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ P = ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. P = ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let bk = 3;
+          let km = 7;
+          let answer = (bk / (bk + km)) * 0.5;
+          return { bk, km, answer };
+        },
+        txt: () => `В треугольнике ABC на его медиане BM отмечена точка K так, что BK : KM = 3 : 7. Найдите отношение площади треугольника ABK к площади треугольника ABC.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ S(ABK) / S(ABC) = ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let len = 84;
+          let answer = { ab: 84 * Math.sqrt(5) / 2, bc: 84 * Math.sqrt(5), ac: 84 * Math.sqrt(5) };
+          return { len, answer: `${Math.round(answer.ab)} ${Math.round(answer.bc)} ${Math.round(answer.ac)}` };
+        },
+        txt: () => `В треугольнике ABC биссектриса BE и медиана AD перпендикулярны и равны 84. Найдите стороны.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ Стороны: ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. Стороны: ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
+      },
+      {
+        gen: () => {
+          let ratio = 7/10;
+          let answer = 0.175;
+          return { ratio, answer };
+        },
+        txt: () => `Медиана BM и биссектриса AP треугольника ABC пересекаются в точке K, AC:AB = 7:10. Найдите отношение площади треугольника AKM к площади треугольника ABC.`,
+        ans: (p) => p.answer,
+        solRight: (p) => `✅ S(AKM)/S(ABC) = ${p.answer}`,
+        solWrong: (p) => `❌ Неверно. Ответ: ${p.answer}`,
+        svg: () => '<div style="font-size:4rem;text-align:center;">📐</div>'
       }
-    ] 
+    ]
   }
 };
 
@@ -770,6 +928,7 @@ const msgFb = document.getElementById('msg-fb');
 const solDiv = document.getElementById('sol-txt');
 const btnCheck = document.getElementById('btn-check');
 const btnContinue = document.getElementById('btn-continue');
+const btnBack = document.getElementById('btn-back');
 const lblType = document.getElementById('lbl-type');
 const lblNum = document.getElementById('lbl-num');
 const lblSub = document.getElementById('lbl-sub');
@@ -798,64 +957,151 @@ function getTaskIndex(num, subIdx) {
   return idx;
 }
 
+function getTaskFromDB(num, subIdx = 0) {
+  let topic = TASKS_DB[num];
+  if(!topic) return null;
+  let tasksArr = [];
+  if(topic.subTopics && topic.subTopics[subIdx]) {
+    tasksArr = topic.subTopics[subIdx].tasks;
+  } else if(topic.tasks) {
+    tasksArr = topic.tasks;
+  }
+  if(!tasksArr.length) return null;
+  let idx = getTaskIndex(num, subIdx);
+  let variant = tasksArr[idx];
+  let params = variant.gen ? variant.gen() : variant;
+  return {
+    type: "number",
+    txt: variant.txt(params),
+    ans: variant.ans(params),
+    solRight: variant.solRight(params),
+    solWrong: variant.solWrong(params),
+    svg: variant.svg(params)
+  };
+}
+
+function getStatementTask(subIdx) {
+  let tasksArr = getTaskList(19, subIdx);
+  if(!tasksArr.length) return null;
+  let idx = getTaskIndex(19, subIdx);
+  let variant = tasksArr[idx];
+  let isWrong = (subIdx === 1);
+  return {
+    type: "statements",
+    isWrong: isWrong,
+    statements: variant.statements,
+    correct: variant.correct,
+    explanation: variant.explanation
+  };
+}
+
+function getChoiceTask() {
+  let tasks = TASKS_DB[24].tasks;
+  let task = tasks[Math.floor(Math.random() * tasks.length)];
+  let correctChoices = [];
+  if(task.variant1.correct) correctChoices.push(1);
+  if(task.variant2.correct) correctChoices.push(2);
+  let correctText = task.variant1.correct ? task.variant1.text : task.variant2.text;
+  return {
+    type: "choice",
+    text: task.text,
+    svg: task.svg,
+    variant1: task.variant1.text,
+    variant2: task.variant2.text,
+    correctChoices: correctChoices,
+    solRight: `✅ Правильный ответ — Вариант ${correctChoices.join(' или ')}. ${correctText}`,
+    solWrong: `❌ Неправильно. Верное доказательство — Вариант ${correctChoices.join(' или ')}.<br><br>${correctText}`
+  };
+}
+
 function generateTask() {
   let num = appState.currentNum;
   selectedChoice = null;
   inpAns.value = ''; msgFb.style.display = 'none'; solDiv.style.display = 'none';
   btnCheck.style.display = 'flex'; btnContinue.style.display = 'none';
   inpAns.disabled = false; btnCheck.disabled = false; lblNum.textContent = `№${num}`;
-
-  if (num === 24) {
-    let tasks = TASKS_DB[24].tasks;
-    let task = tasks[Math.floor(Math.random() * tasks.length)];
-    
-    let correctChoices = [];
-    if (task.variant1.correct) correctChoices.push(1);
-    if (task.variant2.correct) correctChoices.push(2);
-    
-    let correctText = task.variant1.correct ? task.variant1.text : task.variant2.text;
-
-    appState.currentParams = { 
-      type: "choice", 
-      correctChoices: correctChoices, 
-      solRight: `✅ Правильный ответ — Вариант ${correctChoices.join(' или ')}. ${correctText}`, 
-      solWrong: `❌ Неправильно. Верное доказательство — Вариант ${correctChoices.join(' или ')}.<br><br>${correctText}` 
-    };
-    lblType.textContent = TASKS_DB[24].title; lblSub.textContent = '';
-    qText.innerHTML = `<p><strong>${task.text}</strong></p><p style="margin-top: 12px;">Выберите ВЕРНОЕ доказательство:</p>`;
-    choicesContainer.innerHTML = `<button class="choice-btn" data-choice="1">📘 Вариант 1<br><span style="font-size: 0.85rem; font-weight: normal;">${task.variant1.text.substring(0, 200)}${task.variant1.text.length > 200 ? '...' : ''}</span></button><button class="choice-btn" data-choice="2">📙 Вариант 2<br><span style="font-size: 0.85rem; font-weight: normal;">${task.variant2.text.substring(0, 200)}${task.variant2.text.length > 200 ? '...' : ''}</span></button>`;
-    drawingArea.innerHTML = task.svg; choiceGroup.style.display = 'flex'; document.getElementById('number-group').style.display = 'none';
-    document.querySelectorAll('.choice-btn').forEach(btn => { btn.onclick = function() { document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected')); this.classList.add('selected'); selectedChoice = parseInt(this.dataset.choice); }; });
+  // Если экзамен активен — генерируем для экзамена
+  if(examActive) {
+    let currentExamNum = EXAM_ORDER[examIndex];
+    if(currentExamNum === 19) {
+      let stask = getStatementTask(0);
+      if(stask) {
+        appState.currentParams = { type: "statements", correct: stask.correct, solRight: stask.explanation, solWrong: stask.explanation, statements: stask.statements, isWrong: stask.isWrong };
+        lblType.textContent = TASKS_DB[19].title; lblSub.textContent = TASKS_DB[19].subTopics[0]?.name || '';
+        let html = stask.isWrong ? '<p><strong>Выберите НЕВЕРНЫЕ утверждения:</strong></p>' : '<p><strong>Выберите верные утверждения:</strong></p>';
+        html += '<div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">';
+        stask.statements.forEach((stmt, i) => { html += `<button class="choice-btn statement-choice" data-idx="${i+1}"><span class="statement-num">${i+1})</span> ${stmt}</button>`; });
+        html += '</div>'; qText.innerHTML = html; choiceGroup.style.display = 'flex'; document.getElementById('number-group').style.display = 'none';
+        drawingArea.innerHTML = '<div style="font-size:4rem;text-align:center;margin:20px;">🎲</div>';
+        setTimeout(() => { document.querySelectorAll('.statement-choice').forEach(btn => { btn.onclick = function() { this.classList.toggle('selected'); }; }); }, 0);
+        hideMenus(); return;
+      }
+    } else if(currentExamNum === 24) {
+      let ctask = getChoiceTask();
+      if(ctask) {
+        appState.currentParams = { type: "choice", correctChoices: ctask.correctChoices, solRight: ctask.solRight, solWrong: ctask.solWrong };
+        lblType.textContent = TASKS_DB[24].title; lblSub.textContent = '';
+        qText.innerHTML = `<p><strong>${ctask.text}</strong></p><p style="margin-top: 12px;">Выберите ВЕРНОЕ доказательство:</p>`;
+        choicesContainer.innerHTML = `<button class="choice-btn" data-choice="1">📘 Вариант 1<br><span style="font-size: 0.85rem; font-weight: normal;">${ctask.variant1.substring(0, 200)}${ctask.variant1.length > 200 ? '...' : ''}</span></button><button class="choice-btn" data-choice="2">📙 Вариант 2<br><span style="font-size: 0.85rem; font-weight: normal;">${ctask.variant2.substring(0, 200)}${ctask.variant2.length > 200 ? '...' : ''}</span></button>`;
+        drawingArea.innerHTML = ctask.svg; choiceGroup.style.display = 'flex'; document.getElementById('number-group').style.display = 'none';
+        document.querySelectorAll('.choice-btn').forEach(btn => { btn.onclick = function() { document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected')); this.classList.add('selected'); selectedChoice = parseInt(this.dataset.choice); }; });
+        hideMenus(); return;
+      }
+    } else {
+      let task = getTaskFromDB(currentExamNum, 0);
+      if(task) {
+        appState.currentParams = { type: "number", ans: task.ans, solRight: task.solRight, solWrong: task.solWrong };
+        drawingArea.innerHTML = task.svg; qText.textContent = task.txt;
+        lblType.textContent = TASKS_DB[currentExamNum].title;
+        lblSub.textContent = '';
+        choiceGroup.style.display = 'none'; document.getElementById('number-group').style.display = 'flex';
+        hideMenus(); return;
+      }
+    }
+    // fallback
+    appState.currentParams = { type: "number", ans: 1, solRight: "✅ Верно!", solWrong: "❌ Неверно." };
+    drawingArea.innerHTML = '<div style="font-size:4rem;text-align:center;">📐</div>'; qText.textContent = `Задача ${currentExamNum}`;
+    lblType.textContent = `Экзамен`; lblSub.textContent = '';
+    choiceGroup.style.display = 'none'; document.getElementById('number-group').style.display = 'flex';
     hideMenus(); return;
   }
-
-  if (num === 19) {
-    let tasksArr = getTaskList(num, appState.currentSub);
-    if(!tasksArr.length) return;
-    let idx = getTaskIndex(num, appState.currentSub);
-    let variant = tasksArr[idx];
-    let isWrong = (appState.currentSub === 1);
-    appState.currentParams = { type: "statements", correct: variant.correct, solRight: variant.explanation, solWrong: variant.explanation };
-    lblType.textContent = TASKS_DB[19].title; lblSub.textContent = TASKS_DB[19].subTopics[appState.currentSub]?.name || '';
-    let html = isWrong ? '<p><strong>Выберите НЕВЕРНЫЕ утверждения:</strong></p>' : '<p><strong>Выберите верные утверждения:</strong></p>';
-    html += '<div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">';
-    variant.statements.forEach((stmt, i) => { html += `<button class="choice-btn statement-choice" data-idx="${i+1}"><span class="statement-num">${i+1})</span> ${stmt}</button>`; });
-    html += '</div>'; qText.innerHTML = html; choiceGroup.style.display = 'none'; document.getElementById('number-group').style.display = 'none';
-    drawingArea.innerHTML = '<div style="font-size:4rem;text-align:center;margin:20px;">🎲</div>';
-    setTimeout(() => { document.querySelectorAll('.statement-choice').forEach(btn => { btn.onclick = function() { this.classList.toggle('selected'); }; }); }, 0);
-    hideMenus(); return;
+  // Обычная тренировка (не экзамен)
+  if (appState.currentNum === 24) {
+    let ctask = getChoiceTask();
+    if(ctask) {
+      appState.currentParams = { type: "choice", correctChoices: ctask.correctChoices, solRight: ctask.solRight, solWrong: ctask.solWrong };
+      lblType.textContent = TASKS_DB[24].title; lblSub.textContent = '';
+      qText.innerHTML = `<p><strong>${ctask.text}</strong></p><p style="margin-top: 12px;">Выберите ВЕРНОЕ доказательство:</p>`;
+      choicesContainer.innerHTML = `<button class="choice-btn" data-choice="1">📘 Вариант 1<br><span style="font-size: 0.85rem; font-weight: normal;">${ctask.variant1.substring(0, 200)}${ctask.variant1.length > 200 ? '...' : ''}</span></button><button class="choice-btn" data-choice="2">📙 Вариант 2<br><span style="font-size: 0.85rem; font-weight: normal;">${ctask.variant2.substring(0, 200)}${ctask.variant2.length > 200 ? '...' : ''}</span></button>`;
+      drawingArea.innerHTML = ctask.svg; choiceGroup.style.display = 'flex'; document.getElementById('number-group').style.display = 'none';
+      document.querySelectorAll('.choice-btn').forEach(btn => { btn.onclick = function() { document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected')); this.classList.add('selected'); selectedChoice = parseInt(this.dataset.choice); }; });
+      hideMenus(); return;
+    }
   }
-
-  let tasksArr = getTaskList(num, appState.currentSub);
+  if (appState.currentNum === 19) {
+    let stask = getStatementTask(appState.currentSub);
+    if(stask) {
+      appState.currentParams = { type: "statements", correct: stask.correct, solRight: stask.explanation, solWrong: stask.explanation, statements: stask.statements, isWrong: stask.isWrong };
+      lblType.textContent = TASKS_DB[19].title; lblSub.textContent = TASKS_DB[19].subTopics[appState.currentSub]?.name || '';
+      let html = stask.isWrong ? '<p><strong>Выберите НЕВЕРНЫЕ утверждения:</strong></p>' : '<p><strong>Выберите верные утверждения:</strong></p>';
+      html += '<div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">';
+      stask.statements.forEach((stmt, i) => { html += `<button class="choice-btn statement-choice" data-idx="${i+1}"><span class="statement-num">${i+1})</span> ${stmt}</button>`; });
+      html += '</div>'; qText.innerHTML = html; choiceGroup.style.display = 'flex'; document.getElementById('number-group').style.display = 'none';
+      drawingArea.innerHTML = '<div style="font-size:4rem;text-align:center;margin:20px;">🎲</div>';
+      setTimeout(() => { document.querySelectorAll('.statement-choice').forEach(btn => { btn.onclick = function() { this.classList.toggle('selected'); }; }); }, 0);
+      hideMenus(); return;
+    }
+  }
+  let tasksArr = getTaskList(appState.currentNum, appState.currentSub);
   if(!tasksArr.length) { alert('Задания в разработке 🛠️'); return; }
-  let idx = (num === 23) ? getTaskIndex(num, 0) : getTaskIndex(num, appState.currentSub);
+  let idx = (appState.currentNum === 23) ? getTaskIndex(appState.currentNum, 0) : getTaskIndex(appState.currentNum, appState.currentSub);
   let variant = tasksArr[idx];
   let params = variant.gen ? variant.gen() : variant;
   appState.currentParams = { type: "number", ans: variant.ans(params), solRight: variant.solRight(params), solWrong: variant.solWrong(params) };
   let svgContent = variant.svg ? variant.svg(params) : '<div style="font-size:4rem;text-align:center;margin:20px;">🎲</div>';
   drawingArea.innerHTML = svgContent; qText.textContent = variant.txt(params);
-  lblType.textContent = TASKS_DB[num].title;
-  lblSub.textContent = (TASKS_DB[num].subTopics && TASKS_DB[num].subTopics[appState.currentSub]) ? TASKS_DB[num].subTopics[appState.currentSub].name : '';
+  lblType.textContent = TASKS_DB[appState.currentNum].title;
+  lblSub.textContent = (TASKS_DB[appState.currentNum].subTopics && TASKS_DB[appState.currentNum].subTopics[appState.currentSub]) ? TASKS_DB[appState.currentNum].subTopics[appState.currentSub].name : '';
   choiceGroup.style.display = 'none'; document.getElementById('number-group').style.display = 'flex';
   hideMenus();
 }
@@ -893,30 +1139,90 @@ function checkAnswerHandler() {
     msgFb.className = 'feedback fb-ok'; msgFb.innerText = '✅ Верно! Отлично!'; msgFb.style.display = 'block';
     solDiv.className = 'solution correct-style'; solDiv.innerText = target.solRight; solDiv.style.display = 'block';
     drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji"></div><div class="reaction-text">${SUCCESS_MSGS[Math.floor(Math.random()*SUCCESS_MSGS.length)]}</div></div>`;
-    if(appState.mode === 'exam' && !appState.solvedExam.includes(appState.currentNum)) {
-      appState.solvedExam.push(appState.currentNum); updateExamUI();
-      if(appState.solvedExam.length >= 2) { winMsgDiv.style.display = 'inline-flex'; finishBtn.style.display = 'block'; msgFb.innerText += ' 🎓 ЭКЗАМЕН СДАН!'; }
+    if(examActive) {
+      examScores[examIndex] = 1;
+      let totalScore = examScores.reduce((a,b)=>a+b,0);
+      document.getElementById('score-val').innerText = `${totalScore} / 8`;
+      if(examTimeout) clearTimeout(examTimeout);
+      if(examIndex + 1 < EXAM_ORDER.length) {
+        examTimeout = setTimeout(() => {
+          examIndex++;
+          generateTask();
+        }, 1500);
+      } else {
+        examTimeout = setTimeout(() => {
+          let finalScore = examScores.reduce((a,b)=>a+b,0);
+          showExamResult(finalScore);
+        }, 1500);
+      }
+    } else {
+      // тренировка: ничего не делаем, кнопка "След."
     }
   } else {
     msgFb.className = 'feedback fb-no'; msgFb.innerText = '❌ Неверно. Посмотри решение.'; msgFb.style.display = 'block';
     solDiv.className = 'solution'; solDiv.innerText = target.solWrong; solDiv.style.display = 'block';
     drawingArea.innerHTML = `<div class="reaction-box"><div class="reaction-emoji"></div><div class="reaction-text" style="color:#c52828">${FAIL_MSGS[Math.floor(Math.random()*FAIL_MSGS.length)]}</div></div>`;
+    if(examActive) {
+      examScores[examIndex] = 0;
+      let totalScore = examScores.reduce((a,b)=>a+b,0);
+      document.getElementById('score-val').innerText = `${totalScore} / 8`;
+      if(examTimeout) clearTimeout(examTimeout);
+      if(examIndex + 1 < EXAM_ORDER.length) {
+        examTimeout = setTimeout(() => {
+          examIndex++;
+          generateTask();
+        }, 1500);
+      } else {
+        examTimeout = setTimeout(() => {
+          let finalScore = examScores.reduce((a,b)=>a+b,0);
+          showExamResult(finalScore);
+        }, 1500);
+      }
+    }
   }
   document.querySelectorAll('.statement-choice').forEach(b => b.disabled = true);
   inpAns.disabled = true; btnCheck.disabled = true;
 }
 
-function updateExamUI() {
-  scoreSpan.innerText = `${appState.solvedExam.length} / 2`;
-  document.querySelectorAll('.num-btn').forEach(btn => {
-    let n = parseInt(btn.dataset.num);
-    if(appState.solvedExam.includes(n)) btn.classList.add('solved'); else btn.classList.remove('solved');
-  });
-  winMsgDiv.style.display = appState.solvedExam.length >= 2 ? 'inline-flex' : 'none';
+function showExamResult(score) {
+  examActive = false;
+  if(examTimeout) clearTimeout(examTimeout);
+  let div = document.createElement('div');
+  div.className = 'result-overlay';
+  div.innerHTML = `<div class="result-box"><h2>📋 ЭКЗАМЕН ЗАВЕРШЁН</h2><div class="result-score">${score} / 8</div><button id="closeResultBtn" style="background:var(--gold);border:none;padding:12px 32px;border-radius:40px;font-weight:bold;cursor:pointer;">✖ ЗАКРЫТЬ</button></div>`;
+  document.body.appendChild(div);
+  document.getElementById('closeResultBtn').onclick = () => {
+    div.remove();
+    closeTask();
+    switchMode('train');
+  };
 }
-function resetExam() { appState.solvedExam = []; updateExamUI(); }
-function finishExam() { alert('🎉 ПОЗДРАВЛЯЮ! Экзамен сдан! 🎉'); resetExam(); closeTask(); switchMode('train'); }
+
+function updateExamUI() {
+  if(examActive) {
+    let totalScore = examScores.reduce((a,b)=>a+b,0);
+    document.getElementById('score-val').innerText = `${totalScore} / 8`;
+  } else {
+    let solvedCount = appState.solvedExam.length;
+    document.getElementById('score-val').innerText = `${solvedCount} / 2`;
+    winMsgDiv.style.display = solvedCount >= 2 ? 'inline-flex' : 'none';
+  }
+}
+
+function resetExam() { 
+  appState.solvedExam = []; 
+  updateExamUI(); 
+}
+
+function finishExam() { 
+  alert('🎉 ПОЗДРАВЛЯЮ! Экзамен сдан! 🎉'); 
+  resetExam(); 
+  closeTask(); 
+  switchMode('train'); 
+}
+
 function closeTask() {
+  if(examTimeout) clearTimeout(examTimeout);
   taskScreen.classList.remove('active'); menuScreen.classList.add('active');
   appState.currentParams = null; selectedChoice = null;
   appHeader.classList.remove('hidden'); appTabs.classList.remove('hidden');
@@ -926,14 +1232,35 @@ function closeTask() {
   else if(appState.currentNum === 18) subMenu18.classList.add('active');
   else if(appState.currentNum === 19) subMenu19.classList.add('active');
 }
+
 function switchMode(mode) {
-  appState.mode = mode;
-  document.getElementById('tab-train').classList.toggle('active', mode==='train');
-  document.getElementById('tab-exam').classList.toggle('active', mode==='exam');
-  examDash.style.display = mode === 'exam' ? 'flex' : 'none';
-  finishBtn.style.display = mode === 'exam' ? 'block' : 'none';
-  if(mode === 'exam') resetExam(); closeTask();
+  if(mode === 'exam') {
+    examActive = true;
+    examIndex = 0;
+    examScores = [0,0,0,0,0,0,0,0];
+    appState.mode = 'exam';
+    btnBack.style.display = 'none';
+    document.getElementById('exam-info').style.display = 'flex';
+    document.getElementById('score-val').innerText = '0 / 8';
+    winMsgDiv.style.display = 'none';
+    finishBtn.style.display = 'none';
+    generateTask();
+    document.getElementById('menu-screen').classList.remove('active');
+    document.getElementById('task-screen').classList.add('active');
+    document.getElementById('app-header').classList.add('hidden');
+    document.getElementById('app-tabs').classList.add('hidden');
+    document.getElementById('tab-train').classList.remove('active');
+    document.getElementById('tab-exam').classList.add('active');
+  } else {
+    examActive = false;
+    btnBack.style.display = 'flex';
+    appState.mode = 'train';
+    closeTask();
+    document.getElementById('tab-train').classList.add('active');
+    document.getElementById('tab-exam').classList.remove('active');
+  }
 }
+
 function selectNumber(num) {
   appState.currentNum = num;
   document.querySelectorAll('.num-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.num) === num));
@@ -945,6 +1272,7 @@ function selectNumber(num) {
   else if(num === 19) { subMenu19.classList.add('active'); appState.currentSub = 0; }
   else { appState.currentSub = 0; }
 }
+
 function setSub(idx) {
   appState.currentSub = idx;
   let btns;
@@ -983,20 +1311,6 @@ zoomOverlay.addEventListener('touchend', (e) => { if(e.touches.length < 2) initi
 zoomOverlay.addEventListener('dblclick', () => { currentScale = 1; currentX = 0; currentY = 0; const svg = zoomContent.querySelector('svg'); if(svg) updateTransform(svg); });
 
 selectNumber(15);
-
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('copy', e => e.preventDefault());
-document.addEventListener('cut', e => e.preventDefault());
-document.addEventListener('paste', e => e.preventDefault());
-document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && ['c','C','v','V','x','X','u','U','s','S','p','P'].includes(e.key)) { e.preventDefault(); return false; }
-  if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','i','J','j'].includes(e.key))) { e.preventDefault(); return false; }
-  if (e.ctrlKey && e.key === 'a' && !['INPUT','TEXTAREA'].includes(e.target.tagName)) { e.preventDefault(); return false; }
-});
-window.onbeforeunload = function() { return 'Вы уверены, что хотите покинуть страницу?'; };
-document.write = function() {}; document.writeln = function() {};
 </script>
 </body>
 </html>
