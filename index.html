@@ -165,6 +165,57 @@ footer { font-size: 0.65rem; text-align: center; padding: 8px; color: #8ba0bc; f
 .choice-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 .choice-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .statement-num { display: inline-block; width: 24px; font-weight: bold; color: var(--primary); }
+
+/* Полноэкранный результат */
+.fullscreen-result {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0b5e42;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 2000;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+.fullscreen-result.good {
+  background: linear-gradient(145deg, #0b5e42, #059669);
+}
+.fullscreen-result.bad {
+  background: linear-gradient(145deg, #5c3b1f, #7c5e3a);
+}
+.result-score-big {
+  font-size: 4.5rem;
+  font-weight: 900;
+  margin: 20px 0;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.result-message {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+.result-emoji {
+  font-size: 7rem;
+  margin: 30px 0;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes confetti {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+@keyframes poopFall {
+  0% { transform: translateY(-100px) rotate(0deg); }
+  100% { transform: translateY(100vh) rotate(360deg); }
+}
 </style>
 </head>
 <body>
@@ -1014,13 +1065,55 @@ function getChoiceTask() {
   };
 }
 
+function showFullscreenResult(score) {
+  let div = document.createElement('div');
+  div.className = 'fullscreen-result ' + (score >= 2 ? 'good' : 'bad');
+  let emoji = '';
+  let message = '';
+  let extraHtml = '';
+  if (score === 8) {
+    message = 'МЕГАМОЗГ!';
+    emoji = '🧠✨🏆';
+    extraHtml = '<div style="font-size:2rem; margin-top:20px;">🧠✨🏆</div>';
+  } else if (score >= 6) {
+    message = 'УЛЬТРА МОЛОДЕЦ';
+    emoji = '🚀🌟💪';
+    extraHtml = '<div style="font-size:2rem; margin-top:20px;">🚀🌟🌟🌟</div>';
+  } else if (score >= 4) {
+    message = 'СУПЕРМОЛОДЕЦ';
+    emoji = '⭐🏅👍';
+    extraHtml = '<div style="font-size:2rem; margin-top:20px;">⭐🏅👍</div>';
+  } else if (score >= 2) {
+    message = 'НУ МОЛОДЕЦ';
+    emoji = '👌✅🙂';
+    extraHtml = '<div style="font-size:2rem; margin-top:20px;">👌✅🙂</div>';
+  } else {
+    message = 'КАКАШКИ...';
+    emoji = '💩💩💩';
+    extraHtml = '<div style="font-size:2rem; margin-top:20px;">💩🤢💩</div>';
+  }
+  div.innerHTML = `
+    <div style="text-align:center; padding:20px;">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-message">${message}</div>
+      <div class="result-score-big">${score} / 8</div>
+      ${extraHtml}
+      <button id="closeFullscreenResult" style="background:white; border:none; border-radius:60px; padding:14px 32px; margin-top:32px; font-weight:bold; font-size:1.2rem; cursor:pointer;">✖ ЗАКРЫТЬ</button>
+    </div>
+  `;
+  document.body.appendChild(div);
+  document.getElementById('closeFullscreenResult').onclick = () => {
+    div.remove();
+    switchMode('train');
+  };
+}
+
 function generateTask() {
   let num = appState.currentNum;
   selectedChoice = null;
   inpAns.value = ''; msgFb.style.display = 'none'; solDiv.style.display = 'none';
   btnCheck.style.display = 'flex'; btnContinue.style.display = 'none';
   inpAns.disabled = false; btnCheck.disabled = false; lblNum.textContent = `№${num}`;
-  // Если экзамен активен — генерируем для экзамена
   if(examActive) {
     let currentExamNum = EXAM_ORDER[examIndex];
     if(currentExamNum === 19) {
@@ -1058,14 +1151,12 @@ function generateTask() {
         hideMenus(); return;
       }
     }
-    // fallback
     appState.currentParams = { type: "number", ans: 1, solRight: "✅ Верно!", solWrong: "❌ Неверно." };
     drawingArea.innerHTML = '<div style="font-size:4rem;text-align:center;">📐</div>'; qText.textContent = `Задача ${currentExamNum}`;
     lblType.textContent = `Экзамен`; lblSub.textContent = '';
     choiceGroup.style.display = 'none'; document.getElementById('number-group').style.display = 'flex';
     hideMenus(); return;
   }
-  // Обычная тренировка (не экзамен)
   if (appState.currentNum === 24) {
     let ctask = getChoiceTask();
     if(ctask) {
@@ -1152,11 +1243,10 @@ function checkAnswerHandler() {
       } else {
         examTimeout = setTimeout(() => {
           let finalScore = examScores.reduce((a,b)=>a+b,0);
-          showExamResult(finalScore);
+          showFullscreenResult(finalScore);
+          examActive = false;
         }, 1500);
       }
-    } else {
-      // тренировка: ничего не делаем, кнопка "След."
     }
   } else {
     msgFb.className = 'feedback fb-no'; msgFb.innerText = '❌ Неверно. Посмотри решение.'; msgFb.style.display = 'block';
@@ -1175,50 +1265,14 @@ function checkAnswerHandler() {
       } else {
         examTimeout = setTimeout(() => {
           let finalScore = examScores.reduce((a,b)=>a+b,0);
-          showExamResult(finalScore);
+          showFullscreenResult(finalScore);
+          examActive = false;
         }, 1500);
       }
     }
   }
   document.querySelectorAll('.statement-choice').forEach(b => b.disabled = true);
   inpAns.disabled = true; btnCheck.disabled = true;
-}
-
-function showExamResult(score) {
-  examActive = false;
-  if(examTimeout) clearTimeout(examTimeout);
-  let div = document.createElement('div');
-  div.className = 'result-overlay';
-  div.innerHTML = `<div class="result-box"><h2>📋 ЭКЗАМЕН ЗАВЕРШЁН</h2><div class="result-score">${score} / 8</div><button id="closeResultBtn" style="background:var(--gold);border:none;padding:12px 32px;border-radius:40px;font-weight:bold;cursor:pointer;">✖ ЗАКРЫТЬ</button></div>`;
-  document.body.appendChild(div);
-  document.getElementById('closeResultBtn').onclick = () => {
-    div.remove();
-    closeTask();
-    switchMode('train');
-  };
-}
-
-function updateExamUI() {
-  if(examActive) {
-    let totalScore = examScores.reduce((a,b)=>a+b,0);
-    document.getElementById('score-val').innerText = `${totalScore} / 8`;
-  } else {
-    let solvedCount = appState.solvedExam.length;
-    document.getElementById('score-val').innerText = `${solvedCount} / 2`;
-    winMsgDiv.style.display = solvedCount >= 2 ? 'inline-flex' : 'none';
-  }
-}
-
-function resetExam() { 
-  appState.solvedExam = []; 
-  updateExamUI(); 
-}
-
-function finishExam() { 
-  alert('🎉 ПОЗДРАВЛЯЮ! Экзамен сдан! 🎉'); 
-  resetExam(); 
-  closeTask(); 
-  switchMode('train'); 
 }
 
 function closeTask() {
@@ -1290,7 +1344,7 @@ document.getElementById('btn-generate').onclick = generateTask;
 document.getElementById('btn-check').onclick = checkAnswerHandler;
 document.getElementById('btn-back').onclick = closeTask;
 document.getElementById('btn-continue').onclick = () => { generateTask(); };
-document.getElementById('btn-finish').onclick = finishExam;
+document.getElementById('btn-finish').onclick = () => { switchMode('train'); };
 document.querySelectorAll('.num-btn').forEach(btn => btn.onclick = () => selectNumber(parseInt(btn.dataset.num)));
 document.querySelectorAll('#sub-menu-15 .sub-btn').forEach((b,i) => b.onclick = () => setSub(i));
 document.querySelectorAll('#sub-menu-16 .sub-btn').forEach((b,i) => b.onclick = () => setSub(i));
