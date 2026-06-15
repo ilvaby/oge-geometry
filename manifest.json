@@ -1,7 +1,8 @@
 {
   "name": "ОГЭ Геометрия: Тренажёр + Экзамен",
   "short_name": "ОГЭ Геометрия",
-  "description": "Тренажёр для подготовки к ОГЭ по геометрии. 200+ задач с решениями.",
+  "id": "oge-geometry-trainer",
+  "description": "Тренажёр для подготовки к ОГЭ по геометрии. 200+ задач с решениями и подробными объяснениями.",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#1e4b8f",
@@ -21,15 +22,18 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
-  "categories": ["education", "productivity"]
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
